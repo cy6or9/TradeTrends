@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "990950180616",
+    "project_id": "tradetrends-89a9d",
+    "storage_bucket": "tradetrends-89a9d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990950180616:android:5d57e6a5f80af059a78ebd",
+        "android_client_info": {
+          "package_name": "com.cy6or9.tradetrends"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT_P00ix7o_m1wq1-mr3VdGovo6b6i4yY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
