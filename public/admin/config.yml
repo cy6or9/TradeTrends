@@ -1,3 +1,9 @@
+# Decap CMS Configuration
+# Works with:
+# - Production: https://tradetrend.netlify.app/admin
+# - Local Dev: http://localhost:8888/admin (via Netlify Dev)
+# - Git Gateway must be enabled in Netlify for both environments
+
 backend:
   name: git-gateway
   branch: main
