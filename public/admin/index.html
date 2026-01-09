@@ -8,12 +8,23 @@
   <meta name="theme-color" content="#0b0f14" />
   <link rel="stylesheet" href="/css/styles.css" />
   <style>
-    /* Decap CMS renders inside #nc-root; keep it dark */
-    body { background: #0b0f14; }
+    /* ═══════════════════════════════════════════════════════════
+       DARK THEME FOR DECAP CMS - MATCHES TRADETRENDS THEME
+       ═══════════════════════════════════════════════════════════ */
+    
+    /* Base dark theme */
+    body { 
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(21,197,255,.18), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(0,224,184,.12), transparent 55%),
+                  #0b0f14 !important;
+      color: #e6edf6 !important;
+    }
+    
     .adminShell { padding: 18px 0; }
     .adminShell .notice { margin-top: 14px; }
-    .hint { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .hint { color: #a8b3c7; font-size: 13px; line-height: 1.6; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    
     #accessDenied {
       display: none;
       background: rgba(255, 68, 68, 0.1);
@@ -28,30 +39,174 @@
       font-size: 24px;
       color: #ff6b6b;
     }
+    
     #cmsContainer {
       display: block;
+      background: linear-gradient(180deg, rgba(16,24,38,.85), rgba(15,23,36,.75));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.35);
+      overflow: hidden;
     }
     
-    /* Fix CMS UI overlap - ensure content is visible below top bars */
+    /* CMS Root Container - Dark Theme Override */
     #nc-root {
-      /* Account for site header (~60px) + CMS top bar (~60px) */
       min-height: calc(100vh - 200px);
+      background: transparent !important;
     }
     
-    /* Adjust CMS internal layout to prevent header overlap */
-    #nc-root > div {
-      padding-top: 0;
+    /* Override CMS default white backgrounds */
+    #nc-root * {
+      scrollbar-color: rgba(21,197,255,.3) rgba(255,255,255,.05);
     }
     
-    /* Ensure scrollable area is properly positioned */
-    [class*="SidebarContainer"] {
-      padding-top: 60px;
+    /* Main CMS containers */
+    #nc-root > div,
+    #nc-root [class*="App"],
+    #nc-root [class*="MainContainer"],
+    #nc-root [class*="SidebarContainer"],
+    #nc-root [class*="CollectionContainer"] {
+      background: transparent !important;
+    }
+    
+    /* Top navigation bar */
+    #nc-root nav[class*="TopBar"],
+    #nc-root header[class*="TopBar"],
+    #nc-root [class*="AppHeader"] {
+      position: relative !important;
+      top: auto !important;
+      background: rgba(16,24,38,.9) !important;
+      border-bottom: 1px solid rgba(255,255,255,.08) !important;
+    }
+    
+    /* Sidebar and lists */
+    #nc-root [class*="Sidebar"],
+    #nc-root [class*="ListContainer"],
+    #nc-root aside {
+      background: rgba(15,23,36,.6) !important;
+      color: #e6edf6 !important;
+    }
+    
+    /* Cards and panels */
+    #nc-root [class*="Card"],
+    #nc-root [class*="Panel"],
+    #nc-root [class*="Entry"],
+    #nc-root [class*="Item"] {
+      background: rgba(16,24,38,.7) !important;
+      border-color: rgba(255,255,255,.08) !important;
+      color: #e6edf6 !important;
+    }
+    
+    /* Form fields */
+    #nc-root input,
+    #nc-root textarea,
+    #nc-root select {
+      background: rgba(16,24,38,.8) !important;
+      border: 1px solid rgba(255,255,255,.08) !important;
+      color: #e6edf6 !important;
+    }
+    
+    #nc-root input:focus,
+    #nc-root textarea:focus,
+    #nc-root select:focus {
+      border-color: rgba(21,197,255,.35) !important;
+      outline: none !important;
+    }
+    
+    /* Buttons */
+    #nc-root button {
+      background: linear-gradient(180deg, rgba(21,197,255,.16), rgba(21,197,255,.06)) !important;
+      border: 1px solid rgba(21,197,255,.35) !important;
+      color: #e6edf6 !important;
+    }
+    
+    #nc-root button:hover {
+      background: linear-gradient(180deg, rgba(21,197,255,.24), rgba(21,197,255,.12)) !important;
+      border-color: rgba(21,197,255,.45) !important;
+    }
+    
+    /* Primary/action buttons */
+    #nc-root button[class*="primary"],
+    #nc-root button[class*="Primary"],
+    #nc-root button[class*="action"] {
+      background: linear-gradient(180deg, rgba(21,197,255,.3), rgba(21,197,255,.15)) !important;
+      border-color: #15c5ff !important;
+    }
+    
+    /* Text colors */
+    #nc-root span,
+    #nc-root label,
+    #nc-root p,
+    #nc-root h1,
+    #nc-root h2,
+    #nc-root h3,
+    #nc-root h4,
+    #nc-root h5,
+    #nc-root h6 {
+      color: #e6edf6 !important;
+    }
+    
+    /* Muted text */
+    #nc-root [class*="hint"],
+    #nc-root [class*="help"],
+    #nc-root [class*="description"],
+    #nc-root small {
+      color: #a8b3c7 !important;
+    }
+    
+    /* Links */
+    #nc-root a {
+      color: #15c5ff !important;
+    }
+    
+    #nc-root a:hover {
+      color: #00e0b8 !important;
+    }
+    
+    /* Editor area */
+    #nc-root [class*="Editor"],
+    #nc-root [class*="ControlPane"],
+    #nc-root [class*="PreviewPane"] {
+      background: rgba(11,15,20,.8) !important;
+      color: #e6edf6 !important;
+    }
+    
+    /* Remove fixed positioning from CMS navigation */
+    #nc-root [class*="AppMainContainer"] {
+      padding-top: 0 !important;
+    }
+    
+    #nc-root [class*="SidebarContainer"],
+    #nc-root [class*="CollectionContainer"] {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+    }
+    
+    #nc-root [class*="ListContainer"],
+    #nc-root [class*="EntryListing"] {
+      margin-top: 0 !important;
+    }
+    
+    /* Image preview */
+    #nc-root [class*="ImagePreview"],
+    #nc-root img {
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+    }
+    
+    /* Dropdown menus */
+    #nc-root [class*="dropdown"],
+    #nc-root [class*="menu"],
+    #nc-root [class*="Menu"] {
+      background: rgba(16,24,38,.95) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      box-shadow: 0 12px 28px rgba(0,0,0,.5) !important;
     }
     
     /* Mobile adjustments */
     @media (max-width: 768px) {
-      [class*="SidebarContainer"] {
-        padding-top: 80px;
+      #nc-root {
+        min-height: calc(100vh - 150px);
       }
     }
   </style>
@@ -111,8 +266,11 @@
 
   <script>
     // ═══════════════════════════════════════════════════════════
-    // URL-FIRST AUTO-FILL SYSTEM FOR DECAP CMS
+    // SMART URL-FIRST AUTO-FILL SYSTEM FOR DECAP CMS
     // ═══════════════════════════════════════════════════════════
+    
+    // Track fields that have been manually edited (never overwrite these)
+    const touchedFields = new WeakMap();
     
     // ─── UTILITY FUNCTIONS ───
     
@@ -127,6 +285,10 @@
         .substring(0, 60);
     }
     
+    function generateIdFromAsin(asin) {
+      return `amz-${asin.toLowerCase()}`;
+    }
+    
     function generateIdFromUrl(url) {
       try {
         const urlObj = new URL(url);
@@ -138,162 +300,116 @@
       }
     }
     
-    // ─── NETWORK DETECTION ───
+    // ─── CATEGORY INFERENCE (CONSERVATIVE) ───
     
-    function detectNetwork(url) {
-      try {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname.toLowerCase();
-        
-        if (hostname.includes('amazon.')) return 'amazon';
-        if (hostname.includes('booking.') || hostname.includes('expedia.') || 
-            hostname.includes('hotels.') || hostname.includes('airbnb.')) return 'travel';
-        
-        return 'other';
-      } catch {
-        return 'other';
-      }
-    }
-    
-    // ─── CATEGORY INFERENCE ───
-    
-    function inferCategory(url, network) {
-      try {
-        const urlObj = new URL(url);
-        const fullUrl = urlObj.href.toLowerCase();
-        
-        if (network === 'amazon') {
-          // Amazon category inference from URL keywords
-          if (fullUrl.includes('electronic') || fullUrl.includes('power') || fullUrl.includes('charging')) return 'Electronics';
-          if (fullUrl.includes('kitchen') || fullUrl.includes('cooking')) return 'Kitchen';
-          if (fullUrl.includes('home') || fullUrl.includes('decor')) return 'Home';
-          if (fullUrl.includes('outdoor') || fullUrl.includes('camping') || fullUrl.includes('hiking')) return 'Outdoors';
-          if (fullUrl.includes('beauty') || fullUrl.includes('skin')) return 'Beauty';
-          if (fullUrl.includes('toy') || fullUrl.includes('game')) return 'Toys';
-          if (fullUrl.includes('book')) return 'Books';
-          if (fullUrl.includes('cloth') || fullUrl.includes('fashion')) return 'Fashion';
-          if (fullUrl.includes('pet')) return 'Pets';
-          if (fullUrl.includes('health') || fullUrl.includes('fitness')) return 'Health';
-          return 'General';
-        } else if (network === 'travel') {
-          // Travel category inference
-          const hostname = urlObj.hostname.toLowerCase();
-          if (hostname.includes('booking') || hostname.includes('hotel')) return 'Hotels';
-          if (hostname.includes('expedia')) return 'Travel Packages';
-          if (hostname.includes('airbnb')) return 'Vacation Rentals';
-          if (hostname.includes('flight') || hostname.includes('airline')) return 'Flights';
-          return 'Travel';
-        }
-        
-        return '';
-      } catch {
-        return '';
-      }
-    }
-    
-    // ─── TITLE GENERATION ───
-    
-    function generateTitle(url, network) {
-      try {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname.replace('www.', '');
-        const brandName = hostname.split('.')[0];
-        
-        if (network === 'amazon') {
-          // Try to extract product name from Amazon URL path
-          const pathParts = urlObj.pathname.split('/');
-          const productPart = pathParts.find(part => part.length > 10 && part.includes('-'));
-          
-          if (productPart) {
-            // Convert URL slug to readable title
-            const title = productPart
-              .split('-')
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ')
-              .substring(0, 50);
-            return title;
-          }
-          
-          return 'Amazon Product Deal';
-        } else if (network === 'travel') {
-          // Capitalize brand name
-          const brand = brandName.charAt(0).toUpperCase() + brandName.slice(1);
-          return `${brand} Travel Deals`;
-        } else {
-          const brand = brandName.charAt(0).toUpperCase() + brandName.slice(1);
-          return `${brand} Deal`;
-        }
-      } catch {
-        return 'Special Offer';
-      }
-    }
-    
-    // ─── BRAND DETECTION (for Travel) ───
-    
-    function detectBrand(url) {
-      try {
-        const urlObj = new URL(url);
-        const hostname = urlObj.hostname.replace('www.', '');
-        const brandName = hostname.split('.')[0];
-        return brandName.charAt(0).toUpperCase() + brandName.slice(1);
-      } catch {
-        return 'Partner';
-      }
-    }
-    
-    // ─── TAGLINE GENERATION ───
-    
-    function generateTagline(network) {
-      const amazonTaglines = [
-        'Popular pick for everyday use.',
-        'Highly rated by customers.',
-        'Quality product at a great value.',
-        'Customer favorite with positive reviews.'
-      ];
-      
-      const travelTaglines = [
-        'Compare options and find current deals.',
-        'Exclusive offers for your next adventure.',
-        'Book with confidence and save.',
-        'Popular destination with verified reviews.'
-      ];
-      
+    function inferCategory(keywords, network) {
       if (network === 'amazon') {
-        return amazonTaglines[Math.floor(Math.random() * amazonTaglines.length)];
+        // Only infer if we have strong keyword matches
+        const keywordStr = keywords.join(' ').toLowerCase();
+        
+        if (keywordStr.match(/electronic|power|charging|battery|usb|tech/)) return 'Electronics';
+        if (keywordStr.match(/kitchen|cooking|cook|food|recipe/)) return 'Kitchen';
+        if (keywordStr.match(/home|decor|furniture|living/)) return 'Home';
+        if (keywordStr.match(/outdoor|camping|hiking|tent|backpack/)) return 'Outdoors';
+        if (keywordStr.match(/beauty|skin|makeup|cosmetic/)) return 'Beauty';
+        if (keywordStr.match(/toy|game|play/)) return 'Toys';
+        if (keywordStr.match(/book|read/)) return 'Books';
+        if (keywordStr.match(/cloth|fashion|apparel|wear/)) return 'Fashion';
+        if (keywordStr.match(/pet|dog|cat/)) return 'Pets';
+        if (keywordStr.match(/health|fitness|workout|exercise/)) return 'Health';
+        
+        // Low confidence - return empty
+        return '';
       } else if (network === 'travel') {
-        return travelTaglines[Math.floor(Math.random() * travelTaglines.length)];
+        return 'Hotels'; // Default for travel
       }
       
-      return 'Special offer available now.';
+      return '';
     }
     
-    // ─── PRICE HINT GENERATION (Amazon-safe) ───
+    // ─── RESOLVE URL VIA NETLIFY FUNCTION ───
     
-    function generatePriceHint() {
-      const hints = [
-        'Under $50',
-        'Budget-friendly',
-        'Mid-range value',
-        'Premium quality',
-        'Great value',
-        'Affordable option'
-      ];
-      return hints[Math.floor(Math.random() * hints.length)];
+    async function resolveUrl(url) {
+      try {
+        const encodedUrl = encodeURIComponent(url);
+        const response = await fetch(`/.netlify/functions/resolve?url=${encodedUrl}`);
+        
+        if (!response.ok) {
+          throw new Error('Resolution failed');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.ok) {
+          throw new Error(data.error || 'Unknown error');
+        }
+        
+        return data;
+      } catch (error) {
+        console.warn('URL resolution failed, using direct parsing:', error);
+        // Fallback to direct parsing
+        return fallbackResolve(url);
+      }
     }
     
-    // ─── AUTO-FILL ORCHESTRATOR ───
+    function fallbackResolve(url) {
+      try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '').toLowerCase();
+        
+        let network = 'other';
+        if (hostname.includes('amazon.')) network = 'amazon';
+        else if (hostname.includes('booking.') || hostname.includes('expedia.') || 
+                 hostname.includes('hotels.') || hostname.includes('airbnb.')) network = 'travel';
+        
+        return {
+          ok: true,
+          finalUrl: url,
+          hostname,
+          network,
+          asin: null,
+          keywords: []
+        };
+      } catch {
+        return { ok: false, error: 'Invalid URL' };
+      }
+    }
     
-    function autoFillFromUrl(form, url) {
+    // ─── SMART AUTO-FILL WITH CONFIDENCE SYSTEM ───
+    
+    async function autoFillFromUrl(form, url) {
       if (!url || !form) return;
       
-      console.log('🎯 Auto-filling fields from URL:', url);
+      console.log('🎯 Resolving and analyzing URL:', url);
       
-      const network = detectNetwork(url);
-      const isAmazon = network === 'amazon';
-      const isTravel = network === 'travel';
+      // Show loading indicator
+      showAutofillStatus(form, '⏳ Resolving URL...');
       
-      // Find all input fields in the form
+      // Resolve URL via Netlify Function
+      const resolved = await resolveUrl(url);
+      
+      if (!resolved.ok) {
+        showAutofillStatus(form, `❌ Could not resolve URL: ${resolved.error}`);
+        return;
+      }
+      
+      const { finalUrl, hostname, network, asin, keywords } = resolved;
+      
+      console.log('✓ Resolved:', { finalUrl, hostname, network, asin, keywords });
+      
+      // Build status message
+      let statusMsg = `Detected: ${network}`;
+      if (asin) statusMsg += ` | ASIN: ${asin}`;
+      if (finalUrl !== url) statusMsg += ` | Final URL: ${hostname}`;
+      
+      showAutofillStatus(form, statusMsg);
+      
+      // Find all input fields
       const inputs = Array.from(form.querySelectorAll('input[type="text"], select'));
+      
+      // Track what we filled
+      let filledCount = 0;
+      const suggestions = [];
       
       inputs.forEach(input => {
         const label = input.closest('div')?.querySelector('label');
@@ -302,59 +418,144 @@
         const labelText = label.textContent.trim();
         const currentValue = input.value?.trim();
         
-        // Only auto-fill if field is empty (respect manual edits)
+        // Check if field was manually touched
+        if (touchedFields.get(input)) {
+          console.log(`  ⏭️ Skipping ${labelText} (manually edited)`);
+          return;
+        }
+        
+        // Only auto-fill if field is empty
         if (currentValue) return;
         
         let newValue = '';
+        let confidence = 0; // 0-10 scale
         
-        // Auto-fill based on field type
-        if (labelText.includes('ID')) {
-          const title = findFieldValue(form, 'Title');
-          newValue = title ? generateId(title) : generateIdFromUrl(url);
+        // ─── TRUSTED FIELDS (always fill) ───
+        
+        if (labelText.includes('Network')) {
+          newValue = network;
+          confidence = 10;
         }
-        else if (labelText.includes('Title') && !labelText.includes('Item')) {
-          newValue = generateTitle(url, network);
-        }
-        else if (labelText.includes('Brand')) {
-          newValue = detectBrand(url);
-        }
-        else if (labelText.includes('Tagline')) {
-          newValue = generateTagline(network);
-        }
-        else if (labelText.includes('Price hint')) {
-          if (isAmazon) {
-            newValue = generatePriceHint();
+        else if (labelText.includes('ID')) {
+          if (asin && network === 'amazon') {
+            newValue = generateIdFromAsin(asin);
+            confidence = 10;
+          } else {
+            newValue = generateIdFromUrl(finalUrl);
+            confidence = 8;
           }
         }
+        
+        // ─── SUGGESTED FIELDS (only fill if confidence >= 7) ───
+        
         else if (labelText.includes('Category')) {
-          newValue = inferCategory(url, network);
+          const category = inferCategory(keywords, network);
+          if (category) {
+            newValue = category;
+            confidence = keywords.length >= 3 ? 7 : 5;
+          } else {
+            suggestions.push(`Category: Please fill manually based on product`);
+          }
         }
-        else if (labelText.includes('Network')) {
-          newValue = network;
+        else if (labelText.includes('Brand') && network === 'travel') {
+          const brand = hostname.split('.')[0];
+          newValue = brand.charAt(0).toUpperCase() + brand.slice(1);
+          confidence = 8;
         }
         
-        // Apply the auto-filled value
-        if (newValue) {
+        // ─── LOW CONFIDENCE FIELDS (never auto-fill, only suggest) ───
+        
+        else if (labelText.includes('Title') && !labelText.includes('Item')) {
+          // Never auto-fill title - too risky
+          if (network === 'amazon') {
+            suggestions.push('Title: Check product name on Amazon and enter manually');
+          } else {
+            const brand = hostname.split('.')[0];
+            suggestions.push(`Title: e.g., "${brand.charAt(0).toUpperCase() + brand.slice(1)} Travel Deals"`);
+          }
+        }
+        else if (labelText.includes('Tagline')) {
+          // Never auto-fill tagline
+          if (network === 'amazon') {
+            suggestions.push('Tagline: Use Amazon-safe description (e.g., "Popular pick for everyday use")');
+          } else {
+            suggestions.push('Tagline: e.g., "Compare options and find current deals"');
+          }
+        }
+        else if (labelText.includes('Price hint') && network === 'amazon') {
+          // Never auto-fill price hint
+          suggestions.push('Price Hint: ⚠️ Use ranges only (e.g., "Under $50", "Budget-friendly")');
+        }
+        
+        // Apply value if confidence is high enough
+        if (newValue && confidence >= 7) {
           input.value = newValue;
           input.dispatchEvent(new Event('input', { bubbles: true }));
           input.dispatchEvent(new Event('change', { bubbles: true }));
-          console.log(`  ✓ Auto-filled ${labelText}: ${newValue}`);
+          console.log(`  ✓ Auto-filled ${labelText}: ${newValue} (confidence: ${confidence})`);
+          filledCount++;
+        } else if (newValue && confidence > 0) {
+          console.log(`  ⚠️ Low confidence for ${labelText}: ${newValue} (confidence: ${confidence})`);
+          suggestions.push(`${labelText}: ${newValue} (suggested)`);
         }
       });
+      
+      // Update status with results
+      let finalStatus = statusMsg;
+      if (filledCount > 0) {
+        finalStatus += ` | ✓ Auto-filled ${filledCount} field(s)`;
+      }
+      if (suggestions.length > 0) {
+        finalStatus += `\n💡 Fill remaining fields manually (recommended)`;
+      }
+      
+      showAutofillStatus(form, finalStatus);
+      
+      // Log suggestions
+      if (suggestions.length > 0) {
+        console.log('💡 Suggestions:');
+        suggestions.forEach(s => console.log(`  - ${s}`));
+      }
     }
     
-    function findFieldValue(form, fieldName) {
-      const inputs = Array.from(form.querySelectorAll('input[type="text"]'));
-      for (const input of inputs) {
-        const label = input.closest('div')?.querySelector('label');
-        if (label && label.textContent.includes(fieldName)) {
-          return input.value?.trim();
+    // ─── AUTOFILL STATUS DISPLAY ───
+    
+    function showAutofillStatus(form, message) {
+      // Find or create status element
+      let statusEl = form.querySelector('.autofill-status');
+      
+      if (!statusEl) {
+        // Find affiliate URL field
+        const urlInput = Array.from(form.querySelectorAll('input[type="text"]')).find(input => {
+          const label = input.closest('div')?.querySelector('label');
+          return label && label.textContent.includes('Affiliate URL');
+        });
+        
+        if (urlInput) {
+          const container = urlInput.closest('div');
+          statusEl = document.createElement('div');
+          statusEl.className = 'autofill-status';
+          statusEl.style.cssText = `
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: rgba(21, 197, 255, 0.08);
+            border: 1px solid rgba(21, 197, 255, 0.2);
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #15c5ff;
+            white-space: pre-line;
+          `;
+          container.appendChild(statusEl);
         }
       }
-      return '';
+      
+      if (statusEl) {
+        statusEl.textContent = message;
+      }
     }
     
-    // ─── FIELD WATCHERS ───
+    // ─── FIELD WATCHERS WITH TOUCHED TRACKING ───
     
     // Wait for CMS to mount, then attach URL-first auto-fill
     function initAutoIdGeneration() {
@@ -378,14 +579,26 @@
     function setupIdWatchers() {
       // Use CMS event system if available
       if (window.CMS) {
-        console.log('🚀 Setting up URL-first auto-fill system...');
+        console.log('🚀 Setting up smart URL-first auto-fill system...');
         
         // Watch for field changes
         const checkFields = setInterval(() => {
-          const inputs = document.querySelectorAll('input[type="text"]');
+          const inputs = document.querySelectorAll('input[type="text"], textarea, select');
           inputs.forEach(input => {
             const label = input.closest('div')?.querySelector('label');
             if (!label) return;
+            
+            // Track manual edits on ALL fields
+            if (!input.dataset.touchTrackerAttached) {
+              input.dataset.touchTrackerAttached = 'true';
+              
+              input.addEventListener('input', () => {
+                if (input.value.trim()) {
+                  touchedFields.set(input, true);
+                  console.log(`  🖊️ Field marked as touched: ${label.textContent}`);
+                }
+              });
+            }
             
             // Check if this is an affiliate URL field (now first field)
             if (label.textContent.includes('Affiliate URL')) {
@@ -393,7 +606,7 @@
                 input.dataset.urlWatcherAttached = 'true';
                 
                 // Trigger auto-fill on blur (when user finishes pasting URL)
-                input.addEventListener('blur', (event) => {
+                input.addEventListener('blur', async (event) => {
                   const url = event.target.value.trim();
                   if (!url) return;
                   
@@ -405,7 +618,7 @@
                 });
                 
                 // Also trigger on paste event for instant feedback
-                input.addEventListener('paste', (event) => {
+                input.addEventListener('paste', async (event) => {
                   const form = event.target.closest('form') || event.target.closest('[class*="ControlPane"]');
                   if (form) {
                     setTimeout(() => {
@@ -415,7 +628,7 @@
                   }
                 });
                 
-                console.log('  ✓ URL-first auto-fill attached to Affiliate URL field');
+                console.log('  ✓ Smart auto-fill attached to Affiliate URL field');
               }
             }
           });

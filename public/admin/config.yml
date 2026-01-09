@@ -16,7 +16,7 @@ collections:
     format: "json"
     extension: "json"
     files:
-      - file: "data/amazon.json"
+      - file: "public/data/amazon.json"
         label: "Amazon deals list"
         name: "amazon_deals"
         fields:
@@ -31,7 +31,7 @@ collections:
               - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "✓ Auto-filled with Amazon-safe default. Edit as needed." }
               - { label: "Price hint", name: "price_hint", widget: "string", required: false, hint: "⚠️ Auto-filled. Do NOT include exact prices. Use ranges like 'Under $50'" }
               - { label: "Category", name: "category", widget: "string", required: false, hint: "✓ Auto-detected from URL. Edit as needed." }
-              - { label: "Image URL", name: "image", widget: "string", required: false, hint: "Add product image URL (use your own host or placeholder)" }
+              - { label: "Product Image", name: "image", widget: "image", required: false, hint: "Upload product image or paste URL", media_folder: "/public/assets", public_folder: "/assets" }
               - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
               - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
               - label: "Network"
@@ -52,7 +52,7 @@ collections:
     format: "json"
     extension: "json"
     files:
-      - file: "data/travel.json"
+      - file: "public/data/travel.json"
         label: "Travel promos list"
         name: "travel_promos"
         fields:
@@ -68,7 +68,7 @@ collections:
               - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "✓ Auto-filled with travel-friendly default. Edit as needed." }
               - { label: "Category", name: "category", widget: "string", required: false, hint: "✓ Auto-detected from URL. Edit as needed." }
               - { label: "CTA text", name: "cta", widget: "string", required: false }
-              - { label: "Image URL", name: "image", widget: "string", required: false, hint: "Add promo image URL (use your own host or placeholder)" }
+              - { label: "Promo Image", name: "image", widget: "image", required: false, hint: "Upload promo image or paste URL", media_folder: "/public/assets", public_folder: "/assets" }
               - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
               - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
               - label: "Network"

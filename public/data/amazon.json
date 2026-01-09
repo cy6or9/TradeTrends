@@ -1,0 +1,37 @@
+{
+  "items": [
+    {
+      "id": "amz-001",
+      "title": "Portable Power Bank (20,000mAh)",
+      "tagline": "Reliable backup power for travel & camping.",
+      "price_hint": "$25\u2013$45",
+      "image": "https://images.unsplash.com/photo-1597764699515-6c8215b2a4aa?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.amazon.com/",
+      "category": "Travel Essentials",
+      "featured": true,
+      "last_verified": "2026-01-08"
+    },
+    {
+      "id": "amz-002",
+      "title": "Packing Cubes Set",
+      "tagline": "Pack faster, stay organized, fit more.",
+      "price_hint": "$15\u2013$35",
+      "image": "https://images.unsplash.com/photo-1526481280695-3c687fd643ed?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.amazon.com/",
+      "category": "Travel Essentials",
+      "featured": true,
+      "last_verified": "2026-01-08"
+    },
+    {
+      "id": "amz-003",
+      "title": "Compact Camping Lantern (Rechargeable)",
+      "tagline": "Bright, lightweight, great for tents & outages.",
+      "price_hint": "$18\u2013$40",
+      "image": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.amazon.com/",
+      "category": "Outdoors",
+      "featured": false,
+      "last_verified": "2026-01-08"
+    }
+  ]
+}
