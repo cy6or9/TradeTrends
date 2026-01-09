@@ -498,15 +498,12 @@
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
   <script>
-    // Initialize Decap CMS
-    CMS.init();
-    
     // ═══════════════════════════════════════════════════════════
-    // SMART URL-FIRST AUTO-FILL SYSTEM FOR DECAP CMS
+    // CMS-SAFE URL-FIRST AUTO-FILL SYSTEM FOR DECAP CMS
     // ═══════════════════════════════════════════════════════════
     
     // Track fields that have been manually edited (never overwrite these)
-    const touchedFields = new WeakMap();
+    const touchedFieldsMap = new Map();
     
     // ─── UTILITY FUNCTIONS ───
     
@@ -540,7 +537,6 @@
     
     function inferCategory(keywords, network) {
       if (network === 'amazon') {
-        // Only infer if we have strong keyword matches
         const keywordStr = keywords.join(' ').toLowerCase();
         
         if (keywordStr.match(/electronic|power|charging|battery|usb|tech/)) return 'Electronics';
@@ -554,10 +550,9 @@
         if (keywordStr.match(/pet|dog|cat/)) return 'Pets';
         if (keywordStr.match(/health|fitness|workout|exercise/)) return 'Health';
         
-        // Low confidence - return empty
         return '';
       } else if (network === 'travel') {
-        return 'Hotels'; // Default for travel
+        return 'Hotels';
       }
       
       return '';
@@ -583,7 +578,6 @@
         return data;
       } catch (error) {
         console.warn('URL resolution failed, using direct parsing:', error);
-        // Fallback to direct parsing
         return fallbackResolve(url);
       }
     }
@@ -611,269 +605,104 @@
       }
     }
     
-    // ─── SMART AUTO-FILL WITH CONFIDENCE SYSTEM ───
+    // ─── CMS-SAFE AUTO-FILL USING EVENT LISTENERS ───
     
-    async function autoFillFromUrl(form, url) {
-      if (!url || !form) return;
+    async function processUrlAndSuggestValues(entry) {
+      const affiliateUrl = entry.getIn(['data', 'affiliate_url']);
       
-      console.log('🎯 Resolving and analyzing URL:', url);
+      if (!affiliateUrl) return entry;
       
-      // Show loading indicator
-      showAutofillStatus(form, '⏳ Resolving URL...');
+      // Check if we've already processed this entry
+      const entryId = entry.getIn(['slug']) || Math.random().toString(36).substring(2, 10);
+      if (touchedFieldsMap.has(entryId)) {
+        console.log('Entry already processed, skipping autofill');
+        return entry;
+      }
       
-      // Resolve URL via Netlify Function
-      const resolved = await resolveUrl(url);
+      console.log('🎯 Processing URL for autofill:', affiliateUrl);
+      
+      const resolved = await resolveUrl(affiliateUrl);
       
       if (!resolved.ok) {
-        showAutofillStatus(form, `❌ Could not resolve URL: ${resolved.error}`);
-        return;
+        console.warn('Could not resolve URL:', resolved.error);
+        return entry;
       }
       
       const { finalUrl, hostname, network, asin, keywords } = resolved;
-      
       console.log('✓ Resolved:', { finalUrl, hostname, network, asin, keywords });
       
-      // Build status message
-      let statusMsg = `Detected: ${network}`;
-      if (asin) statusMsg += ` | ASIN: ${asin}`;
-      if (finalUrl !== url) statusMsg += ` | Final URL: ${hostname}`;
+      // Build suggestions object (never overwrite existing values)
+      let modified = entry;
       
-      showAutofillStatus(form, statusMsg);
-      
-      // Find all input fields
-      const inputs = Array.from(form.querySelectorAll('input[type="text"], select'));
-      
-      // Track what we filled
-      let filledCount = 0;
-      const suggestions = [];
-      
-      inputs.forEach(input => {
-        const label = input.closest('div')?.querySelector('label');
-        if (!label) return;
-        
-        const labelText = label.textContent.trim();
-        const currentValue = input.value?.trim();
-        
-        // Check if field was manually touched
-        if (touchedFields.get(input)) {
-          console.log(`  ⏭️ Skipping ${labelText} (manually edited)`);
-          return;
+      // Auto-fill ID if empty
+      if (!modified.getIn(['data', 'id'])) {
+        let newId = '';
+        if (asin && network === 'amazon') {
+          newId = generateIdFromAsin(asin);
+        } else {
+          newId = generateIdFromUrl(finalUrl);
         }
-        
-        // Only auto-fill if field is empty
-        if (currentValue) return;
-        
-        let newValue = '';
-        let confidence = 0; // 0-10 scale
-        
-        // ─── TRUSTED FIELDS (always fill) ───
-        
-        if (labelText.includes('Network')) {
-          newValue = network;
-          confidence = 10;
+        if (newId) {
+          modified = modified.setIn(['data', 'id'], newId);
+          console.log('  ✓ Auto-filled ID:', newId);
         }
-        else if (labelText.includes('ID')) {
-          if (asin && network === 'amazon') {
-            newValue = generateIdFromAsin(asin);
-            confidence = 10;
-          } else {
-            newValue = generateIdFromUrl(finalUrl);
-            confidence = 8;
-          }
-        }
-        
-        // ─── SUGGESTED FIELDS (only fill if confidence >= 7) ───
-        
-        else if (labelText.includes('Category')) {
-          const category = inferCategory(keywords, network);
-          if (category) {
-            newValue = category;
-            confidence = keywords.length >= 3 ? 7 : 5;
-          } else {
-            suggestions.push(`Category: Please fill manually based on product`);
-          }
-        }
-        else if (labelText.includes('Brand') && network === 'travel') {
-          const brand = hostname.split('.')[0];
-          newValue = brand.charAt(0).toUpperCase() + brand.slice(1);
-          confidence = 8;
-        }
-        
-        // ─── LOW CONFIDENCE FIELDS (never auto-fill, only suggest) ───
-        
-        else if (labelText.includes('Title') && !labelText.includes('Item')) {
-          // Never auto-fill title - too risky
-          if (network === 'amazon') {
-            suggestions.push('Title: Check product name on Amazon and enter manually');
-          } else {
-            const brand = hostname.split('.')[0];
-            suggestions.push(`Title: e.g., "${brand.charAt(0).toUpperCase() + brand.slice(1)} Travel Deals"`);
-          }
-        }
-        else if (labelText.includes('Tagline')) {
-          // Never auto-fill tagline
-          if (network === 'amazon') {
-            suggestions.push('Tagline: Use Amazon-safe description (e.g., "Popular pick for everyday use")');
-          } else {
-            suggestions.push('Tagline: e.g., "Compare options and find current deals"');
-          }
-        }
-        else if (labelText.includes('Price hint') && network === 'amazon') {
-          // Never auto-fill price hint
-          suggestions.push('Price Hint: ⚠️ Use ranges only (e.g., "Under $50", "Budget-friendly")');
-        }
-        
-        // Apply value if confidence is high enough
-        if (newValue && confidence >= 7) {
-          input.value = newValue;
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-          console.log(`  ✓ Auto-filled ${labelText}: ${newValue} (confidence: ${confidence})`);
-          filledCount++;
-        } else if (newValue && confidence > 0) {
-          console.log(`  ⚠️ Low confidence for ${labelText}: ${newValue} (confidence: ${confidence})`);
-          suggestions.push(`${labelText}: ${newValue} (suggested)`);
-        }
-      });
-      
-      // Update status with results
-      let finalStatus = statusMsg;
-      if (filledCount > 0) {
-        finalStatus += ` | ✓ Auto-filled ${filledCount} field(s)`;
-      }
-      if (suggestions.length > 0) {
-        finalStatus += `\n💡 Fill remaining fields manually (recommended)`;
       }
       
-      showAutofillStatus(form, finalStatus);
-      
-      // Log suggestions
-      if (suggestions.length > 0) {
-        console.log('💡 Suggestions:');
-        suggestions.forEach(s => console.log(`  - ${s}`));
+      // Auto-fill network if empty
+      if (!modified.getIn(['data', 'network'])) {
+        modified = modified.setIn(['data', 'network'], network);
+        console.log('  ✓ Auto-filled Network:', network);
       }
+      
+      // Suggest category if empty (medium confidence)
+      if (!modified.getIn(['data', 'category'])) {
+        const category = inferCategory(keywords, network);
+        if (category) {
+          modified = modified.setIn(['data', 'category'], category);
+          console.log('  ✓ Suggested Category:', category);
+        }
+      }
+      
+      // Auto-fill brand for travel if empty
+      if (network === 'travel' && !modified.getIn(['data', 'brand'])) {
+        const brand = hostname.split('.')[0];
+        const brandName = brand.charAt(0).toUpperCase() + brand.slice(1);
+        modified = modified.setIn(['data', 'brand'], brandName);
+        console.log('  ✓ Auto-filled Brand:', brandName);
+      }
+      
+      // Mark this entry as processed
+      touchedFieldsMap.set(entryId, true);
+      
+      return modified;
     }
     
-    // ─── AUTOFILL STATUS DISPLAY ───
+    // ─── INITIALIZE DECAP CMS WITH EVENT LISTENERS ───
     
-    function showAutofillStatus(form, message) {
-      // Find or create status element
-      let statusEl = form.querySelector('.autofill-status');
-      
-      if (!statusEl) {
-        // Find affiliate URL field
-        const urlInput = Array.from(form.querySelectorAll('input[type="text"]')).find(input => {
-          const label = input.closest('div')?.querySelector('label');
-          return label && label.textContent.includes('Affiliate URL');
+    function initDecapCMS() {
+      // Register event listener for entry changes
+      if (window.CMS) {
+        console.log('🚀 Initializing CMS-safe autofill system...');
+        
+        // Listen for preSave events to process affiliate URLs
+        CMS.registerEventListener({
+          name: 'preSave',
+          handler: async ({ entry }) => {
+            return await processUrlAndSuggestValues(entry);
+          }
         });
         
-        if (urlInput) {
-          const container = urlInput.closest('div');
-          statusEl = document.createElement('div');
-          statusEl.className = 'autofill-status';
-          statusEl.style.cssText = `
-            margin-top: 8px;
-            padding: 10px 12px;
-            background: rgba(21, 197, 255, 0.08);
-            border: 1px solid rgba(21, 197, 255, 0.2);
-            border-radius: 8px;
-            font-size: 12px;
-            line-height: 1.5;
-            color: #15c5ff;
-            white-space: pre-line;
-          `;
-          container.appendChild(statusEl);
-        }
-      }
-      
-      if (statusEl) {
-        statusEl.textContent = message;
+        console.log('✓ CMS autofill system ready (no DOM manipulation)');
       }
     }
     
-    // ─── FIELD WATCHERS WITH TOUCHED TRACKING ───
+    // Initialize CMS
+    CMS.init();
     
-    // Wait for CMS to mount, then attach URL-first auto-fill
-    function initAutoIdGeneration() {
-      const observer = new MutationObserver(() => {
-        // Look for the CMS editor
-        const editorFrame = document.querySelector('iframe[class*="PreviewPane"]');
-        if (editorFrame) {
-          setupIdWatchers();
-        }
-      });
-      
-      const cmsRoot = document.getElementById('nc-root');
-      if (cmsRoot) {
-        observer.observe(cmsRoot, { childList: true, subtree: true });
-        
-        // Also try immediate setup in case CMS is already loaded
-        setTimeout(setupIdWatchers, 2000);
-      }
-    }
-    
-    function setupIdWatchers() {
-      // Use CMS event system if available
-      if (window.CMS) {
-        console.log('🚀 Setting up smart URL-first auto-fill system...');
-        
-        // Watch for field changes
-        const checkFields = setInterval(() => {
-          const inputs = document.querySelectorAll('input[type="text"], textarea, select');
-          inputs.forEach(input => {
-            const label = input.closest('div')?.querySelector('label');
-            if (!label) return;
-            
-            // Track manual edits on ALL fields
-            if (!input.dataset.touchTrackerAttached) {
-              input.dataset.touchTrackerAttached = 'true';
-              
-              input.addEventListener('input', () => {
-                if (input.value.trim()) {
-                  touchedFields.set(input, true);
-                  console.log(`  🖊️ Field marked as touched: ${label.textContent}`);
-                }
-              });
-            }
-            
-            // Check if this is an affiliate URL field (now first field)
-            if (label.textContent.includes('Affiliate URL')) {
-              if (!input.dataset.urlWatcherAttached) {
-                input.dataset.urlWatcherAttached = 'true';
-                
-                // Trigger auto-fill on blur (when user finishes pasting URL)
-                input.addEventListener('blur', async (event) => {
-                  const url = event.target.value.trim();
-                  if (!url) return;
-                  
-                  const form = event.target.closest('form') || event.target.closest('[class*="ControlPane"]');
-                  if (form) {
-                    // Small delay to ensure form is fully rendered
-                    setTimeout(() => autoFillFromUrl(form, url), 100);
-                  }
-                });
-                
-                // Also trigger on paste event for instant feedback
-                input.addEventListener('paste', async (event) => {
-                  const form = event.target.closest('form') || event.target.closest('[class*="ControlPane"]');
-                  if (form) {
-                    setTimeout(() => {
-                      const url = event.target.value.trim();
-                      if (url) autoFillFromUrl(form, url);
-                    }, 200);
-                  }
-                });
-                
-                console.log('  ✓ Smart auto-fill attached to Affiliate URL field');
-              }
-            }
-          });
-        }, 1000);
-        
-        // Clean up after 30 seconds
-        setTimeout(() => clearInterval(checkFields), 30000);
-      }
-    }
+    // Wait for CMS to be fully ready, then register event listeners
+    setTimeout(() => {
+      initDecapCMS();
+    }, 1000);
     
     // Client-side role enforcement for admin access
     if (window.netlifyIdentity) {
@@ -913,9 +742,6 @@
         accessDenied.style.display = 'none';
         cmsContainer.style.display = 'block';
         console.log('Admin access granted');
-        
-        // Initialize automatic ID generation
-        setTimeout(initAutoIdGeneration, 1000);
       }
     }
   </script>
