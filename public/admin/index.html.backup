@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradeTrends Admin</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#0b1118" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       FULL-SCREEN DARK ADMIN APP FOR DECAP CMS
+       ═══════════════════════════════════════════════════════════ */
+    
+    /* PART 1: ISOLATE ADMIN FROM PUBLIC SITE */
+    
+    /* When in admin mode, hide public site chrome */
+    body.admin-mode .header,
+    body.admin-mode .container:not(#cmsContainer),
+    body.admin-mode .adminShell {
+      display: none !important;
+    }
+    
+    /* PART 2: FULL VIEWPORT CONTROL */
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    body { 
+      background: #0b0f14 !important;
+      color: #e6edf6 !important;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    /* Admin content wrapper - only visible in admin mode */
+    body.admin-mode {
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(21,197,255,.12), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(0,224,184,.08), transparent 55%),
+                  #0b0f14 !important;
+    }
+    
+    /* PART 3: CMS CONTAINER FULL SCREEN */
+    
+    #cmsContainer {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      display: none;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: hidden;
+      z-index: 10000;
+    }
+    
+    body.admin-mode #cmsContainer {
+      display: block;
+    }
+    
+    /* Access Denied styling */
+    #accessDenied {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 500px;
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 18px;
+      padding: 32px;
+      color: #ff6b6b;
+      z-index: 10001;
+    }
+    
+    #accessDenied h2 {
+      margin: 0 0 16px 0;
+      font-size: 24px;
+      color: #ff6b6b;
+    }
+    
+    /* PART 4: CMS ROOT FULL SCREEN */
+    
+    #nc-root {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+    }
+    
+    /* PART 5: COMPREHENSIVE DARK THEME */
+    
+    /* Override CMS default backgrounds and colors */
+    #nc-root *::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    #nc-root *::-webkit-scrollbar-track {
+      background: rgba(255,255,255,.02);
+    }
+    
+    #nc-root *::-webkit-scrollbar-thumb {
+      background: rgba(21,197,255,.3);
+      border-radius: 4px;
+    }
+    
+    #nc-root *::-webkit-scrollbar-thumb:hover {
+      background: rgba(21,197,255,.5);
+    }
+    
+    #nc-root * {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(21,197,255,.3) rgba(255,255,255,.02);
+    }
+    
+    /* Main app structure */
+    #nc-root > div,
+    #nc-root [class*="App"]:not([class*="AppHeader"]) {
+      background: transparent !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+    
+    /* Top Bar - Keep Fixed at Top */
+    #nc-root [class*="AppHeader"],
+    #nc-root nav[class*="TopBar"],
+    #nc-root header[class*="Header"] {
+      position: sticky !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 1000 !important;
+      background: rgba(11,15,20,.95) !important;
+      backdrop-filter: blur(12px) !important;
+      border-bottom: 1px solid rgba(255,255,255,.08) !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2) !important;
+    }
+    
+    /* Main content area below header */
+    #nc-root [class*="AppMainContainer"],
+    #nc-root [class*="MainContainer"] {
+      background: transparent !important;
+      height: calc(100% - 60px) !important;
+      overflow: hidden !important;
+    }
+    
+    /* Sidebar */
+    #nc-root [class*="SidebarContainer"],
+    #nc-root [class*="Sidebar"] {
+      background: rgba(15,23,36,.8) !important;
+      border-right: 1px solid rgba(255,255,255,.08) !important;
+      overflow-y: auto !important;
+      height: 100% !important;
+    }
+    
+    /* Collection container */
+    #nc-root [class*="CollectionContainer"],
+    #nc-root [class*="Collection"] {
+      background: transparent !important;
+      overflow-y: auto !important;
+      height: 100% !important;
+    }
+    
+    /* List containers */
+    #nc-root [class*="ListContainer"],
+    #nc-root [class*="EntryListing"] {
+      background: transparent !important;
+      padding: 16px !important;
+      overflow-y: auto !important;
+    }
+    
+    /* Cards and Entry items */
+    #nc-root [class*="Card"],
+    #nc-root [class*="EntryCard"],
+    #nc-root [class*="Entry"]:not([class*="EntryListing"]) {
+      background: rgba(16,24,38,.7) !important;
+      border: 1px solid rgba(255,255,255,.08) !important;
+      border-radius: 12px !important;
+      color: #e6edf6 !important;
+    }
+    
+    #nc-root [class*="Card"]:hover,
+    #nc-root [class*="EntryCard"]:hover {
+      background: rgba(16,24,38,.9) !important;
+      border-color: rgba(21,197,255,.2) !important;
+    }
+    
+    /* Panels and modals */
+    #nc-root [class*="Panel"],
+    #nc-root [class*="Modal"],
+    #nc-root [class*="Dialog"] {
+      background: rgba(11,15,20,.98) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 24px 48px rgba(0,0,0,.5) !important;
+    }
+    
+    /* Editor panes */
+    #nc-root [class*="EditorContainer"],
+    #nc-root [class*="Editor"],
+    #nc-root [class*="ControlPane"] {
+      background: rgba(11,15,20,.9) !important;
+      color: #e6edf6 !important;
+    }
+    
+    #nc-root [class*="PreviewPane"] {
+      background: rgba(15,23,36,.8) !important;
+      border-left: 1px solid rgba(255,255,255,.08) !important;
+    }
+    
+    /* Form controls */
+    #nc-root input,
+    #nc-root textarea,
+    #nc-root select {
+      background: rgba(16,24,38,.9) !important;
+      border: 1px solid rgba(255,255,255,.12) !important;
+      border-radius: 8px !important;
+      color: #e6edf6 !important;
+      padding: 10px 12px !important;
+    }
+    
+    #nc-root input::placeholder,
+    #nc-root textarea::placeholder {
+      color: #a8b3c7 !important;
+    }
+    
+    #nc-root input:focus,
+    #nc-root textarea:focus,
+    #nc-root select:focus {
+      border-color: rgba(21,197,255,.5) !important;
+      outline: none !important;
+      box-shadow: 0 0 0 3px rgba(21,197,255,.1) !important;
+    }
+    
+    /* Buttons */
+    #nc-root button {
+      background: linear-gradient(180deg, rgba(21,197,255,.18), rgba(21,197,255,.08)) !important;
+      border: 1px solid rgba(21,197,255,.35) !important;
+      border-radius: 8px !important;
+      color: #e6edf6 !important;
+      padding: 10px 16px !important;
+      font-weight: 600 !important;
+      transition: all 0.2s !important;
+    }
+    
+    #nc-root button:hover {
+      background: linear-gradient(180deg, rgba(21,197,255,.28), rgba(21,197,255,.15)) !important;
+      border-color: rgba(21,197,255,.5) !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    #nc-root button:active {
+      transform: translateY(0) !important;
+    }
+    
+    /* Primary buttons */
+    #nc-root button[class*="primary"],
+    #nc-root button[class*="Primary"],
+    #nc-root button[class*="success"] {
+      background: linear-gradient(135deg, #15c5ff, #00e0b8) !important;
+      border-color: #15c5ff !important;
+      color: #0b0f14 !important;
+      font-weight: 700 !important;
+    }
+    
+    #nc-root button[class*="primary"]:hover,
+    #nc-root button[class*="Primary"]:hover {
+      box-shadow: 0 8px 20px rgba(21,197,255,.3) !important;
+    }
+    
+    /* Danger buttons */
+    #nc-root button[class*="danger"],
+    #nc-root button[class*="delete"] {
+      background: linear-gradient(180deg, rgba(255,68,68,.2), rgba(255,68,68,.1)) !important;
+      border-color: rgba(255,68,68,.5) !important;
+    }
+    
+    /* Text colors */
+    #nc-root,
+    #nc-root span,
+    #nc-root label,
+    #nc-root p,
+    #nc-root h1,
+    #nc-root h2,
+    #nc-root h3,
+    #nc-root h4,
+    #nc-root h5,
+    #nc-root h6,
+    #nc-root div {
+      color: #e6edf6 !important;
+    }
+    
+    /* Muted text */
+    #nc-root [class*="hint"],
+    #nc-root [class*="help"],
+    #nc-root [class*="description"],
+    #nc-root [class*="subtitle"],
+    #nc-root small {
+      color: #a8b3c7 !important;
+    }
+    
+    /* Links */
+    #nc-root a {
+      color: #15c5ff !important;
+      text-decoration: none !important;
+    }
+    
+    #nc-root a:hover {
+      color: #00e0b8 !important;
+      text-decoration: underline !important;
+    }
+    
+    /* Dropdown menus */
+    #nc-root [class*="dropdown"],
+    #nc-root [class*="menu"]:not([class*="menubar"]),
+    #nc-root [class*="Menu"] {
+      background: rgba(16,24,38,.98) !important;
+      border: 1px solid rgba(255,255,255,.15) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 16px 32px rgba(0,0,0,.6) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+    
+    #nc-root [class*="menuItem"],
+    #nc-root [class*="MenuItem"] {
+      color: #e6edf6 !important;
+    }
+    
+    #nc-root [class*="menuItem"]:hover,
+    #nc-root [class*="MenuItem"]:hover {
+      background: rgba(21,197,255,.15) !important;
+    }
+    
+    /* Image preview */
+    #nc-root [class*="ImagePreview"],
+    #nc-root [class*="image-preview"],
+    #nc-root img {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.02);
+    }
+    
+    /* Toggle switches */
+    #nc-root [class*="toggle"],
+    #nc-root [class*="Switch"] {
+      background: rgba(255,255,255,.1) !important;
+    }
+    
+    #nc-root [class*="toggle"][aria-checked="true"],
+    #nc-root [class*="Switch"][aria-checked="true"] {
+      background: linear-gradient(135deg, #15c5ff, #00e0b8) !important;
+    }
+    
+    /* File upload area */
+    #nc-root [class*="FileUpload"],
+    #nc-root [class*="dropzone"] {
+      background: rgba(16,24,38,.5) !important;
+      border: 2px dashed rgba(21,197,255,.3) !important;
+      border-radius: 12px !important;
+    }
+    
+    #nc-root [class*="FileUpload"]:hover,
+    #nc-root [class*="dropzone"]:hover {
+      border-color: rgba(21,197,255,.5) !important;
+      background: rgba(16,24,38,.7) !important;
+    }
+    
+    /* Loading indicators */
+    #nc-root [class*="loader"],
+    #nc-root [class*="Loader"],
+    #nc-root [class*="spinner"] {
+      border-color: rgba(21,197,255,.3) !important;
+      border-top-color: #15c5ff !important;
+    }
+    
+    /* Toast notifications */
+    #nc-root [class*="toast"],
+    #nc-root [class*="notification"] {
+      background: rgba(16,24,38,.98) !important;
+      border: 1px solid rgba(255,255,255,.15) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 16px 32px rgba(0,0,0,.5) !important;
+      backdrop-filter: blur(12px) !important;
+    }
+    
+    /* PART 6: MOBILE & TOUCH OPTIMIZATIONS */
+    
+    @media (max-width: 768px) {
+      #nc-root [class*="Sidebar"] {
+        position: absolute !important;
+        z-index: 100 !important;
+      }
+      
+      #nc-root button {
+        min-height: 44px !important;
+        min-width: 44px !important;
+      }
+      
+      #nc-root input,
+      #nc-root textarea,
+      #nc-root select {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+      }
+    }
+    
+    /* Ensure touch scrolling */
+    #nc-root [class*="Sidebar"],
+    #nc-root [class*="CollectionContainer"],
+    #nc-root [class*="ListContainer"],
+    #nc-root [class*="Editor"] {
+      -webkit-overflow-scrolling: touch !important;
+    }
+  </style>
+</head>
+<body class="admin-mode">
+  <script>
+    // Diagnostic: Check if config.yml loads correctly
+    fetch('/admin/config.yml')
+      .then(res => {
+        console.log('📋 Config check:', res.status, res.headers.get('content-type'));
+        return res.text();
+      })
+      .then(text => {
+        if (text.startsWith('<!DOCTYPE') || text.includes('<html')) {
+          console.error('❌ CRITICAL: /admin/config.yml returned HTML instead of YAML!');
+          console.error('This means Netlify redirects are rewriting admin assets.');
+          console.error('Fix: Add /admin/* exception in netlify.toml BEFORE catch-all redirect.');
+        } else if (text.startsWith('backend:') || text.includes('collections:')) {
+          console.log('✅ Config.yml loaded correctly as YAML');
+        } else {
+          console.warn('⚠️ Unexpected config.yml content:', text.substring(0, 100));
+        }
+      })
+      .catch(err => {
+        console.error('❌ Failed to load config.yml:', err);
+      });
+  </script>
+  
+  <header class="header">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="/">
+          <span class="logo" aria-hidden="true"></span>
+          <span>TradeTrends Admin</span>
+        </a>
+        <nav class="navlinks">
+          <a class="pill" href="/">View site</a>
+          <a class="pill" href="/#amazon">Amazon section</a>
+          <a class="pill" href="/#travel">Travel section</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container adminShell">
+    <div class="card heroMain">
+      <div class="kicker"><span class="dot" aria-hidden="true"></span> Admin-only dashboard</div>
+      <h1 class="h1" style="font-size:32px">Manage your deals</h1>
+      <p class="sub">
+        Use the editor below to add/update deals. Changes are saved to your repo via Netlify Identity + Git Gateway,
+        then your public site instantly reflects the updates (it reads the JSON files).
+      </p>
+      <div class="notice">
+        <b>Important:</b> Only invited users can log in. Invite: <span class="mono">ipromoteliving@gmail.com</span>
+        <div class="hint" style="margin-top:6px">
+          In Netlify → Site settings → Identity → <b>Invite users</b>. Enable Git Gateway so the CMS can write to the repo.
+        </div>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div id="accessDenied">
+      <h2>Access Denied</h2>
+      <p>This admin dashboard is restricted to users with the <strong>admin</strong> role.</p>
+      <p class="hint">If you believe you should have access, please contact the site administrator to update your role in Netlify Identity settings.</p>
+    </div>
+
+    <div id="cmsContainer" class="card" style="padding:0; overflow:hidden">
+      <!-- Decap CMS will mount here -->
+      <div id="nc-root"></div>
+    </div>
+  </main>
+
+  <!-- Netlify Identity (login) -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Decap CMS (Netlify CMS successor) -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════
+    // CMS-SAFE URL-FIRST AUTO-FILL SYSTEM FOR DECAP CMS
+    // ═══════════════════════════════════════════════════════════
+    
+    // Track fields that have been manually edited (never overwrite these)
+    const touchedFieldsMap = new Map();
+    
+    // ─── UTILITY FUNCTIONS ───
+    
+    function generateId(text) {
+      if (!text) return '';
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 60);
+    }
+    
+    function generateIdFromAsin(asin) {
+      return `amz-${asin.toLowerCase()}`;
+    }
+    
+    function generateIdFromUrl(url) {
+      try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '');
+        const hash = Math.random().toString(36).substring(2, 8);
+        return `${hostname.split('.')[0]}-${hash}`;
+      } catch {
+        return 'deal-' + Math.random().toString(36).substring(2, 10);
+      }
+    }
+    
+    // ─── CATEGORY INFERENCE (CONSERVATIVE) ───
+    
+    function inferCategory(keywords, network) {
+      if (network === 'amazon') {
+        const keywordStr = keywords.join(' ').toLowerCase();
+        
+        if (keywordStr.match(/electronic|power|charging|battery|usb|tech/)) return 'Electronics';
+        if (keywordStr.match(/kitchen|cooking|cook|food|recipe/)) return 'Kitchen';
+        if (keywordStr.match(/home|decor|furniture|living/)) return 'Home';
+        if (keywordStr.match(/outdoor|camping|hiking|tent|backpack/)) return 'Outdoors';
+        if (keywordStr.match(/beauty|skin|makeup|cosmetic/)) return 'Beauty';
+        if (keywordStr.match(/toy|game|play/)) return 'Toys';
+        if (keywordStr.match(/book|read/)) return 'Books';
+        if (keywordStr.match(/cloth|fashion|apparel|wear/)) return 'Fashion';
+        if (keywordStr.match(/pet|dog|cat/)) return 'Pets';
+        if (keywordStr.match(/health|fitness|workout|exercise/)) return 'Health';
+        
+        return '';
+      } else if (network === 'travel') {
+        return 'Hotels';
+      }
+      
+      return '';
+    }
+    
+    // ─── RESOLVE URL VIA NETLIFY FUNCTION ───
+    
+    async function resolveUrl(url) {
+      try {
+        const encodedUrl = encodeURIComponent(url);
+        const response = await fetch(`/.netlify/functions/resolve?url=${encodedUrl}`);
+        
+        if (!response.ok) {
+          throw new Error('Resolution failed');
+        }
+        
+        const data = await response.json();
+        
+        if (!data.ok) {
+          throw new Error(data.error || 'Unknown error');
+        }
+        
+        return data;
+      } catch (error) {
+        console.warn('URL resolution failed, using direct parsing:', error);
+        return fallbackResolve(url);
+      }
+    }
+    
+    function fallbackResolve(url) {
+      try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '').toLowerCase();
+        
+        let network = 'other';
+        if (hostname.includes('amazon.')) network = 'amazon';
+        else if (hostname.includes('booking.') || hostname.includes('expedia.') || 
+                 hostname.includes('hotels.') || hostname.includes('airbnb.')) network = 'travel';
+        
+        return {
+          ok: true,
+          finalUrl: url,
+          hostname,
+          network,
+          asin: null,
+          keywords: []
+        };
+      } catch {
+        return { ok: false, error: 'Invalid URL' };
+      }
+    }
+    
+    // ─── CMS-SAFE AUTO-FILL USING EVENT LISTENERS ───
+    
+    async function processUrlAndSuggestValues(entry) {
+      const affiliateUrl = entry.getIn(['data', 'affiliate_url']);
+      
+      if (!affiliateUrl) return entry;
+      
+      // Check if we've already processed this entry
+      const entryId = entry.getIn(['slug']) || Math.random().toString(36).substring(2, 10);
+      if (touchedFieldsMap.has(entryId)) {
+        console.log('Entry already processed, skipping autofill');
+        return entry;
+      }
+      
+      console.log('🎯 Processing URL for autofill:', affiliateUrl);
+      
+      const resolved = await resolveUrl(affiliateUrl);
+      
+      if (!resolved.ok) {
+        console.warn('Could not resolve URL:', resolved.error);
+        return entry;
+      }
+      
+      const { finalUrl, hostname, network, asin, keywords } = resolved;
+      console.log('✓ Resolved:', { finalUrl, hostname, network, asin, keywords });
+      
+      // Build suggestions object (never overwrite existing values)
+      let modified = entry;
+      
+      // Auto-fill ID if empty
+      if (!modified.getIn(['data', 'id'])) {
+        let newId = '';
+        if (asin && network === 'amazon') {
+          newId = generateIdFromAsin(asin);
+        } else {
+          newId = generateIdFromUrl(finalUrl);
+        }
+        if (newId) {
+          modified = modified.setIn(['data', 'id'], newId);
+          console.log('  ✓ Auto-filled ID:', newId);
+        }
+      }
+      
+      // Auto-fill network if empty
+      if (!modified.getIn(['data', 'network'])) {
+        modified = modified.setIn(['data', 'network'], network);
+        console.log('  ✓ Auto-filled Network:', network);
+      }
+      
+      // Suggest category if empty (medium confidence)
+      if (!modified.getIn(['data', 'category'])) {
+        const category = inferCategory(keywords, network);
+        if (category) {
+          modified = modified.setIn(['data', 'category'], category);
+          console.log('  ✓ Suggested Category:', category);
+        }
+      }
+      
+      // Auto-fill brand for travel if empty
+      if (network === 'travel' && !modified.getIn(['data', 'brand'])) {
+        const brand = hostname.split('.')[0];
+        const brandName = brand.charAt(0).toUpperCase() + brand.slice(1);
+        modified = modified.setIn(['data', 'brand'], brandName);
+        console.log('  ✓ Auto-filled Brand:', brandName);
+      }
+      
+      // Mark this entry as processed
+      touchedFieldsMap.set(entryId, true);
+      
+      return modified;
+    }
+    
+    // ─── INITIALIZE DECAP CMS WITH EVENT LISTENERS ───
+    
+    function initDecapCMS() {
+      // Register event listener for entry changes
+      if (window.CMS) {
+        console.log('🚀 Initializing CMS-safe autofill system...');
+        
+        // Listen for preSave events to process affiliate URLs
+        CMS.registerEventListener({
+          name: 'preSave',
+          handler: async ({ entry }) => {
+            return await processUrlAndSuggestValues(entry);
+          }
+        });
+        
+        console.log('✓ CMS autofill system ready (no DOM manipulation)');
+      }
+    }
+    
+    // Initialize CMS
+    CMS.init();
+    
+    // Wait for CMS to be fully ready, then register event listeners
+    setTimeout(() => {
+      initDecapCMS();
+    }, 1000);
+    
+    // Client-side role enforcement for admin access
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          // Not logged in - open login modal
+          window.netlifyIdentity.open("login");
+        } else {
+          // User is logged in - normalize metadata and check role
+          normalizeUserMetadata(user);
+          checkAdminAccess(user);
+        }
+      });
+
+      window.netlifyIdentity.on("login", user => {
+        // After login, normalize metadata to prevent widget crashes
+        normalizeUserMetadata(user);
+        
+        // Then check admin access
+        checkAdminAccess(user);
+        
+        // Close the widget modal
+        window.netlifyIdentity.close();
+      });
+
+      window.netlifyIdentity.init();
+    }
+
+    // Normalize user metadata to prevent widget crashes
+    function normalizeUserMetadata(user) {
+      if (!user) return;
+      
+      // Ensure user_metadata exists
+      if (!user.user_metadata) {
+        user.user_metadata = {};
+      }
+      
+      // Fix missing full_name (common with Google login)
+      if (!user.user_metadata.full_name) {
+        const fallbackName = user.email ? user.email.split('@')[0] : 'User';
+        user.user_metadata.full_name = fallbackName;
+        
+        console.log('Normalized missing full_name:', fallbackName);
+        
+        // Try to persist the update (may fail silently if permissions don't allow)
+        try {
+          if (user.update && typeof user.update === 'function') {
+            user.update({ user_metadata: user.user_metadata });
+          }
+        } catch (err) {
+          console.warn('Could not persist user_metadata update:', err);
+        }
+      }
+    }
+
+    function checkAdminAccess(user) {
+      if (!user) {
+        console.error('checkAdminAccess called with null user');
+        return;
+      }
+      
+      const accessDenied = document.getElementById('accessDenied');
+      const cmsContainer = document.getElementById('cmsContainer');
+      
+      // Get user roles from app_metadata (NOT from widget UI state)
+      const roles = user.app_metadata?.roles || [];
+      const isAdmin = roles.includes('admin');
+      
+      // Get safe display name
+      const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+      const roleLabel = isAdmin ? 'Admin' : 'User';
+
+      if (!isAdmin) {
+        // User is logged in but not an admin
+        accessDenied.style.display = 'block';
+        cmsContainer.style.display = 'none';
+        console.log('Access denied: User does not have admin role');
+        console.log(`User: ${displayName} (${user.email}) - Roles:`, roles);
+      } else {
+        // User has admin role - show CMS
+        accessDenied.style.display = 'none';
+        cmsContainer.style.display = 'block';
+        console.log(`✓ Admin access granted: ${displayName} (${user.email})`);
+        console.log('User roles:', roles);
+      }
+      
+      // Update any UI elements that show user role
+      updateUserRoleDisplay(user, isAdmin, displayName, roleLabel);
+    }
+    
+    function updateUserRoleDisplay(user, isAdmin, displayName, roleLabel) {
+      // This function can be extended to update UI elements
+      // For now, just log the status
+      console.log(`User display: ${displayName} - Role: ${roleLabel}`);
+    }
+  </script>
+</body>
+</html>
