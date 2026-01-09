@@ -31,6 +31,29 @@
     #cmsContainer {
       display: block;
     }
+    
+    /* Fix CMS UI overlap - ensure content is visible below top bars */
+    #nc-root {
+      /* Account for site header (~60px) + CMS top bar (~60px) */
+      min-height: calc(100vh - 200px);
+    }
+    
+    /* Adjust CMS internal layout to prevent header overlap */
+    #nc-root > div {
+      padding-top: 0;
+    }
+    
+    /* Ensure scrollable area is properly positioned */
+    [class*="SidebarContainer"] {
+      padding-top: 60px;
+    }
+    
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      [class*="SidebarContainer"] {
+        padding-top: 80px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -87,6 +110,136 @@
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
   <script>
+    // Automatic ID generation for deals
+    function generateId(text) {
+      if (!text) return '';
+      
+      // Remove special chars, convert to lowercase, replace spaces with hyphens
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 60); // Limit length
+    }
+    
+    function generateIdFromUrl(url) {
+      try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '');
+        const hash = Math.random().toString(36).substring(2, 8);
+        return `${hostname.split('.')[0]}-${hash}`;
+      } catch {
+        return 'deal-' + Math.random().toString(36).substring(2, 10);
+      }
+    }
+    
+    // Wait for CMS to mount, then attach ID generation
+    function initAutoIdGeneration() {
+      const observer = new MutationObserver(() => {
+        // Look for the CMS editor
+        const editorFrame = document.querySelector('iframe[class*="PreviewPane"]');
+        if (editorFrame) {
+          setupIdWatchers();
+        }
+      });
+      
+      const cmsRoot = document.getElementById('nc-root');
+      if (cmsRoot) {
+        observer.observe(cmsRoot, { childList: true, subtree: true });
+        
+        // Also try immediate setup in case CMS is already loaded
+        setTimeout(setupIdWatchers, 2000);
+      }
+    }
+    
+    function setupIdWatchers() {
+      // Use CMS event system if available
+      if (window.CMS) {
+        console.log('Setting up automatic ID generation...');
+        
+        // Watch for field changes
+        const checkFields = setInterval(() => {
+          const inputs = document.querySelectorAll('input[type="text"]');
+          inputs.forEach(input => {
+            // Check if this is an affiliate URL field
+            const label = input.closest('div')?.querySelector('label');
+            if (label && label.textContent.includes('Affiliate URL')) {
+              if (!input.dataset.idWatcherAttached) {
+                input.dataset.idWatcherAttached = 'true';
+                input.addEventListener('blur', handleAffiliateUrlChange);
+              }
+            }
+            
+            // Check if this is a title field
+            if (label && label.textContent.includes('Title')) {
+              if (!input.dataset.titleWatcherAttached) {
+                input.dataset.titleWatcherAttached = 'true';
+                input.addEventListener('blur', handleTitleChange);
+              }
+            }
+          });
+        }, 1000);
+        
+        // Clean up after 30 seconds
+        setTimeout(() => clearInterval(checkFields), 30000);
+      }
+    }
+    
+    function handleTitleChange(event) {
+      const titleInput = event.target;
+      const title = titleInput.value.trim();
+      
+      if (!title) return;
+      
+      // Find the ID field in the same form
+      const form = titleInput.closest('form') || titleInput.closest('[class*="ControlPane"]');
+      if (!form) return;
+      
+      const idInput = Array.from(form.querySelectorAll('input[type="text"]')).find(input => {
+        const label = input.closest('div')?.querySelector('label');
+        return label && label.textContent.includes('ID');
+      });
+      
+      // Only auto-generate if ID is empty
+      if (idInput && !idInput.value.trim()) {
+        idInput.value = generateId(title);
+        idInput.dispatchEvent(new Event('input', { bubbles: true }));
+        idInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    
+    function handleAffiliateUrlChange(event) {
+      const urlInput = event.target;
+      const url = urlInput.value.trim();
+      
+      if (!url) return;
+      
+      // Find the ID field in the same form
+      const form = urlInput.closest('form') || urlInput.closest('[class*="ControlPane"]');
+      if (!form) return;
+      
+      const idInput = Array.from(form.querySelectorAll('input[type="text"]')).find(input => {
+        const label = input.closest('div')?.querySelector('label');
+        return label && label.textContent.includes('ID');
+      });
+      
+      const titleInput = Array.from(form.querySelectorAll('input[type="text"]')).find(input => {
+        const label = input.closest('div')?.querySelector('label');
+        return label && label.textContent.includes('Title');
+      });
+      
+      // Only auto-generate if ID is empty
+      if (idInput && !idInput.value.trim()) {
+        const title = titleInput?.value.trim();
+        const newId = title ? generateId(title) : generateIdFromUrl(url);
+        idInput.value = newId;
+        idInput.dispatchEvent(new Event('input', { bubbles: true }));
+        idInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    
     // Client-side role enforcement for admin access
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
@@ -125,6 +278,9 @@
         accessDenied.style.display = 'none';
         cmsContainer.style.display = 'block';
         console.log('Admin access granted');
+        
+        // Initialize automatic ID generation
+        setTimeout(initAutoIdGeneration, 1000);
       }
     }
   </script>

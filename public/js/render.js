@@ -101,8 +101,20 @@ async function initSection(opts){
 
   try{
     const items = await loadJson(opts.json);
-    // Featured first, then title
-    items.sort((a,b) => (b.featured===true) - (a.featured===true) || String(a.title||"").localeCompare(String(b.title||"")));
+    // Sort by: priority (desc), featured (desc), then title (asc)
+    items.sort((a,b) => {
+      // Priority sorting (higher first) - default to 0 if not present
+      const priorityA = a.priority ?? 0;
+      const priorityB = b.priority ?? 0;
+      if (priorityA !== priorityB) return priorityB - priorityA;
+      
+      // Featured sorting
+      const featuredDiff = (b.featured===true) - (a.featured===true);
+      if (featuredDiff !== 0) return featuredDiff;
+      
+      // Title sorting
+      return String(a.title||"").localeCompare(String(b.title||""));
+    });
     renderList(container, items, opts.kind);
 
     populateCategorySelect(catEl, uniqueCategories(items));
