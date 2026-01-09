@@ -421,10 +421,28 @@
     }
   </style>
 </head>
-<body>
+<body class="admin-mode">
   <script>
-    // Enable admin mode immediately
-    document.body.classList.add('admin-mode');
+    // Diagnostic: Check if config.yml loads correctly
+    fetch('/admin/config.yml')
+      .then(res => {
+        console.log('📋 Config check:', res.status, res.headers.get('content-type'));
+        return res.text();
+      })
+      .then(text => {
+        if (text.startsWith('<!DOCTYPE') || text.includes('<html')) {
+          console.error('❌ CRITICAL: /admin/config.yml returned HTML instead of YAML!');
+          console.error('This means Netlify redirects are rewriting admin assets.');
+          console.error('Fix: Add /admin/* exception in netlify.toml BEFORE catch-all redirect.');
+        } else if (text.startsWith('backend:') || text.includes('collections:')) {
+          console.log('✅ Config.yml loaded correctly as YAML');
+        } else {
+          console.warn('⚠️ Unexpected config.yml content:', text.substring(0, 100));
+        }
+      })
+      .catch(err => {
+        console.error('❌ Failed to load config.yml:', err);
+      });
   </script>
   
   <header class="header">
