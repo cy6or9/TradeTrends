@@ -25,13 +25,13 @@ collections:
             widget: "list"
             summary: "{{fields.title}}"
             fields:
-              - { label: "ID", name: "id", widget: "string", hint: "Auto-generated when Affiliate URL is entered. You may edit before saving.", required: false }
-              - { label: "Title", name: "title", widget: "string" }
-              - { label: "Tagline", name: "tagline", widget: "string", required: false }
-              - { label: "Price hint", name: "price_hint", widget: "string", required: false, hint: "⚠️ Do NOT include exact prices. Use ranges like 'Under $50' or 'Around $20-30'" }
-              - { label: "Image URL", name: "image", widget: "string", required: false }
-              - { label: "Affiliate URL", name: "affiliate_url", widget: "string", hint: "Enter your Amazon affiliate link here" }
-              - { label: "Category", name: "category", widget: "string", required: false }
+              - { label: "Affiliate URL", name: "affiliate_url", widget: "string", hint: "🎯 PASTE THIS FIRST → Other fields will auto-fill and can be edited." }
+              - { label: "ID", name: "id", widget: "string", hint: "✓ Auto-generated from URL. You may edit before saving.", required: false }
+              - { label: "Title", name: "title", widget: "string", hint: "✓ Auto-filled from URL. Edit as needed.", required: false }
+              - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "✓ Auto-filled with Amazon-safe default. Edit as needed." }
+              - { label: "Price hint", name: "price_hint", widget: "string", required: false, hint: "⚠️ Auto-filled. Do NOT include exact prices. Use ranges like 'Under $50'" }
+              - { label: "Category", name: "category", widget: "string", required: false, hint: "✓ Auto-detected from URL. Edit as needed." }
+              - { label: "Image URL", name: "image", widget: "string", required: false, hint: "Add product image URL (use your own host or placeholder)" }
               - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
               - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
               - label: "Network"
@@ -61,14 +61,14 @@ collections:
             widget: "list"
             summary: "{{fields.brand}} — {{fields.title}}"
             fields:
-              - { label: "ID", name: "id", widget: "string", hint: "Auto-generated when Affiliate URL is entered. You may edit before saving.", required: false }
-              - { label: "Brand", name: "brand", widget: "string" }
-              - { label: "Title", name: "title", widget: "string" }
-              - { label: "Tagline", name: "tagline", widget: "string", required: false }
+              - { label: "Affiliate URL", name: "affiliate_url", widget: "string", hint: "🎯 PASTE THIS FIRST → Other fields will auto-fill and can be edited." }
+              - { label: "ID", name: "id", widget: "string", hint: "✓ Auto-generated from URL. You may edit before saving.", required: false }
+              - { label: "Brand", name: "brand", widget: "string", hint: "✓ Auto-detected from URL. Edit as needed.", required: false }
+              - { label: "Title", name: "title", widget: "string", hint: "✓ Auto-filled from URL. Edit as needed.", required: false }
+              - { label: "Tagline", name: "tagline", widget: "string", required: false, hint: "✓ Auto-filled with travel-friendly default. Edit as needed." }
+              - { label: "Category", name: "category", widget: "string", required: false, hint: "✓ Auto-detected from URL. Edit as needed." }
               - { label: "CTA text", name: "cta", widget: "string", required: false }
-              - { label: "Image URL", name: "image", widget: "string", required: false }
-              - { label: "Affiliate URL", name: "affiliate_url", widget: "string", hint: "Enter your travel affiliate link here" }
-              - { label: "Category", name: "category", widget: "string", required: false }
+              - { label: "Image URL", name: "image", widget: "string", required: false, hint: "Add promo image URL (use your own host or placeholder)" }
               - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
               - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
               - label: "Network"
