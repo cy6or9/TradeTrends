@@ -24,7 +24,10 @@ function buildCard(item, kind){
   const metaB = isTravel ? "" : (item.price_hint || "");
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
-  const url = item.affiliate_url || "#";
+  
+  // Use /go redirect for click tracking
+  const network = isTravel ? "travel" : "amazon";
+  const url = item.id ? `/go/${network}?id=${encodeURIComponent(item.id)}` : (item.affiliate_url || "#");
 
   return `
   <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}">

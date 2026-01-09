@@ -17,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@netlify/blobs": "^7.0.0",
     "netlify-cli": "^17.0.0"
   }
 }
