@@ -331,4 +331,13 @@ if (window.netlifyIdentity) {
   setTimeout(() => clearInterval(checkIdentity), 10000);
 }
 
+// ─── LOGOUT BUTTON HANDLER ───
+
+document.getElementById("adminLogout")?.addEventListener("click", () => {
+  if (window.netlifyIdentity) {
+    window.netlifyIdentity.logout();
+    window.location.href = "/";
+  }
+});
+
 console.log('✓ CMS customization loaded');

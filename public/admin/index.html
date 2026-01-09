@@ -7,6 +7,65 @@
   <meta name="robots" content="noindex,nofollow" />
   <meta name="theme-color" content="#0b1118" />
   <link rel="stylesheet" href="/admin/admin.css" />
+  <style>
+    html, body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0b1d26, #050b10);
+      color: white;
+      height: 100%;
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 20px;
+      background: rgba(5,15,25,0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0,255,255,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 9999;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      color: #3cf;
+    }
+
+    .admin-btn {
+      margin-left: 10px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: rgba(0,255,255,0.12);
+      color: #9ff;
+      text-decoration: none;
+      border: 1px solid rgba(0,255,255,0.3);
+      cursor: pointer;
+      transition: all .2s;
+      font-size: 14px;
+    }
+
+    .admin-btn:hover {
+      background: rgba(0,255,255,0.25);
+      color: white;
+    }
+
+    .admin-btn.danger {
+      border-color: rgba(255,80,80,.5);
+      color: #ff9b9b;
+    }
+
+    .admin-btn.danger:hover {
+      background: rgba(255,80,80,.2);
+    }
+
+    #nc-root {
+      min-height: calc(100vh - 70px);
+    }
+  </style>
 </head>
 <body>
   <!-- Access Denied Message (hidden by default) -->
@@ -17,6 +76,19 @@
       <p>If you believe you should have access, please contact the site administrator.</p>
     </div>
   </div>
+
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <div class="admin-left">
+      <div class="logo">TradeTrends Admin</div>
+    </div>
+    <div class="admin-right">
+      <a href="/" target="_blank" class="admin-btn">View Site</a>
+      <a href="/#amazon" target="_blank" class="admin-btn">Amazon</a>
+      <a href="/#travel" target="_blank" class="admin-btn">Travel</a>
+      <button id="adminLogout" class="admin-btn danger">Logout</button>
+    </div>
+  </header>
 
   <!-- Decap CMS Mount Point -->
   <div id="nc-root"></div>
