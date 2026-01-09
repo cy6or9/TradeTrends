@@ -1,37 +1,17 @@
 {
   "items": [
     {
-      "id": "amz-001",
-      "title": "Portable Power Bank (20,000mAh)",
-      "tagline": "Reliable backup power for travel & camping.",
-      "price_hint": "$25\u2013$45",
-      "image": "https://images.unsplash.com/photo-1597764699515-6c8215b2a4aa?auto=format&fit=crop&w=1200&q=70",
-      "affiliate_url": "https://www.amazon.com/",
-      "category": "Travel Essentials",
-      "featured": true,
-      "last_verified": "2026-01-08"
-    },
-    {
-      "id": "amz-002",
-      "title": "Packing Cubes Set",
-      "tagline": "Pack faster, stay organized, fit more.",
-      "price_hint": "$15\u2013$35",
-      "image": "https://images.unsplash.com/photo-1526481280695-3c687fd643ed?auto=format&fit=crop&w=1200&q=70",
-      "affiliate_url": "https://www.amazon.com/",
-      "category": "Travel Essentials",
-      "featured": true,
-      "last_verified": "2026-01-08"
-    },
-    {
-      "id": "amz-003",
-      "title": "Compact Camping Lantern (Rechargeable)",
-      "tagline": "Bright, lightweight, great for tents & outages.",
-      "price_hint": "$18\u2013$40",
-      "image": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&q=70",
-      "affiliate_url": "https://www.amazon.com/",
-      "category": "Outdoors",
+      "priority": 0,
+      "evergreen": true,
       "featured": false,
-      "last_verified": "2026-01-08"
+      "network": "amazon",
+      "last_verified": "2025-12-11",
+      "title": "Greenworks 48V (2x24V) High - Performance Cordless Yard Tool Combo: 21\" Self - Propelled Lawn Mower, 12\" Trimmer & Blower, with 3 Batteries & 2 Chargers",
+      "id": "Greenworks 48V (2x24V) High - Performance Cordless Yard Tool Combo: 21\" Self - Propelled Lawn Mower, 12\" Trimmer & Blower, with 3 Batteries & 2 Chargers",
+      "image": "https://www.greenworkstools.com/cdn/shop/files/ATFAmazonKit-1_3fd9ad51-23af-4598-986b-a8773aef9d8b.jpg?v=1762312050",
+      "affiliate_url": "https://www.amazon.com/Greenworks-48V-2x24V-High-Performance/dp/B0C2ZMYVWM?content-id=amzn1.sym.5dc91e8b-22f1-4f36-9b40-34a7802651b9%3Aamzn1.sym.5dc91e8b-22f1-4f36-9b40-34a7802651b9&crid=6H0JFPDLADDP&cv_ct_cx=greenworks%2Bmower%2Bblower%2Btrimmer%2Bcombo&keywords=greenworks%2Bmower%2Bblower%2Btrimmer%2Bcombo&pd_rd_i=B0C2ZMYVWM&pd_rd_r=b55f13e6-4506-4b26-b034-dfb8bba7d925&pd_rd_w=nn7qL&pd_rd_wg=PSfEv&pf_rd_p=5dc91e8b-22f1-4f36-9b40-34a7802651b9&pf_rd_r=XVFPKHDEETG5Z0X24WV4&qid=1767967611&sbo=RZvfv%2F%2FHxDF%2BO5021pAnSA%3D%3D&sprefix=greenworks%2Bmower%2Bblower%2B%2Caps%2C141&sr=1-3-82c53dfb-e7ac-41f3-9604-355dc7747827-spons&aref=vx393GZ86p&sp_csd=d2lkZ2V0TmFtZT1zcF9zZWFyY2hfdGhlbWF0aWM&th=1&linkCode=ll1&tag=triggaj0e-20&linkId=6d916daa0b24dcf337317487b7a5dbb7&language=en_US&ref_=as_li_ss_tl",
+      "price_hint": "$600 - $1000",
+      "category": "Outdoor Power Gear"
     }
   ]
 }
