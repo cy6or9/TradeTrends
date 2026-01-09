@@ -40,6 +40,20 @@
       "affiliate_url": "https://amzn.to/3LaCfpL",
       "price_hint": "$40 - $60",
       "category": "Outdoor Gear"
+    },
+    {
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Set up in minutes and relax in a roomy, weather-ready camping tent.",
+      "last_verified": "2026-01-06",
+      "title": "4 Person Inflatable Tent for Camping, Large Blow Up Tent with Hand Pump, Easy Setup InflatableTent 4 Season Tent, Waterproof Oxford Air Glamping Tents for Camping Adult",
+      "id": "4 Person Inflatable Tent for Camping, Large Blow Up Tent with Hand Pump, Easy Setup InflatableTent 4 Season Tent, Waterproof Oxford Air Glamping Tents for Camping Adult",
+      "image": "https://mobileimages.lowes.com/productimages/da4525ba-d5ac-4e15-9655-c80bdb92d08a/70060174.jpeg?size=mthb",
+      "affiliate_url": "https://amzn.to/4qLqQMb",
+      "price_hint": "$230 - $350",
+      "category": "Outdoor Gear"
     }
   ]
 }
