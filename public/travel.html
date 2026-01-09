@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Travel Promos — TradeTrends Deals</title>
+  <meta name="description" content="Travel promos and booking offers, curated for quick comparisons." />
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        <span>TradeTrends Deals</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="pill" href="/#amazon">Amazon</a>
+        <a class="pill" href="/#travel">Travel</a>
+        <a class="pill" href="/amazon.html">Amazon page</a>
+        <a class="pill" href="/travel.html">Travel page</a>
+        <a class="pill" href="/admin/">Admin</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="card heroMain">
+      <div class="kicker"><span class="dot" aria-hidden="true"></span> Travel-only</div>
+      <h1 class="h1">Travel promos</h1>
+      <p class="sub">Booking, bundles, and travel gear—built for Pinterest clicks and fast decisions.</p>
+      <div class="heroCtas">
+        <a class="btn" href="/#travel">Back to hub</a>
+        <a class="btn" href="/admin/">Admin dashboard</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="sectionHeader">
+      <div>
+        <h2>Browse</h2>
+        <p>Search and filter to match your travel pins.</p>
+      </div>
+      <div class="filters">
+        <input class="input" id="travSearch" placeholder="Search travel promos…" inputmode="search" />
+        <select id="travCategory" aria-label="Travel categories"></select>
+      </div>
+    </div>
+    <div class="grid" id="travGrid" aria-live="polite"></div>
+  </section>
+</main>
+
+<script src="/js/render.js"></script>
+<script>
+  TT.initSection({
+    container: "#travGrid",
+    search: "#travSearch",
+    category: "#travCategory",
+    json: "/data/travel.json",
+    kind: "travel"
+  });
+</script>
+
+<footer class="footer">
+  <div class="container">
+    <div class="notice">
+      <b>Affiliate disclosure:</b> Some links on this site are affiliate links. If you click and purchase, we may earn a commission at no extra cost to you.
+      <div style="height:8px"></div>
+      <span class="small">Tip: For best results on Pinterest, link your pins to a relevant section (Amazon or Travel) or to the dedicated category page.</span>
+    </div>
+    <div style="height:14px"></div>
+    <div class="small">© <span id="y"></span> TradeTrends Deals • Built for speed on Netlify</div>
+  </div>
+</footer>
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

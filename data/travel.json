@@ -1,0 +1,40 @@
+{
+  "items": [
+    {
+      "id": "trav-001",
+      "brand": "Booking.com",
+      "title": "Hotel Deals & Member Prices",
+      "tagline": "Compare stays and grab member discounts.",
+      "cta": "View deals",
+      "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.booking.com/",
+      "category": "Hotels",
+      "featured": true,
+      "last_verified": "2026-01-08"
+    },
+    {
+      "id": "trav-002",
+      "brand": "Expedia",
+      "title": "Bundles: Flight + Hotel",
+      "tagline": "Package deals can save big on weekends.",
+      "cta": "Explore bundles",
+      "image": "https://images.unsplash.com/photo-1502920917128-1aa500764b16?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.expedia.com/",
+      "category": "Packages",
+      "featured": true,
+      "last_verified": "2026-01-08"
+    },
+    {
+      "id": "trav-003",
+      "brand": "Amazon",
+      "title": "Travel Gear Deals",
+      "tagline": "Curated travel essentials that actually get used.",
+      "cta": "Shop travel gear",
+      "image": "https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=1200&q=70",
+      "affiliate_url": "https://www.amazon.com/",
+      "category": "Gear",
+      "featured": false,
+      "last_verified": "2026-01-08"
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradeTrends Deals — Amazon Finds + Travel Promos</title>
+  <meta name="description" content="Fast-loading deals hub: curated Amazon finds plus travel promos. Updated often." />
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        <span>TradeTrends Deals</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="pill" href="/#amazon">Amazon</a>
+        <a class="pill" href="/#travel">Travel</a>
+        <a class="pill" href="/amazon.html">Amazon page</a>
+        <a class="pill" href="/travel.html">Travel page</a>
+        <a class="pill" href="/admin/">Admin</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="heroGrid">
+      <div class="card heroMain">
+        <div class="kicker"><span class="dot" aria-hidden="true"></span> Curated deals • Built for speed • Pinterest-ready</div>
+        <h1 class="h1">Amazon finds + travel promos that actually convert.</h1>
+        <p class="sub">
+          A clean, fast hub for the best Amazon products and travel offers. No clutter—just the deals worth clicking.
+        </p>
+        <div class="heroCtas">
+          <a class="btn" href="#amazon">Shop Amazon finds</a>
+          <a class="btn" href="#travel">Browse travel promos</a>
+        </div>
+        <div style="height:10px"></div>
+        <p class="small">Pro move: Create Pinterest pins for specific categories (e.g., “Travel Essentials”) and link directly to that section.</p>
+      </div>
+      <aside class="card heroAside">
+        <div class="metric"><b>Ultra-fast pages</b><span>Static HTML + tiny JS, CDN-cached.</span></div>
+        <div class="metric"><b>Admin-only dashboard</b><span>Manage deals in /admin (Netlify Identity).</span></div>
+        <div class="metric"><b>Scales later</b><span>Add pages/categories as you grow.</span></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="amazon">
+    <div class="sectionHeader">
+      <div>
+        <h2>Amazon finds</h2>
+        <p>Curated products with a quick reason to buy.</p>
+      </div>
+      <div class="filters">
+        <input class="input" id="amzSearch" placeholder="Search Amazon finds…" inputmode="search" />
+        <select id="amzCategory" aria-label="Amazon categories"></select>
+      </div>
+    </div>
+    <div class="grid" id="amzGrid" aria-live="polite"></div>
+  </section>
+
+  <section class="section" id="travel">
+    <div class="sectionHeader">
+      <div>
+        <h2>Travel promos</h2>
+        <p>Hotels, bundles, and travel gear worth bookmarking.</p>
+      </div>
+      <div class="filters">
+        <input class="input" id="travSearch" placeholder="Search travel promos…" inputmode="search" />
+        <select id="travCategory" aria-label="Travel categories"></select>
+      </div>
+    </div>
+    <div class="grid" id="travGrid" aria-live="polite"></div>
+  </section>
+</main>
+
+<script src="/js/render.js"></script>
+<script>
+  TT.initSection({
+    container: "#amzGrid",
+    search: "#amzSearch",
+    category: "#amzCategory",
+    json: "/data/amazon.json",
+    kind: "amazon"
+  });
+  TT.initSection({
+    container: "#travGrid",
+    search: "#travSearch",
+    category: "#travCategory",
+    json: "/data/travel.json",
+    kind: "travel"
+  });
+</script>
+
+<footer class="footer">
+  <div class="container">
+    <div class="notice">
+      <b>Affiliate disclosure:</b> Some links on this site are affiliate links. If you click and purchase, we may earn a commission at no extra cost to you.
+      <div style="height:8px"></div>
+      <span class="small">Tip: For best results on Pinterest, link your pins to a relevant section (Amazon or Travel) or to the dedicated category page.</span>
+    </div>
+    <div style="height:14px"></div>
+    <div class="small">© <span id="y"></span> TradeTrends Deals • Built for speed on Netlify</div>
+  </div>
+</footer>
+<script>
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

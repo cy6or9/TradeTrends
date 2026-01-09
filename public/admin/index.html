@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TradeTrends Admin</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#0b0f14" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    /* Decap CMS renders inside #nc-root; keep it dark */
+    body { background: #0b0f14; }
+    .adminShell { padding: 18px 0; }
+    .adminShell .notice { margin-top: 14px; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="/">
+          <span class="logo" aria-hidden="true"></span>
+          <span>TradeTrends Admin</span>
+        </a>
+        <nav class="navlinks">
+          <a class="pill" href="/">View site</a>
+          <a class="pill" href="/#amazon">Amazon section</a>
+          <a class="pill" href="/#travel">Travel section</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="container adminShell">
+    <div class="card heroMain">
+      <div class="kicker"><span class="dot" aria-hidden="true"></span> Admin-only dashboard</div>
+      <h1 class="h1" style="font-size:32px">Manage your deals</h1>
+      <p class="sub">
+        Use the editor below to add/update deals. Changes are saved to your repo via Netlify Identity + Git Gateway,
+        then your public site instantly reflects the updates (it reads the JSON files).
+      </p>
+      <div class="notice">
+        <b>Important:</b> Only invited users can log in. Invite: <span class="mono">ipromoteliving@gmail.com</span>
+        <div class="hint" style="margin-top:6px">
+          In Netlify → Site settings → Identity → <b>Invite users</b>. Enable Git Gateway so the CMS can write to the repo.
+        </div>
+      </div>
+    </div>
+
+    <div style="height:14px"></div>
+
+    <div class="card" style="padding:0; overflow:hidden">
+      <!-- Decap CMS will mount here -->
+      <div id="nc-root"></div>
+    </div>
+  </main>
+
+  <!-- Netlify Identity (login) -->
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+  <!-- Decap CMS (Netlify CMS successor) -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+  <script>
+    // Optional: force login modal if not logged in.
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          window.netlifyIdentity.open("login");
+        }
+      });
+      window.netlifyIdentity.init();
+    }
+  </script>
+</body>
+</html>

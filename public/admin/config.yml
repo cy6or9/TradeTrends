@@ -1,0 +1,62 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "public/assets"
+public_folder: "/assets"
+
+site_url: "/"
+
+locale: "en"
+
+collections:
+  - name: "amazon"
+    label: "Amazon Deals"
+    label_singular: "Amazon deal"
+    format: "json"
+    extension: "json"
+    files:
+      - file: "data/amazon.json"
+        label: "Amazon deals list"
+        name: "amazon_deals"
+        fields:
+          - label: "Deals"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: "ID", name: "id", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Tagline", name: "tagline", widget: "string", required: false }
+              - { label: "Price hint", name: "price_hint", widget: "string", required: false }
+              - { label: "Image URL", name: "image", widget: "string", required: false }
+              - { label: "Affiliate URL", name: "affiliate_url", widget: "string" }
+              - { label: "Category", name: "category", widget: "string", required: false }
+              - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+              - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
+
+  - name: "travel"
+    label: "Travel Promos"
+    label_singular: "Travel promo"
+    format: "json"
+    extension: "json"
+    files:
+      - file: "data/travel.json"
+        label: "Travel promos list"
+        name: "travel_promos"
+        fields:
+          - label: "Promos"
+            name: "items"
+            widget: "list"
+            summary: "{{fields.brand}} — {{fields.title}}"
+            fields:
+              - { label: "ID", name: "id", widget: "string" }
+              - { label: "Brand", name: "brand", widget: "string" }
+              - { label: "Title", name: "title", widget: "string" }
+              - { label: "Tagline", name: "tagline", widget: "string", required: false }
+              - { label: "CTA text", name: "cta", widget: "string", required: false }
+              - { label: "Image URL", name: "image", widget: "string", required: false }
+              - { label: "Affiliate URL", name: "affiliate_url", widget: "string" }
+              - { label: "Category", name: "category", widget: "string", required: false }
+              - { label: "Featured", name: "featured", widget: "boolean", required: false, default: false }
+              - { label: "Last verified (YYYY-MM-DD)", name: "last_verified", widget: "string", required: false }
