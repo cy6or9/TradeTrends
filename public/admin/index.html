@@ -14,6 +14,23 @@
     .adminShell .notice { margin-top: 14px; }
     .hint { color: var(--muted); font-size: 13px; line-height: 1.6; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    #accessDenied {
+      display: none;
+      background: rgba(255, 68, 68, 0.1);
+      border: 1px solid rgba(255, 68, 68, 0.3);
+      border-radius: 18px;
+      padding: 22px;
+      margin-top: 14px;
+      color: #ff6b6b;
+    }
+    #accessDenied h2 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      color: #ff6b6b;
+    }
+    #cmsContainer {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -51,7 +68,13 @@
 
     <div style="height:14px"></div>
 
-    <div class="card" style="padding:0; overflow:hidden">
+    <div id="accessDenied">
+      <h2>Access Denied</h2>
+      <p>This admin dashboard is restricted to users with the <strong>admin</strong> role.</p>
+      <p class="hint">If you believe you should have access, please contact the site administrator to update your role in Netlify Identity settings.</p>
+    </div>
+
+    <div id="cmsContainer" class="card" style="padding:0; overflow:hidden">
       <!-- Decap CMS will mount here -->
       <div id="nc-root"></div>
     </div>
@@ -64,14 +87,45 @@
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
   <script>
-    // Optional: force login modal if not logged in.
+    // Client-side role enforcement for admin access
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
         if (!user) {
+          // Not logged in - open login modal
           window.netlifyIdentity.open("login");
+        } else {
+          // User is logged in - check role
+          checkAdminAccess(user);
         }
       });
+
+      window.netlifyIdentity.on("login", user => {
+        // After login, check admin access
+        checkAdminAccess(user);
+      });
+
       window.netlifyIdentity.init();
+    }
+
+    function checkAdminAccess(user) {
+      const accessDenied = document.getElementById('accessDenied');
+      const cmsContainer = document.getElementById('cmsContainer');
+      
+      // Get user roles from app_metadata
+      const roles = user.app_metadata?.roles || [];
+      const isAdmin = roles.includes('admin');
+
+      if (!isAdmin) {
+        // User is logged in but not an admin
+        accessDenied.style.display = 'block';
+        cmsContainer.style.display = 'none';
+        console.log('Access denied: User does not have admin role');
+      } else {
+        // User has admin role - show CMS
+        accessDenied.style.display = 'none';
+        cmsContainer.style.display = 'block';
+        console.log('Admin access granted');
+      }
     }
   </script>
 </body>

@@ -1,20 +1,6 @@
 [build]
   publish = "public"
 
-# Admin: only users with Role 'admin' can access /admin/*
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}
-
-# Everyone else gets redirected away from /admin/*
-[[redirects]]
-  from = "/admin/*"
-  to = "/"
-  status = 302
-  force = true
-
 [[headers]]
   for = "/*"
   [headers.values]
