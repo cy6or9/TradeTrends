@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#0b0f14" />
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 
@@ -120,18 +121,18 @@
 <script>
   document.getElementById('y').textContent = new Date().getFullYear();
   
-  // Authentication functionality
+  // Netlify Identity Authentication
   const authStatus = document.getElementById('authStatus');
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   
-  // Simple auth state management (stored in localStorage)
-  function checkAuthState() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    const username = localStorage.getItem('username');
+  function updateAuthUI() {
+    const user = netlifyIdentity.currentUser();
     
-    if (isLoggedIn && username) {
-      authStatus.textContent = `Logged in as: ${username}`;
+    if (user) {
+      const email = user.email || 'User';
+      const name = user.user_metadata?.full_name || email;
+      authStatus.textContent = `Logged in as: ${name}`;
       loginBtn.style.display = 'none';
       logoutBtn.style.display = 'inline-flex';
     } else {
@@ -141,30 +142,40 @@
     }
   }
   
-  // Login handler
+  // Initialize Netlify Identity
+  if (window.netlifyIdentity) {
+    netlifyIdentity.on('init', user => {
+      updateAuthUI();
+    });
+    
+    netlifyIdentity.on('login', user => {
+      updateAuthUI();
+      netlifyIdentity.close();
+    });
+    
+    netlifyIdentity.on('logout', () => {
+      updateAuthUI();
+    });
+    
+    netlifyIdentity.init();
+  }
+  
+  // Login button handler
   loginBtn.addEventListener('click', () => {
-    const username = prompt('Enter your username:');
-    if (username && username.trim()) {
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('username', username.trim());
-      checkAuthState();
-      alert(`Welcome, ${username.trim()}!`);
+    if (window.netlifyIdentity) {
+      netlifyIdentity.open('login');
     }
   });
   
-  // Logout handler
+  // Logout button handler
   logoutBtn.addEventListener('click', () => {
-    const confirmed = confirm('Are you sure you want to logout?');
-    if (confirmed) {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('username');
-      checkAuthState();
-      alert('You have been logged out.');
+    if (window.netlifyIdentity) {
+      const confirmed = confirm('Are you sure you want to logout?');
+      if (confirmed) {
+        netlifyIdentity.logout();
+      }
     }
   });
-  
-  // Initialize auth state on page load
-  checkAuthState();
 </script>
 </body>
 </html>
