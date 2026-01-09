@@ -711,38 +711,92 @@
           // Not logged in - open login modal
           window.netlifyIdentity.open("login");
         } else {
-          // User is logged in - check role
+          // User is logged in - normalize metadata and check role
+          normalizeUserMetadata(user);
           checkAdminAccess(user);
         }
       });
 
       window.netlifyIdentity.on("login", user => {
-        // After login, check admin access
+        // After login, normalize metadata to prevent widget crashes
+        normalizeUserMetadata(user);
+        
+        // Then check admin access
         checkAdminAccess(user);
+        
+        // Close the widget modal
+        window.netlifyIdentity.close();
       });
 
       window.netlifyIdentity.init();
     }
 
+    // Normalize user metadata to prevent widget crashes
+    function normalizeUserMetadata(user) {
+      if (!user) return;
+      
+      // Ensure user_metadata exists
+      if (!user.user_metadata) {
+        user.user_metadata = {};
+      }
+      
+      // Fix missing full_name (common with Google login)
+      if (!user.user_metadata.full_name) {
+        const fallbackName = user.email ? user.email.split('@')[0] : 'User';
+        user.user_metadata.full_name = fallbackName;
+        
+        console.log('Normalized missing full_name:', fallbackName);
+        
+        // Try to persist the update (may fail silently if permissions don't allow)
+        try {
+          if (user.update && typeof user.update === 'function') {
+            user.update({ user_metadata: user.user_metadata });
+          }
+        } catch (err) {
+          console.warn('Could not persist user_metadata update:', err);
+        }
+      }
+    }
+
     function checkAdminAccess(user) {
+      if (!user) {
+        console.error('checkAdminAccess called with null user');
+        return;
+      }
+      
       const accessDenied = document.getElementById('accessDenied');
       const cmsContainer = document.getElementById('cmsContainer');
       
-      // Get user roles from app_metadata
+      // Get user roles from app_metadata (NOT from widget UI state)
       const roles = user.app_metadata?.roles || [];
       const isAdmin = roles.includes('admin');
+      
+      // Get safe display name
+      const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+      const roleLabel = isAdmin ? 'Admin' : 'User';
 
       if (!isAdmin) {
         // User is logged in but not an admin
         accessDenied.style.display = 'block';
         cmsContainer.style.display = 'none';
         console.log('Access denied: User does not have admin role');
+        console.log(`User: ${displayName} (${user.email}) - Roles:`, roles);
       } else {
         // User has admin role - show CMS
         accessDenied.style.display = 'none';
         cmsContainer.style.display = 'block';
-        console.log('Admin access granted');
+        console.log(`✓ Admin access granted: ${displayName} (${user.email})`);
+        console.log('User roles:', roles);
       }
+      
+      // Update any UI elements that show user role
+      updateUserRoleDisplay(user, isAdmin, displayName, roleLabel);
+    }
+    
+    function updateUserRoleDisplay(user, isAdmin, displayName, roleLabel) {
+      // This function can be extended to update UI elements
+      // For now, just log the status
+      console.log(`User display: ${displayName} - Role: ${roleLabel}`);
     }
   </script>
 </body>
