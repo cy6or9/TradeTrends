@@ -109,10 +109,62 @@
     </div>
     <div style="height:14px"></div>
     <div class="small">© <span id="y"></span> TradeTrends Deals • Built for speed on Netlify</div>
+    <div style="height:14px"></div>
+    <div class="auth-buttons">
+      <span id="authStatus" class="small"></span>
+      <button id="loginBtn" class="auth-btn" style="display:none;">Login</button>
+      <button id="logoutBtn" class="auth-btn" style="display:none;">Logout</button>
+    </div>
   </div>
 </footer>
 <script>
   document.getElementById('y').textContent = new Date().getFullYear();
+  
+  // Authentication functionality
+  const authStatus = document.getElementById('authStatus');
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  // Simple auth state management (stored in localStorage)
+  function checkAuthState() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const username = localStorage.getItem('username');
+    
+    if (isLoggedIn && username) {
+      authStatus.textContent = `Logged in as: ${username}`;
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-flex';
+    } else {
+      authStatus.textContent = 'Not logged in';
+      loginBtn.style.display = 'inline-flex';
+      logoutBtn.style.display = 'none';
+    }
+  }
+  
+  // Login handler
+  loginBtn.addEventListener('click', () => {
+    const username = prompt('Enter your username:');
+    if (username && username.trim()) {
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('username', username.trim());
+      checkAuthState();
+      alert(`Welcome, ${username.trim()}!`);
+    }
+  });
+  
+  // Logout handler
+  logoutBtn.addEventListener('click', () => {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (confirmed) {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('username');
+      checkAuthState();
+      alert('You have been logged out.');
+    }
+  });
+  
+  // Initialize auth state on page load
+  checkAuthState();
 </script>
 </body>
 </html>
