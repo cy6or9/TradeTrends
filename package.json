@@ -1,0 +1,22 @@
+{
+  "name": "tradetrends",
+  "version": "1.0.0",
+  "description": "Static affiliate site with Decap CMS and Netlify Identity",
+  "scripts": {
+    "dev": "netlify dev",
+    "dev:offline": "netlify dev --offline",
+    "build": "echo 'Static site - no build needed'",
+    "test": "echo 'No tests configured'"
+  },
+  "keywords": [
+    "affiliate",
+    "netlify",
+    "decap-cms",
+    "static-site"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
