@@ -6,7 +6,7 @@
 
 backend:
   name: git-gateway
-  branch: main
+  branch: content  # Writes to content branch (not live until merged to main)
 
 media_folder: "public/assets"
 public_folder: "/assets"

@@ -115,7 +115,68 @@ npx netlify deploy --prod
 3. Test trends refresh with admin account
 4. Verify Travelpayouts script loads
 
-## 📚 Documentation
+## � Publishing Workflow (Draft → Live)
+
+The CMS uses a **two-branch workflow** to prevent premature deploys:
+
+| Branch | Purpose | Deployed? |
+|--------|---------|-----------|
+| `content` | Draft edits from CMS | ❌ No |
+| `main` | Live production site | ✅ Yes |
+
+### Day-to-Day: Adding Deals (Draft Mode)
+
+1. **Login to `/admin`** and edit deals
+2. **Click "Publish"** in CMS
+3. ✅ Changes save to `content` branch (not live)
+4. ❌ NO Netlify build triggered (by design)
+
+This allows you to:
+- Add multiple deals without deploying each time
+- Review changes before going live
+- Batch publish (trigger ONE build instead of many)
+
+### When Ready: Publishing to Live Site
+
+**Option 1: GitHub Web UI (Easiest)**
+1. Go to your repository on GitHub
+2. Navigate to "Pull requests" → "New pull request"
+3. Set **base:** `main`, **compare:** `content`
+4. Click "Create pull request"
+5. Review the changes (see what deals you're publishing)
+6. Click "Merge pull request"
+7. ✅ Netlify automatically builds and deploys
+
+**Option 2: Git Command Line**
+```bash
+# Create content branch (first-time only)
+git checkout -b content
+git push -u origin content
+git checkout main
+
+# Day-to-day publishing workflow:
+git checkout main
+git pull origin main
+git merge origin/content
+git push origin main  # Triggers Netlify deploy
+```
+
+### Handling Merge Conflicts
+
+If you get conflicts in `public/data/*.json`:
+1. Open the conflicted file
+2. Keep ALL deals from both branches (merge the `items` arrays)
+3. Remove conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+4. Save, commit, and push
+
+**Safety Tips:**
+- ❌ Never force push to `main` or `content`
+- ✅ Always merge, never rebase production branches
+- ✅ Keep both deal lists when resolving conflicts
+
+See [public/admin/README.md](public/admin/README.md) for detailed workflow guide.
+
+## �📚 Documentation
 
 | Document | Description |
 |----------|-------------|

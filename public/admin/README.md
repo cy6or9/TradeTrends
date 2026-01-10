@@ -1,6 +1,30 @@
-# TradeTrends Admin (Decap CMS)
+# TradeTrends Admin - Draft/Publish Workflow
 
-Clean, minimal admin interface with **zero duplicate loads** to prevent React crashes.
+Clean, minimal admin interface with **draft/publish workflow** to prevent premature deploys.
+
+## 📝 How the Workflow Works
+
+The CMS uses a **two-branch system** for content management:
+
+| Branch | Purpose | Deployed? |
+|--------|---------|-----------|
+| `content` | Draft edits from CMS | ❌ No |
+| `main` | Live site content | ✅ Yes |
+
+### When You Click "Publish" in CMS:
+1. Changes save to `content` branch (NOT `main`)
+2. Git commit is created
+3. **NO Netlify build is triggered** (by design)
+4. Deals remain in draft until merged to `main`
+
+### To Make Deals Live:
+Merge `content` → `main` (see "Publishing Workflow" section below)
+
+This allows you to:
+- ✅ Add multiple deals without deploying each time
+- ✅ Review changes before going live
+- ✅ Batch publish deals (trigger ONE build instead of many)
+- ✅ Collaborate without breaking live site
 
 ## Files
 
@@ -32,11 +56,8 @@ Clean, minimal admin interface with **zero duplicate loads** to prevent React cr
 ### Local Development
 
 ```bash
-# Install Netlify CLI
-npm install -g netlify-cli
-
 # Start local dev server with Identity + Git Gateway
-netlify dev
+npm run dev
 
 # Visit admin
 open http://localhost:8888/admin
@@ -47,9 +68,70 @@ open http://localhost:8888/admin
 - Git Gateway (write to repo)
 - Netlify Functions (URL resolver)
 
+**Local Limitation**: Changes you publish locally will go to `content` branch but won't deploy until merged to `main`.
+
 ### Production
 
-Visit: `https://tradetrend.netlify.app/admin`
+Visit: `https://YOUR_SITE.netlify.app/admin`
+
+## 🚀 Publishing Workflow
+
+### Step 1: Edit Deals in CMS (Draft)
+1. Login to `/admin`
+2. Add or edit deals
+3. Click "Publish"
+4. ✅ Saved to `content` branch (not live yet)
+
+### Step 2: Merge to Main (Go Live)
+
+#### Option A: GitHub Web UI (Easiest)
+1. Go to your GitHub repository
+2. Click "Pull requests" → "New pull request"
+3. Set base: `main`, compare: `content`
+4. Click "Create pull request" → "Merge pull request"
+5. ✅ Netlify builds and deploys automatically
+
+#### Option B: Git Command Line
+```bash
+# Switch to main branch
+git checkout main
+git pull origin main
+
+# Merge content into main
+git merge origin/content
+
+# Push to trigger deployment
+git push origin main
+```
+
+### Step 3: Verify Live Site
+- Visit your public URL
+- Deals should now be visible
+- Check dashboard for click tracking
+
+## ⚠️ Important Notes
+
+### Merge Conflicts
+If you get conflicts in `public/data/*.json`:
+- Open the file
+- Keep ALL deals from both branches (merge the items arrays)
+- Remove conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+- Commit and push
+
+### Safety
+- ❌ Never force push to `main` or `content`
+- ✅ Always merge, never rebase
+- ✅ Keep both deal lists when merging
+
+### First-Time Setup
+Create the `content` branch (one-time):
+```bash
+git checkout -b content
+git push -u origin content
+git checkout main
+```
+
+Then configure your Netlify site to use the CMS (already done in `config.yml`).
 
 ## Features
 

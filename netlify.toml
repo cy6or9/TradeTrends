@@ -1,6 +1,7 @@
 [build]
   publish = "public"
   functions = "netlify/functions"
+  ignore = "bash ./netlify-ignore.sh"
 
 # Redirect /go/* to click tracking function
 [[redirects]]
