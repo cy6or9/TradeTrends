@@ -87,17 +87,17 @@
 
   <!-- Draft Mode Banner -->
   <div style="background: linear-gradient(135deg, #ff6b35 0%, #ffd700 100%); color: #000; padding: 10px 20px; text-align: center; font-weight: 600; font-size: 14px; border-bottom: 2px solid #ff6b35;">
-    📝 Draft Mode: Changes save to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">content</code> branch (not live until merged to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">main</code>)
+    📝 Draft Mode: Changes save to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">content</code> branch (merge to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">main</code> to deploy)
   </div>
 
   <!-- Local CMS Mode Banner (shows only when using local backend) -->
   <div id="local-cms-banner" style="display:none; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; padding: 10px 20px; text-align: center; font-weight: 700; font-size: 14px; border-bottom: 2px solid #c0392b; letter-spacing: 0.5px;">
-    🔧 LOCAL CMS MODE — CHANGES NOT PUBLISHED TO GIT (Local drafts only)
+    🔧 LOCAL BACKEND MODE — Changes NOT committed to Git (local drafts in .decaps/ only)
   </div>
 
   <!-- Dev Environment Notice (shows only in non-production) -->
   <div id="dev-notice" style="display:none; background: #0a3d62; color: #00d2ff; padding: 8px 20px; text-align: center; font-size: 13px; border-bottom: 1px solid #00d2ff;">
-    💡 <strong>Local Dev:</strong> Use <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">npm run dev</code> for full CMS editing (Identity/Git Gateway) or <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">npm run cms</code> + open separately for local-only mode
+    💡 <strong>Codespaces Dev:</strong> Run <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">npm run dev:cms</code> to start both servers (decap-server + netlify dev)
   </div>
 
   <!-- Admin Header -->
@@ -117,25 +117,7 @@
   <!-- Decap CMS Mount Point -->
   <div id="nc-root"></div>
 
-  <!-- Auto-detect local environment and enable local backend -->
-  <script>
-    (function() {
-      const hostname = window.location.hostname;
-      const isLocal = hostname === 'localhost' || 
-                      hostname.includes('127.0.0.1') ||
-                      hostname.includes('app.github.dev') ||
-                      hostname.includes('gitpod.io') ||
-                      hostname.includes('codespaces');
-      
-      // Enable local backend mode for Decap CMS
-      if (isLocal) {
-        window.CMS_MANUAL_INIT = true; // Prevent auto-init to set config first
-        window.CMS_LOCAL_BACKEND = true; // Enable local backend
-      }
-    })();
-  </script>
-
-  <!-- Show dev notice in local/Codespaces environments -->
+  <!-- Show dev notice and local backend banner in local environments -->
   <script>
     (function() {
       const hostname = window.location.hostname;
@@ -165,10 +147,10 @@
   <!-- Netlify Identity (login) -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-  <!-- Decap CMS - SINGLE LOAD ONLY -->
+  <!-- Decap CMS - SINGLE LOAD, AUTO-INIT -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-  <!-- CMS Customizations (autofill, auth, roles) -->
+  <!-- CMS Customizations (autofill, auth, roles) - NO DOM MANIPULATION -->
   <script src="/admin/cms.js"></script>
 </body>
 </html>

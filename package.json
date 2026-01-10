@@ -5,10 +5,8 @@
   "scripts": {
     "cms": "decap-server",
     "dev": "netlify dev",
-    "dev:offline": "netlify dev --offline",
     "dev:cms": "concurrently -k -n \"CMS,DEV\" -c \"cyan,green\" \"npm run cms\" \"npm run dev\"",
-    "cms:proxy": "decap-server",
-    "dev:full": "concurrently -k -n \"CMS,DEV\" -c \"cyan,green\" \"npm run cms:proxy\" \"npm run dev\"",
+    "dev:offline": "netlify dev --offline",
     "build": "echo 'Static site - no build needed'",
     "test": "echo 'No tests configured'"
   },
