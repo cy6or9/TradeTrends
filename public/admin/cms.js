@@ -315,29 +315,39 @@ if (window.CMS) {
   setTimeout(() => clearInterval(checkCMS), 10000);
 }
 
-// Initialize Netlify Identity
+// Initialize Netlify Identity (with fallback for local_backend mode)
 if (window.netlifyIdentity) {
   initNetlifyIdentity();
 } else {
   // Wait for Identity widget to load
+  let identityAttempts = 0;
   const checkIdentity = setInterval(() => {
+    identityAttempts++;
     if (window.netlifyIdentity) {
       clearInterval(checkIdentity);
       initNetlifyIdentity();
+    } else if (identityAttempts > 50) {
+      // After 5 seconds, assume local_backend mode
+      clearInterval(checkIdentity);
+      console.warn('⚠️ Netlify Identity not loaded. Using local_backend mode?');
+      console.log('💡 For full auth, run: npm run dev');
     }
   }, 100);
-  
-  // Timeout after 10 seconds
-  setTimeout(() => clearInterval(checkIdentity), 10000);
 }
 
 // ─── LOGOUT BUTTON HANDLER ───
 
-document.getElementById("adminLogout")?.addEventListener("click", () => {
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.logout();
-    window.location.href = "/";
-  }
-});
+const logoutBtn = document.getElementById("adminLogout");
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    if (window.netlifyIdentity && typeof window.netlifyIdentity.logout === 'function') {
+      window.netlifyIdentity.logout();
+      window.location.href = "/";
+    } else {
+      console.warn('⚠️ Netlify Identity logout not available');
+      window.location.href = "/";
+    }
+  });
+}
 
 console.log('✓ CMS customization loaded');

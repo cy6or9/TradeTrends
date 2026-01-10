@@ -60,24 +60,35 @@ A **fast, Pinterest-friendly affiliate site** with dark neon theme, featuring cl
 # Install dependencies
 npm install
 
-# Start Netlify Dev server
+# Start Netlify Dev server (with full auth)
 npm run dev
+
+# OR: Local-only mode (no auth, for quick testing)
+npm run dev:full
 
 # Visit site
 open http://localhost:8888/
 ```
 
+**Testing CMS locally:** See [LOCAL_CMS_DEV.md](LOCAL_CMS_DEV.md) for detailed instructions.
+
 ### First-Time Setup
 
-1. **Test Locally:**
+1. **Link to Netlify (one-time):**
+   ```bash
+   npx netlify login
+   npx netlify link
+   ```
+
+2. **Test Locally:**
    ```bash
    ./verify-deployment.sh  # Run automated checks
    npm run dev             # Start local server
    ```
 
-2. **Click a few deals** on http://localhost:8888/
-3. **Check dashboard** at http://localhost:8888/admin/dashboard.html
-4. **Verify clicks tracked** in `.netlify/state/tt_clicks.json`
+3. **Click a few deals** on http://localhost:8888/
+4. **Check dashboard** at http://localhost:8888/admin/dashboard.html
+5. **Verify clicks tracked** in `.netlify/state/tt_clicks.json`
 
 See [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed testing instructions.
 
@@ -180,8 +191,10 @@ See [public/admin/README.md](public/admin/README.md) for detailed workflow guide
 
 | Document | Description |
 |----------|-------------|
+| [LOCAL_CMS_DEV.md](LOCAL_CMS_DEV.md) | **Local CMS testing guide (Codespaces/localhost)** |
 | [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md) | Complete deployment workflow |
 | [TESTING_GUIDE.md](TESTING_GUIDE.md) | Local testing procedures |
+| [PUBLISHING_WORKFLOW.md](PUBLISHING_WORKFLOW.md) | Draft/publish workflow guide |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes |
 | [ENV_VARIABLES.md](ENV_VARIABLES.md) | Environment variable setup |
 | [FUTURE_ENHANCEMENTS.md](FUTURE_ENHANCEMENTS.md) | Roadmap and ideas |
