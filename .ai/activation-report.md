@@ -287,7 +287,7 @@ git push
 - `git push` - Triggers CI/CD
 
 ### Key URLs (Production)
-- Homepage: https://tradetrends.netlify.app/
+- Homepage: https://tradetrend.netlify.app/
 - Amazon Page: /amazon.html
 - Travel Page: /travel.html
 - Admin: /admin/ (auth required)

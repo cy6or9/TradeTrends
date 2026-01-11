@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PRODUCTION_URL = 'https://tradetrends.netlify.app';
+const PRODUCTION_URL = 'https://tradetrend.netlify.app';
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const SITEMAP_PATH = path.join(PUBLIC_DIR, 'sitemap.xml');
 

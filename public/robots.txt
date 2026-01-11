@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /.netlify/
 
-Sitemap: https://tradetrends.netlify.app/sitemap.xml
+Sitemap: https://tradetrend.netlify.app/sitemap.xml
