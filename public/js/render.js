@@ -72,19 +72,6 @@ function renderList(container, items, kind){
   });
   
   container.innerHTML = validItems.map(i => buildCard(i, kind)).join("");
-  
-  // Add click handler to handle /go redirects with fallback
-  container.addEventListener('click', (e) => {
-    const link = e.target.closest('a.link.primary');
-    if (link && link.hasAttribute('data-direct-url')) {
-      const directUrl = link.getAttribute('data-direct-url');
-      // If /go redirect fails, use direct URL
-      link.addEventListener('error', (evt) => {
-        evt.preventDefault();
-        window.open(directUrl, '_blank', 'noopener,noreferrer');
-      });
-    }
-  });
 }
 
 function applyFilters(container, {query, category}){

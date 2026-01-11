@@ -132,7 +132,51 @@ console.log('\n⚡ Validating serverless functions...');
   checkFile(file);
 });
 
-// 6. Summary
+// 6. Validate affiliate link routing (prevent regression)
+console.log('\n🔗 Validating affiliate link routing...');
+
+// Check _redirects file exists and has correct /go rule
+if (checkFile('public/_redirects')) {
+  const redirects = fs.readFileSync('public/_redirects', 'utf8');
+  if (!redirects.includes('/go  /.netlify/functions/go  200!')) {
+    error('public/_redirects missing required /go redirect with force flag (200!)');
+  } else {
+    success('Valid _redirects: /go routing enforced');
+  }
+  
+  // Ensure /go rules come before catch-all
+  const lines = redirects.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
+  const goIndex = lines.findIndex(l => l.includes('/go '));
+  const catchAllIndex = lines.findIndex(l => l.trim().startsWith('/*'));
+  if (catchAllIndex >= 0 && goIndex >= 0 && catchAllIndex < goIndex) {
+    error('public/_redirects: catch-all /* appears BEFORE /go rule - will break routing');
+  }
+}
+
+// Check HTML files don't contain broken /?network= href patterns
+['public/index.html', 'public/amazon.html', 'public/travel.html'].forEach(file => {
+  if (fs.existsSync(file)) {
+    const content = fs.readFileSync(file, 'utf8');
+    if (content.includes('href="/?network=')) {
+      error(`${file} contains broken href="/?network=" pattern (should be /go?network=)`);
+    }
+  }
+});
+
+// Check render.js doesn't generate broken links
+if (fs.existsSync('public/js/render.js')) {
+  const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
+  if (renderJs.includes('`/?network=') || renderJs.includes('"/?network=') || renderJs.includes("'/?network=")) {
+    error('public/js/render.js generates broken /?network= URLs (should be /go?network=)');
+  }
+  if (!renderJs.includes('/go?network=')) {
+    error('public/js/render.js missing expected /go?network= URL generation');
+  } else {
+    success('Valid render.js: generates /go?network= URLs');
+  }
+}
+
+// 7. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

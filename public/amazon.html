@@ -34,6 +34,17 @@
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  <script>
+    // Safety net: Forward broken /?network=...&id=... links to /go redirect
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const network = params.get('network');
+      const id = params.get('id');
+      if (network && id && (window.location.pathname === '/' || window.location.pathname.endsWith('.html'))) {
+        window.location.replace(`/go?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}`);
+      }
+    })();
+  </script>
 </head>
 <body>
 

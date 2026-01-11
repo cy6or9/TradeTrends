@@ -1,0 +1,16 @@
+# Netlify Redirects - Order matters! More specific rules first.
+# The "!" flag forces the redirect even if the file exists.
+
+# Affiliate click tracking - MUST be above catch-all
+/go  /.netlify/functions/go  200!
+/go/*  /.netlify/functions/go  200!
+
+# API function
+/api/*  /.netlify/functions/api  200
+
+# Admin routes - protect from SPA rewrite
+/admin/*  /admin/:splat  200
+/admin  /admin/  301
+
+# SPA catch-all - MUST be last
+/*  /index.html  200
