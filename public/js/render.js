@@ -27,7 +27,7 @@ function buildCard(item, kind){
   
   // Use /go redirect for click tracking, fallback to direct affiliate_url
   const network = isTravel ? "travel" : "amazon";
-  const url = item.id ? `/go/${network}?id=${encodeURIComponent(item.id)}` : (item.affiliate_url || "#");
+  const url = item.id ? `/go?network=${network}&id=${encodeURIComponent(item.id)}` : (item.affiliate_url || "#");
   
   // In dev mode or if /go might not work, use direct affiliate URL as onclick fallback
   const directUrl = item.affiliate_url || "#";

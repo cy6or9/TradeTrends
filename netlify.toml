@@ -8,11 +8,12 @@
   publish = "public"
   autoLaunch = false
 
-# Redirect /go/* to click tracking function
+# Redirect /go to click tracking function (preserves query params)
 [[redirects]]
-  from = "/go/*"
+  from = "/go"
   to = "/.netlify/functions/go"
   status = 200
+  force = true
 
 # Redirect /api/* to API function
 [[redirects]]
