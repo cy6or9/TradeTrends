@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Static affiliate site with Decap CMS and Netlify Identity",
   "scripts": {
-    "cms": "decap-server",
     "dev": "netlify dev",
-    "dev:cms": "concurrently -k -n \"CMS,DEV\" -c \"cyan,green\" \"npm run cms\" \"npm run dev\"",
     "dev:offline": "netlify dev --offline",
     "build": "echo 'Static site - no build needed'",
     "test": "echo 'No tests configured'"
@@ -20,8 +18,6 @@
   "license": "ISC",
   "devDependencies": {
     "@netlify/blobs": "^7.0.0",
-    "netlify-cli": "^17.0.0",
-    "concurrently": "^8.2.2",
-    "decap-server": "^3.1.1"
+    "netlify-cli": "^17.0.0"
   }
 }

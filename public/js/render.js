@@ -57,7 +57,18 @@ async function loadJson(path){
 }
 
 function renderList(container, items, kind){
-  container.innerHTML = items.map(i => buildCard(i, kind)).join("");
+  // Filter out placeholder/incomplete deals
+  const validItems = items.filter(item => {
+    return item.title && 
+           item.title !== 'New Deal Title' &&
+           item.title.trim() !== '' &&
+           item.affiliate_url !== 'https://example.com/affiliate' &&
+           item.price_hint !== '$0 - $0' &&
+           item.image && 
+           !item.image.startsWith('data:image/svg+xml');
+  });
+  
+  container.innerHTML = validItems.map(i => buildCard(i, kind)).join("");
 }
 
 function applyFilters(container, {query, category}){

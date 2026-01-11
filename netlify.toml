@@ -3,6 +3,11 @@
   functions = "netlify/functions"
   ignore = "bash ./netlify-ignore.sh"
 
+# Enable local backend proxy for CMS in development
+[dev]
+  publish = "public"
+  autoLaunch = false
+
 # Redirect /go/* to click tracking function
 [[redirects]]
   from = "/go/*"

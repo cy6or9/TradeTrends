@@ -136,7 +136,10 @@ async function handleTrends(event, storage) {
 
 // Refresh trends handler (POST, admin-only)
 async function handleRefreshTrends(event, storage) {
-  if (!isAdmin(event)) {
+  // Skip admin check in dev/local mode
+  const isLocal = !process.env.CONTEXT || process.env.CONTEXT === 'dev';
+  
+  if (!isLocal && !isAdmin(event)) {
     return {
       statusCode: 403,
       headers: { 'Content-Type': 'application/json' },

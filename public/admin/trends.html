@@ -213,7 +213,7 @@
       <a href="/" target="_blank" class="admin-btn">View Site</a>
       <a href="/admin/dashboard.html" class="admin-btn">Dashboard</a>
       <a href="/admin/trends.html" class="admin-btn">Trends</a>
-      <a href="/admin/" class="admin-btn">CMS</a>
+      <a href="/admin/deals.html" class="admin-btn" style="background: rgba(0,210,255,0.2); border-color: #00d2ff;">✏️ Edit Deals</a>
       <button id="adminLogout" class="admin-btn danger">Logout</button>
     </div>
   </header>
@@ -356,7 +356,12 @@
       const messages = document.getElementById('messages');
       const btn = document.getElementById('refreshBtn');
       
-      if (!token) {
+      // Skip auth check in dev mode
+      const isLocalDev = window.location.hostname === 'localhost' || 
+                         window.location.hostname.includes('app.github.dev') ||
+                         window.location.hostname.includes('gitpod.io');
+      
+      if (!token && !isLocalDev) {
         messages.innerHTML = `
           <div class="error">
             You must be logged in to refresh trends.
@@ -370,11 +375,14 @@
       messages.innerHTML = '';
       
       try {
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch('/api/refresh-trends', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers
         });
         
         if (!response.ok) {

@@ -1,4 +1,154 @@
-# Troubleshooting Guide for TradeTrends Analytics
+# Troubleshooting Guide for TradeTrends
+
+## 🚀 CMS Development (Codespaces & Local)
+
+### Running CMS in Development Mode
+
+**Single command:**
+```bash
+npm run dev:cms
+```
+
+This starts `netlify dev` which includes:
+- Static site server on port 8888
+- Serverless functions
+- **Local Git backend proxy** (built-in, no separate server needed)
+
+### Accessing the CMS
+
+**In GitHub Codespaces:**
+1. Run `npm run dev:cms`
+2. Wait for "Server now ready on http://localhost:8888"
+3. Click on the "Ports" tab in VS Code
+4. Find port 8888, click the globe icon to open in browser
+5. Add `/admin/` to the URL path
+6. Full URL pattern: `https://<codespace-name>-8888.app.github.dev/admin/`
+
+**On Local Machine:**
+1. Run `npm run dev:cms`
+2. Open http://localhost:8888/admin/
+
+### Verifying Local Backend Connection
+
+Open browser console (F12) and look for these logs:
+
+**In Codespaces (correct):**
+```
+🔍 Detecting environment: { origin: "https://name-8888.app.github.dev", ... }
+✅ Local backend mode: codespaces
+📡 CMS local backend URL: https://name-8888.app.github.dev/api/v1
+🎬 Initializing Decap CMS...
+✅ CMS initialized successfully
+```
+
+**On Localhost (correct):**
+```
+🔍 Detecting environment: { origin: "http://localhost:8888", ... }
+✅ Local backend mode: localhost
+📡 CMS local backend URL: http://localhost:8888/api/v1
+🎬 Initializing Decap CMS...
+✅ CMS initialized successfully
+```
+
+**Production (correct):**
+```
+🔍 Detecting environment: { origin: "https://yoursite.netlify.app", ... }
+🌐 Production mode: Using git-gateway
+🎬 Initializing Decap CMS...
+✅ CMS initialized successfully
+```
+
+### Problem: CMS is Blank or Shows Connection Error
+
+**Symptoms:**
+- CMS loads but shows blank screen
+- Console shows `ERR_FAILED` or CORS errors
+- Error: "Failed to fetch" in console
+
+**Cause:** Netlify Dev server is not running, or using old separate decap-server
+
+**Fix:**
+1. Make sure you're using `npm run dev:cms` (which runs `netlify dev`)
+2. Stop any old processes first:
+   ```bash
+   pkill -f "netlify"
+   pkill -f "decap"
+   ```
+3. Restart:
+   ```bash
+   npm run dev:cms
+   ```
+4. Wait for: `Server now ready on http://localhost:8888`
+5. Refresh browser (Ctrl+Shift+R to hard refresh)
+
+### Problem: CORS Error or "No Access-Control-Allow-Origin"
+
+**Symptoms:**
+- Console shows: `Access to fetch at '...-8081...' from origin '...-8888...' has been blocked by CORS`
+- GET request shows `net::ERR_FAILED 302`
+
+**Cause:** Using old configuration that tried to connect to separate decap-server port
+
+**Fix:**
+1. Pull latest code with updated configuration
+2. Verify console shows: `📡 CMS local backend URL: https://...-8888.app.github.dev/api/v1`
+   - Should be **same origin** (8888), not separate port (8081)
+3. If still showing 8081, clear browser cache and hard refresh
+
+### Problem: "Login with Netlify Identity" Appears in Local Mode
+
+**Expected Behavior:**
+- In local backend mode, you should NOT need to login
+- CMS should show collections immediately after a brief "Loading" state
+- If login appears, local backend may not be detected
+
+**Fix:**
+1. Check console logs for backend detection:
+   - Should show: `✅ Local backend mode: codespaces` (or `localhost`)
+   - Should show: `📡 Using local backend: https://...-8888.app.github.dev/api/v1`
+2. If showing git-gateway instead of local backend:
+   - Make sure `netlify dev` is running (not deployed site)
+   - Check netlify.toml has `[dev]` section
+   - Hard refresh browser (Ctrl+Shift+R)
+3. Test the backend proxy manually in a new terminal:
+   ```bash
+   # In Codespaces:
+   curl https://$(echo $CODESPACE_NAME)-8888.app.github.dev/api/v1
+   
+   # On localhost:
+   curl http://localhost:8888/api/v1
+   ```
+   Should return: `{"repo":"","branch":""}`
+
+### Problem: Changes Not Saving
+
+**Symptoms:**
+- Can edit deals in CMS
+- Click "Save" or "Publish"
+- Changes don't appear in JSON files
+
+**Diagnosis:**
+1. Check which backend mode is active (see console logs)
+2. In local backend mode:
+   - Changes save to `.decaps/` folder (NOT Git)
+   - This is for testing UI only
+   - To commit to Git, use `npm run dev` + Netlify Identity login
+3. In git-gateway mode:
+   - Changes commit to `content` branch
+   - Must merge to `main` to deploy
+
+**Fix for Git commits:**
+```bash
+# Stop dev:cms, use regular dev with Identity
+npm run dev
+
+# Login with Netlify Identity when CMS loads
+# Edit and save - will commit to content branch
+```
+
+---
+
+## Analytics & Click Tracking
 
 ## Problem: Clicks redirect but don't show in dashboard
 

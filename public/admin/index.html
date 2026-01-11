@@ -1,8 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <meta http-equiv="refresh" content="0;url=/admin/dashboard.html">
+  <script>
+    // Immediate redirect
+    window.location.replace('/admin/dashboard.html');
+  </script>
+</head>
+<body>
+  <p>Redirecting to dashboard...</p>
+</body>
+</html>
   <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
     (function () {
         var script = document.createElement("script");
@@ -87,17 +98,12 @@
 
   <!-- Draft Mode Banner -->
   <div style="background: linear-gradient(135deg, #ff6b35 0%, #ffd700 100%); color: #000; padding: 10px 20px; text-align: center; font-weight: 600; font-size: 14px; border-bottom: 2px solid #ff6b35;">
-    📝 Draft Mode: Changes save to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">content</code> branch (merge to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">main</code> to deploy)
-  </div>
-
-  <!-- Local CMS Mode Banner (shows only when using local backend) -->
-  <div id="local-cms-banner" style="display:none; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: #fff; padding: 10px 20px; text-align: center; font-weight: 700; font-size: 14px; border-bottom: 2px solid #c0392b; letter-spacing: 0.5px;">
-    🔧 LOCAL BACKEND MODE — Changes NOT committed to Git (local drafts in .decaps/ only)
+    📝 Draft Mode: Changes save to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">content</code> branch (not live until merged to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">main</code>)
   </div>
 
   <!-- Dev Environment Notice (shows only in non-production) -->
   <div id="dev-notice" style="display:none; background: #0a3d62; color: #00d2ff; padding: 8px 20px; text-align: center; font-size: 13px; border-bottom: 1px solid #00d2ff;">
-    💡 <strong>Codespaces Dev:</strong> Run <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">npm run dev:cms</code> to start both servers (decap-server + netlify dev)
+    💻 <strong>Local Dev Mode:</strong> Use the <a href="/admin/deals.html" style="color: #00d2ff; text-decoration: underline;">Deal Editor</a> to manage products • Changes save to <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">content</code> branch only
   </div>
 
   <!-- Admin Header -->
@@ -109,7 +115,7 @@
       <a href="/" target="_blank" class="admin-btn">View Site</a>
       <a href="/admin/dashboard.html" class="admin-btn">Dashboard</a>
       <a href="/admin/trends.html" class="admin-btn">Trends</a>
-      <a href="/admin/" class="admin-btn">CMS</a>
+      <a href="/admin/deals.html" class="admin-btn" style="background: rgba(0,210,255,0.2); border-color: #00d2ff;">✏️ Edit Deals</a>
       <button id="adminLogout" class="admin-btn danger">Logout</button>
     </div>
   </header>
@@ -117,7 +123,7 @@
   <!-- Decap CMS Mount Point -->
   <div id="nc-root"></div>
 
-  <!-- Show dev notice and local backend banner in local environments -->
+  <!-- Show dev notice in local/Codespaces environments -->
   <script>
     (function() {
       const hostname = window.location.hostname;
@@ -131,14 +137,18 @@
         const devNotice = document.getElementById('dev-notice');
         if (devNotice) devNotice.style.display = 'block';
         
-        // Check if local backend server is running and show banner
-        fetch('http://localhost:8081/api/v1')
+        // Check if local backend server is running
+        const port8081 = hostname.includes('app.github.dev') 
+          ? location.origin.replace(/-\d+\.app\.github\.dev/, '-8081.app.github.dev')
+          : 'http://localhost:8081';
+        
+        fetch(port8081 + '/api/v1')
           .then(() => {
             const localBanner = document.getElementById('local-cms-banner');
             if (localBanner) localBanner.style.display = 'block';
           })
           .catch(() => {
-            // Local backend not running, that's fine
+            // Local backend not running, will use git-gateway
           });
       }
     })();
@@ -147,10 +157,10 @@
   <!-- Netlify Identity (login) -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-  <!-- Decap CMS - SINGLE LOAD, AUTO-INIT -->
+  <!-- Decap CMS - auto-init with config.yml -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
-  <!-- CMS Customizations (autofill, auth, roles) - NO DOM MANIPULATION -->
+  <!-- CMS Customizations (autofill, auth, roles) - will call CMS.init() -->
   <script src="/admin/cms.js"></script>
 </body>
 </html>

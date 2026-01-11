@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal Editor - TradeTrends</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .header {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 { font-size: 28px; }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: #00d2ff;
+      color: #000;
+    }
+
+    .btn-primary:hover {
+      background: #00b8e6;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: #fff;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: #00d2ff;
+      color: #000;
+    }
+
+    .deals-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .deal-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .deal-card:hover {
+      transform: translateY(-5px);
+      border-color: #00d2ff;
+    }
+
+    .deal-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .deal-content {
+      padding: 15px;
+    }
+
+    .deal-card input,
+    .deal-card textarea,
+    .deal-card select {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .deal-card textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .deal-card label {
+      display: block;
+      font-size: 12px;
+      color: #00d2ff;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .deal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .deal-actions button {
+      flex: 1;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .btn-delete {
+      background: #dc3545;
+      color: #fff;
+    }
+
+    .save-section {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.9);
+      padding: 20px;
+      border-radius: 12px;
+      border: 2px solid #00d2ff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .hidden { display: none; }
+
+    .add-deal-btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: rgba(0,210,255,0.2);
+      border-radius: 4px;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .price-hint {
+      color: #4ade80;
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎯 Deal Editor</h1>
+    <div>
+      <a href="/admin/" class="btn btn-secondary">← Back to Admin</a>
+      <button onclick="saveAllChanges()" class="btn btn-success">💾 Save All Changes</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('amazon')">🛍️ Amazon Deals</button>
+    <button class="tab" onclick="switchTab('travel')">✈️ Travel Deals</button>
+  </div>
+
+  <button class="btn btn-primary add-deal-btn" onclick="addNewDeal()">➕ Add New Deal</button>
+
+  <div id="amazon-deals" class="deals-container"></div>
+  <div id="travel-deals" class="deals-container hidden"></div>
+
+  <div id="save-status" class="save-section hidden">
+    <div id="save-message"></div>
+  </div>
+
+  <script>
+    let amazonDeals = [];
+    let travelDeals = [];
+    let currentTab = 'amazon';
+
+    // Load deals on page load
+    async function loadDeals() {
+      try {
+        const [amazonRes, travelRes] = await Promise.all([
+          fetch('/data/amazon.json'),
+          fetch('/data/travel.json')
+        ]);
+        
+        const amazonData = await amazonRes.json();
+        const travelData = await travelRes.json();
+        
+        amazonDeals = amazonData.items || [];
+        travelDeals = travelData.items || [];
+        
+        renderDeals();
+      } catch (error) {
+        console.error('Failed to load deals:', error);
+        alert('Failed to load deals. Check console for details.');
+      }
+    }
+
+    function renderDeals() {
+      const amazonContainer = document.getElementById('amazon-deals');
+      const travelContainer = document.getElementById('travel-deals');
+      
+      // Filter out placeholder/empty deals
+      const validAmazon = amazonDeals.filter(deal => !isPlaceholderDeal(deal));
+      const validTravel = travelDeals.filter(deal => !isPlaceholderDeal(deal));
+      
+      amazonContainer.innerHTML = validAmazon.map((deal, idx) => createDealCard(deal, idx, 'amazon')).join('');
+      travelContainer.innerHTML = validTravel.map((deal, idx) => createDealCard(deal, idx, 'travel')).join('');
+    }
+
+    function isPlaceholderDeal(deal) {
+      // Check if deal is placeholder/not filled out
+      return (
+        !deal.title || 
+        deal.title === 'New Deal Title' ||
+        deal.title.trim() === '' ||
+        deal.affiliate_url === 'https://example.com/affiliate' ||
+        deal.price_hint === '$0 - $0' ||
+        (!deal.image || deal.image.startsWith('data:image/svg+xml'))
+      );
+    }
+
+    function createDealCard(deal, index, type) {
+      // Simple gray placeholder image
+      const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCBmaWxsPSIjMzM0MTU1IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIvPjx0ZXh0IGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
+      
+      return `
+        <div class="deal-card" id="${type}-${index}">
+          <img src="${deal.image || placeholderImg}" alt="${deal.title}" onerror="this.src='${placeholderImg}'">
+          <div class="deal-content">
+            <label>Title</label>
+            <input type="text" value="${escapeHtml(deal.title)}" onchange="updateDeal('${type}', ${index}, 'title', this.value)">
+            
+            <label>Tagline</label>
+            <textarea onchange="updateDeal('${type}', ${index}, 'tagline', this.value)">${escapeHtml(deal.tagline || '')}</textarea>
+            
+            <label>Price Hint</label>
+            <input type="text" value="${deal.price_hint || ''}" onchange="updateDeal('${type}', ${index}, 'price_hint', this.value)">
+            
+            <label>Category</label>
+            <input type="text" value="${deal.category || ''}" onchange="updateDeal('${type}', ${index}, 'category', this.value)">
+            
+            <label>Affiliate URL</label>
+            <input type="url" value="${deal.affiliate_url}" onchange="updateDeal('${type}', ${index}, 'affiliate_url', this.value)">
+            
+            <label>Image URL</label>
+            <input type="url" value="${deal.image}" onchange="updateDeal('${type}', ${index}, 'image', this.value)">
+            
+            <div class="deal-actions">
+              <button class="btn btn-secondary" onclick="toggleFeatured('${type}', ${index})">
+                ${deal.featured ? '⭐ Featured' : '☆ Feature'}
+              </button>
+              <button class="btn btn-delete" onclick="deleteDeal('${type}', ${index})">🗑️ Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateDeal(type, index, field, value) {
+      const deals = type === 'amazon' ? amazonDeals : travelDeals;
+      deals[index][field] = value;
+      deals[index].id = deals[index].title; // Keep ID synced with title
+      deals[index].last_verified = new Date().toISOString().split('T')[0];
+    }
+
+    function toggleFeatured(type, index) {
+      const deals = type === 'amazon' ? amazonDeals : travelDeals;
+      deals[index].featured = !deals[index].featured;
+      renderDeals();
+    }
+
+    function deleteDeal(type, index) {
+      if (!confirm('Delete this deal?')) return;
+      
+      const deals = type === 'amazon' ? amazonDeals : travelDeals;
+      deals.splice(index, 1);
+      renderDeals();
+    }
+
+    function addNewDeal() {
+      const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCBmaWxsPSIjMzM0MTU1IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIvPjx0ZXh0IGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BZGQgSW1hZ2UgVVJMPC90ZXh0Pjwvc3ZnPg==';
+      
+      const newDeal = {
+        priority: 0,
+        evergreen: true,
+        featured: false,
+        network: currentTab,
+        tagline: "New deal tagline",
+        last_verified: new Date().toISOString().split('T')[0],
+        title: "New Deal Title",
+        id: "New Deal Title",
+        image: placeholderImg,
+        affiliate_url: "https://example.com/affiliate",
+        price_hint: "$0 - $0",
+        category: "Uncategorized"
+      };
+      
+      if (currentTab === 'amazon') {
+        amazonDeals.unshift(newDeal);
+      } else {
+        travelDeals.unshift(newDeal);
+      }
+      
+      renderDeals();
+      document.getElementById(`${currentTab}-deals`).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function saveAllChanges() {
+      const saveStatus = document.getElementById('save-status');
+      const saveMessage = document.getElementById('save-message');
+      
+      saveStatus.classList.remove('hidden');
+      saveMessage.innerHTML = '💾 Saving changes...';
+      
+      try {
+        // Save to Netlify function
+        const response = await fetch('/.netlify/functions/save-deals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amazon: { items: amazonDeals },
+            travel: { items: travelDeals }
+          })
+        });
+        
+        if (response.ok) {
+          saveMessage.innerHTML = '✅ Changes saved successfully!';
+          setTimeout(() => saveStatus.classList.add('hidden'), 3000);
+        } else {
+          throw new Error('Save failed');
+        }
+      } catch (error) {
+        saveMessage.innerHTML = `
+          <strong>⚠️ Auto-save not available</strong><br>
+          Copy JSON below and paste into files:<br>
+          <button onclick="copyJSON('amazon')" class="btn btn-primary" style="margin-top:10px">Copy Amazon JSON</button>
+          <button onclick="copyJSON('travel')" class="btn btn-primary" style="margin-top:10px">Copy Travel JSON</button>
+        `;
+      }
+    }
+
+    function copyJSON(type) {
+      const data = type === 'amazon' 
+        ? JSON.stringify({ items: amazonDeals }, null, 2)
+        : JSON.stringify({ items: travelDeals }, null, 2);
+      
+      navigator.clipboard.writeText(data);
+      alert(`${type} JSON copied! Paste into public/data/${type}.json`);
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('amazon-deals').classList.toggle('hidden', tab !== 'amazon');
+      document.getElementById('travel-deals').classList.toggle('hidden', tab !== 'travel');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Load deals on page load
+    loadDeals();
+  </script>
+</body>
+</html>
