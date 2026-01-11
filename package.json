@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "netlify dev",
     "dev:offline": "netlify dev --offline",
+    "prebuild": "node scripts/generate-sitemap.js",
     "build": "node scripts/validate.js",
     "test": "node scripts/validate.js",
-    "lint": "echo 'Linting disabled - using validation instead'",
     "validate": "node scripts/validate.js"
   },
   "keywords": [
