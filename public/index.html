@@ -32,7 +32,7 @@
         <a class="pill" href="/#travel">Travel</a>
         <a class="pill" href="/amazon.html">Amazon page</a>
         <a class="pill" href="/travel.html">Travel page</a>
-        <a class="pill" href="/admin/">Admin</a>
+        <a class="pill" id="adminLink" href="/admin/" style="display:none;">Admin</a>
       </nav>
     </div>
   </div>
@@ -154,18 +154,58 @@
   if (window.netlifyIdentity) {
     netlifyIdentity.on('init', user => {
       updateAuthUI();
+      checkAdminAccess();
     });
     
     netlifyIdentity.on('login', user => {
       updateAuthUI();
+      checkAdminAccess();
       netlifyIdentity.close();
     });
     
     netlifyIdentity.on('logout', () => {
       updateAuthUI();
+      hideAdminLink();
     });
     
     netlifyIdentity.init();
+  }
+
+  // Check if user is admin and show/hide admin link
+  function checkAdminAccess() {
+    const adminLink = document.getElementById('adminLink');
+    if (!adminLink) return;
+    
+    // Check if in dev mode
+    const hostname = window.location.hostname;
+    const isDevMode = hostname === 'localhost' || 
+                      hostname.includes('127.0.0.1') ||
+                      hostname.includes('app.github.dev') ||
+                      hostname.includes('gitpod.io') ||
+                      hostname.includes('codespaces');
+    
+    // Show admin link in dev mode OR for logged-in admin users
+    if (isDevMode) {
+      adminLink.style.display = 'inline-flex';
+      return;
+    }
+    
+    if (window.netlifyIdentity) {
+      const user = netlifyIdentity.currentUser();
+      if (user) {
+        const roles = user.app_metadata?.roles || [];
+        if (roles.includes('admin')) {
+          adminLink.style.display = 'inline-flex';
+          return;
+        }
+      }
+    }
+    adminLink.style.display = 'none';
+  }
+  
+  function hideAdminLink() {
+    const adminLink = document.getElementById('adminLink');
+    if (adminLink) adminLink.style.display = 'none';
   }
   
   // Login button handler

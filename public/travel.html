@@ -16,6 +16,7 @@
   <meta name="theme-color" content="#0b0f14" />
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </head>
 <body>
 
@@ -31,7 +32,7 @@
         <a class="pill" href="/#travel">Travel</a>
         <a class="pill" href="/amazon.html">Amazon page</a>
         <a class="pill" href="/travel.html">Travel page</a>
-        <a class="pill" href="/admin/">Admin</a>
+        <a class="pill" id="adminLink" href="/admin/" style="display:none;">Admin</a>
       </nav>
     </div>
   </div>
@@ -45,7 +46,7 @@
       <p class="sub">Booking, bundles, and travel gear—built for Pinterest clicks and fast decisions.</p>
       <div class="heroCtas">
         <a class="btn" href="/#travel">Back to hub</a>
-        <a class="btn" href="/admin/">Admin dashboard</a>
+        <a class="btn" id="adminDashLink" href="/admin/" style="display:none;">Admin dashboard</a>
       </div>
     </div>
   </section>
@@ -89,6 +90,54 @@
 </footer>
 <script>
   document.getElementById('y').textContent = new Date().getFullYear();
+  
+  // Check if user is admin and show admin links
+  function checkAdminAccess() {
+    const adminLink = document.getElementById('adminLink');
+    const adminDashLink = document.getElementById('adminDashLink');
+    
+    // Check if in dev mode
+    const hostname = window.location.hostname;
+    const isDevMode = hostname === 'localhost' || 
+                      hostname.includes('127.0.0.1') ||
+                      hostname.includes('app.github.dev') ||
+                      hostname.includes('gitpod.io') ||
+                      hostname.includes('codespaces');
+    
+    // Show admin links in dev mode OR for logged-in admin users
+    if (isDevMode) {
+      if (adminLink) adminLink.style.display = 'inline-flex';
+      if (adminDashLink) adminDashLink.style.display = 'inline-flex';
+      return;
+    }
+    
+    if (window.netlifyIdentity) {
+      const user = netlifyIdentity.currentUser();
+      if (user) {
+        const roles = user.app_metadata?.roles || [];
+        if (roles.includes('admin')) {
+          if (adminLink) adminLink.style.display = 'inline-flex';
+          if (adminDashLink) adminDashLink.style.display = 'inline-flex';
+          return;
+        }
+      }
+    }
+    if (adminLink) adminLink.style.display = 'none';
+    if (adminDashLink) adminDashLink.style.display = 'none';
+  }
+  
+  // Initialize Netlify Identity
+  if (window.netlifyIdentity) {
+    netlifyIdentity.on('init', checkAdminAccess);
+    netlifyIdentity.on('login', checkAdminAccess);
+    netlifyIdentity.on('logout', () => {
+      const adminLink = document.getElementById('adminLink');
+      const adminDashLink = document.getElementById('adminDashLink');
+      if (adminLink) adminLink.style.display = 'none';
+      if (adminDashLink) adminDashLink.style.display = 'none';
+    });
+    netlifyIdentity.init();
+  }
 </script>
 </body>
 </html>

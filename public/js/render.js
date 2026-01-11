@@ -25,9 +25,12 @@ function buildCard(item, kind){
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
   
-  // Use /go redirect for click tracking
+  // Use /go redirect for click tracking, fallback to direct affiliate_url
   const network = isTravel ? "travel" : "amazon";
   const url = item.id ? `/go/${network}?id=${encodeURIComponent(item.id)}` : (item.affiliate_url || "#");
+  
+  // In dev mode or if /go might not work, use direct affiliate URL as onclick fallback
+  const directUrl = item.affiliate_url || "#";
 
   return `
   <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}">
@@ -44,7 +47,7 @@ function buildCard(item, kind){
         ${verified ? `<span class="small">${verified}</span>` : ""}
       </div>
       <div class="itemCta">
-        <a class="link primary" href="${escapeHtml(url)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <a class="link primary" href="${escapeHtml(url)}" data-direct-url="${escapeHtml(directUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
       </div>
     </div>
   </article>`;
@@ -69,6 +72,19 @@ function renderList(container, items, kind){
   });
   
   container.innerHTML = validItems.map(i => buildCard(i, kind)).join("");
+  
+  // Add click handler to handle /go redirects with fallback
+  container.addEventListener('click', (e) => {
+    const link = e.target.closest('a.link.primary');
+    if (link && link.hasAttribute('data-direct-url')) {
+      const directUrl = link.getAttribute('data-direct-url');
+      // If /go redirect fails, use direct URL
+      link.addEventListener('error', (evt) => {
+        evt.preventDefault();
+        window.open(directUrl, '_blank', 'noopener,noreferrer');
+      });
+    }
+  });
 }
 
 function applyFilters(container, {query, category}){
