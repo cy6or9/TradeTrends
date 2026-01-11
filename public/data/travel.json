@@ -9,6 +9,7 @@
       "image": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=70",
       "affiliate_url": "https://www.booking.com/",
       "category": "Hotels",
+      "network": "travel",
       "featured": true,
       "last_verified": "2026-01-08"
     },
@@ -21,6 +22,7 @@
       "image": "https://images.unsplash.com/photo-1502920917128-1aa500764b16?auto=format&fit=crop&w=1200&q=70",
       "affiliate_url": "https://www.expedia.com/",
       "category": "Packages",
+      "network": "travel",
       "featured": true,
       "last_verified": "2026-01-08"
     },
@@ -33,6 +35,7 @@
       "image": "https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=1200&q=70",
       "affiliate_url": "https://www.amazon.com/",
       "category": "Gear",
+      "network": "travel",
       "featured": false,
       "last_verified": "2026-01-08"
     }

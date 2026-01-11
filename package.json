@@ -1,18 +1,22 @@
 {
   "name": "tradetrends",
   "version": "1.0.0",
-  "description": "Static affiliate site with Decap CMS and Netlify Identity",
+  "description": "Fast affiliate-first product discovery engine for Pinterest and Google traffic",
   "scripts": {
     "dev": "netlify dev",
     "dev:offline": "netlify dev --offline",
-    "build": "echo 'Static site - no build needed'",
-    "test": "echo 'No tests configured'"
+    "build": "node scripts/validate.js",
+    "test": "node scripts/validate.js",
+    "lint": "echo 'Linting disabled - using validation instead'",
+    "validate": "node scripts/validate.js"
   },
   "keywords": [
     "affiliate",
     "netlify",
-    "decap-cms",
-    "static-site"
+    "pinterest",
+    "seo",
+    "static-site",
+    "ecommerce"
   ],
   "author": "",
   "license": "ISC",

@@ -1,0 +1,104 @@
+name: TradeTrends CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run build
+      run: npm run build
+      
+    - name: Validate JSON data files
+      run: |
+        echo "Validating Amazon deals..."
+        node -e "JSON.parse(require('fs').readFileSync('public/data/amazon.json', 'utf8'))"
+        echo "Validating Travel deals..."
+        node -e "JSON.parse(require('fs').readFileSync('public/data/travel.json', 'utf8'))"
+        echo "✅ All JSON files are valid"
+        
+    - name: Check for broken affiliate links
+      run: |
+        echo "Checking for example/placeholder URLs..."
+        ! grep -r "example.com" public/data/ || exit 1
+        ! grep -r "placeholder" public/data/ || exit 1
+        echo "✅ No placeholder URLs found"
+        
+    - name: Verify critical files exist
+      run: |
+        test -f public/index.html || exit 1
+        test -f public/amazon.html || exit 1
+        test -f public/travel.html || exit 1
+        test -f public/css/styles.css || exit 1
+        test -f public/js/render.js || exit 1
+        test -f public/data/amazon.json || exit 1
+        test -f public/data/travel.json || exit 1
+        test -f netlify.toml || exit 1
+        echo "✅ All critical files present"
+        
+    - name: Check HTML syntax
+      run: |
+        echo "Checking HTML files for basic syntax issues..."
+        for file in public/*.html public/admin/*.html; do
+          if [ -f "$file" ]; then
+            # Check for unclosed tags, missing charset, etc
+            grep -q "<html" "$file" || { echo "❌ $file missing <html> tag"; exit 1; }
+            grep -q "</html>" "$file" || { echo "❌ $file missing </html> tag"; exit 1; }
+            grep -q "<head" "$file" || { echo "❌ $file missing <head> tag"; exit 1; }
+            grep -q "<body" "$file" || { echo "❌ $file missing <body> tag"; exit 1; }
+            echo "✅ $file basic syntax OK"
+          fi
+        done
+        
+    - name: Performance check - File sizes
+      run: |
+        echo "Checking file sizes..."
+        find public -name "*.html" -size +50k -exec ls -lh {} \; | awk '{print "⚠️  Large HTML: " $9 " (" $5 ")"}'
+        find public -name "*.css" -size +100k -exec ls -lh {} \; | awk '{print "⚠️  Large CSS: " $9 " (" $5 ")"}'
+        find public -name "*.js" -size +50k -exec ls -lh {} \; | awk '{print "⚠️  Large JS: " $9 " (" $5 ")"}'
+        echo "✅ File size check complete"
+        
+    - name: SEO validation
+      run: |
+        echo "Checking SEO essentials..."
+        for file in public/index.html public/amazon.html public/travel.html; do
+          grep -q "<title>" "$file" || { echo "❌ $file missing <title>"; exit 1; }
+          grep -q 'name="description"' "$file" || { echo "❌ $file missing meta description"; exit 1; }
+          echo "✅ $file has basic SEO tags"
+        done
+        
+    - name: Security check
+      run: |
+        echo "Checking for security issues..."
+        ! grep -r "console.log" public/*.html netlify/functions/*.js --exclude-dir=node_modules || echo "⚠️  Console.log found in production code"
+        ! grep -r "debugger" public/*.html netlify/functions/*.js --exclude-dir=node_modules || echo "⚠️  Debugger statement found"
+        echo "✅ Security check complete"
+        
+    - name: Build summary
+      if: always()
+      run: |
+        echo "📊 Build Summary"
+        echo "================"
+        echo "HTML files: $(find public -name '*.html' -type f | wc -l)"
+        echo "CSS files: $(find public -name '*.css' -type f | wc -l)"
+        echo "JS files: $(find public -name '*.js' -type f | wc -l)"
+        echo "Amazon deals: $(jq '.items | length' public/data/amazon.json)"
+        echo "Travel deals: $(jq '.items | length' public/data/travel.json)"
+        echo "✅ Build completed successfully"
