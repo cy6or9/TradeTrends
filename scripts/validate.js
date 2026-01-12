@@ -259,44 +259,40 @@ adminPages.forEach(file => {
   }
 });
 
-// D7: Validate fallback revenue mode implementation
-section('Validating D7 Fallback Revenue Mode');
+// Validate direct navigation with background tracking (working pattern from 83e186a)
+section('Validating Direct Affiliate Navigation');
 if (fs.existsSync('public/js/render.js')) {
   const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
   
-  // Must use /go?network= as primary href (not direct URLs)
-  const hasGoHref = renderJs.includes('/go?network=') || renderJs.includes('goUrl');
-  if (!hasGoHref) {
-    error('render.js missing /go?network= href pattern (D7 requirement)');
+  // Must use direct affiliate URLs as href (NOT /go redirects)
+  const usesDirectUrls = renderJs.includes('href="${escapeHtml(directUrl)}"') || 
+                         !renderJs.includes('href="${escapeHtml(goUrl)}"');
+  if (!usesDirectUrls) {
+    error('render.js should use direct affiliate URLs, not /go redirects');
   } else {
-    success('render.js uses /go redirect as primary href');
+    success('render.js uses direct affiliate URLs');
   }
   
-  // Must have data-direct-url fallback
-  const hasDirectUrlFallback = renderJs.includes('data-direct-url');
-  if (!hasDirectUrlFallback) {
-    error('render.js missing data-direct-url fallback (D7 requirement)');
+  // Must have background tracking via data-track-url
+  const hasBackgroundTracking = renderJs.includes('data-track-url') && 
+                                renderJs.includes('sendBeacon');
+  if (!hasBackgroundTracking) {
+    error('render.js missing background tracking (sendBeacon)');
   } else {
-    success('render.js includes data-direct-url fallback');
+    success('render.js implements background click tracking');
   }
   
-  // Must have fallback logic (detect popup issues)
-  const hasFallbackLogic = renderJs.includes('activeFallbacks') && 
-                          (renderJs.includes('about:blank') || renderJs.includes('setTimeout'));
-  if (!hasFallbackLogic) {
-    error('render.js missing fallback trigger logic (D7 requirement)');
-    error('  Must monitor popup and open data-direct-url if /go fails');
+  // Must NOT use /go?network= in primary href (causes loops)
+  const hasGoRedirect = renderJs.includes('href="${escapeHtml(goUrl)}"') ||
+                       (renderJs.includes('/go?network=') && renderJs.includes('primaryHref'));
+  if (hasGoRedirect) {
+    error('render.js uses /go redirect in primary href (causes iPad/Safari loops)');
   } else {
-    success('render.js implements D7 fallback monitoring');
-  }
-  
-  // Must NOT use /?network= broken pattern
-  if (renderJs.includes('/?network=')) {
-    error('render.js uses broken /?network= pattern (should be /go?network=)');
+    success('render.js does not use /go in primary navigation');
   }
 }
 
-// OLD: Legacy validation (disabled - now using D7 approach)
+// OLD: Legacy D7 fallback validation (disabled - caused loops)
 if (false && fs.existsSync('public/js/render.js')) {
   const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
   

@@ -25,21 +25,12 @@ function buildCard(item, kind){
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
   
-  // D7 FALLBACK REVENUE MODE: Primary /go redirect with direct URL fallback
+  // DIRECT NAVIGATION: Open affiliate URL directly (no /go redirect)
+  // Background tracking via sendBeacon (non-blocking)
   const directUrl = item.affiliate_url || "#";
   const network = isTravel ? "travel" : "amazon";
   const id = item.id || item.title || "";
   
-  // PHASE 6: Kill switch - check for forceDirect flag
-  let primaryHref = `/go?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}`;
-  
-  // Check if forceDirect is enabled (emergency bypass)
-  if (window.TT_FORCE_DIRECT === true) {
-    console.warn('⚠️ KILL SWITCH ACTIVE: Using direct affiliate URLs (bypassing /go)');
-    primaryHref = directUrl;
-  }
-  
-  const goUrl = primaryHref;
   // Background tracking endpoint (returns 204, no redirect)
   const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
@@ -58,7 +49,7 @@ function buildCard(item, kind){
         ${verified ? `<span class="small">${verified}</span>` : ""}
       </div>
       <div class="itemCta">
-        <a class="link primary" href="${escapeHtml(goUrl)}" data-direct-url="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
       </div>
     </div>
   </article>`;
@@ -187,7 +178,6 @@ async function initSection(opts){
 
 // Background click tracking (non-blocking, best effort)
 let clickTrackingInitialized = false;
-const activeFallbacks = new WeakMap(); // Track which links have already triggered fallback
 
 function initClickTracking() {
   if (clickTrackingInitialized) return;
@@ -222,40 +212,7 @@ function initClickTracking() {
       }
     }
     
-    // D7 FALLBACK REVENUE MODE: Ensure affiliate destination is reached
-    const directUrl = link.getAttribute('data-direct-url');
-    if (!directUrl || directUrl === '#') return;
-    if (activeFallbacks.has(link)) return; // Already triggered fallback for this click
-    
-    // Mark this link as having active fallback monitoring
-    activeFallbacks.set(link, true);
-    
-    // Monitor the opened window for failures
-    setTimeout(() => {
-      // After 900ms, if we detect the popup failed or is stuck, open direct URL as fallback
-      // This handles:
-      // - Popup blocked by browser
-      // - /go redirect failed (still on our domain)
-      // - about:blank stuck (redirect never fired)
-      
-      // Check if direct fallback is needed
-      // Note: We can't reliably check popup.location due to CORS, but we can:
-      // 1. Assume if user is still on our page after 900ms, something went wrong
-      // 2. Open direct URL in new tab as safety net
-      // 3. User either gets 2 tabs (both work) or 1 tab (fallback saves revenue)
-      
-      // Safety: Only trigger if link still exists and user hasn't navigated away
-      if (document.body.contains(link)) {
-        // Open direct URL as fallback (user closes duplicate if both worked)
-        window.open(directUrl, '_blank', 'noopener,noreferrer');
-        console.debug('Revenue fallback triggered for:', directUrl);
-      }
-      
-      // Clean up
-      activeFallbacks.delete(link);
-    }, 900);
-    
-    // Don't preventDefault - let normal navigation happen to /go
+    // Don't preventDefault - let normal navigation happen directly to affiliate URL
   }, { passive: true, capture: true });
 }
 
@@ -266,25 +223,7 @@ if (document.readyState === 'loading') {
   initClickTracking();
 }
 
-// PHASE 6: Load kill switch flags from business.json
-async function loadEmergencyFlags() {
-  try {
-    const res = await fetch('/.ai/business.json');
-    if (res.ok) {
-      const config = await res.json();
-      if (config.emergencyFlags) {
-        window.TT_FORCE_DIRECT = config.emergencyFlags.forceDirect === true;
-        if (window.TT_FORCE_DIRECT) {
-          console.warn('🚨 EMERGENCY MODE: Direct affiliate links enabled (bypassing /go)');
-        }
-      }
-    }
-  } catch (err) {
-    console.debug('Could not load emergency flags:', err);
-  }
-}
-
-// Load flags on startup
-loadEmergencyFlags();
+// Note: Direct affiliate navigation is now the default behavior
+// The /go endpoint is kept for legacy/shared links only
 
 window.TT = { initSection };
