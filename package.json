@@ -8,7 +8,9 @@
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "node scripts/validate.js",
     "test": "npm run validate && npm run test:e2e",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --reporter=line",
+    "test:fast": "playwright test --reporter=dot",
+    "test:debug": "DEBUG=pw:api playwright test --reporter=line",
     "test:production": "node scripts/check-production.js",
     "validate": "node scripts/validate.js"
   },

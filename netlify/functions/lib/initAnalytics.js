@@ -23,10 +23,16 @@ async function initializeAnalytics(storage) {
         initializedAt: new Date().toISOString(),
         totalClicks: 0,
         clicksByNetwork: {},
+        redirectFailures: 0, // PHASE 5: Track redirect failures
         version: 1
       };
       await storage.set('analytics:summary', summary);
       console.log('Created empty analytics:summary');
+    } else if (typeof summary.redirectFailures === 'undefined') {
+      // Migration: Add redirectFailures to existing summary
+      summary.redirectFailures = 0;
+      await storage.set('analytics:summary', summary);
+      console.log('Migrated analytics:summary with redirectFailures');
     }
     
     // 2. Initialize daily buckets (or create if missing)
@@ -177,6 +183,34 @@ async function recordClick(storage, event) {
 }
 
 /**
+ * Record a redirect failure (PHASE 5)
+ * @param {Object} storage - Storage instance
+ * @param {Object} failureData - Failure event data
+ * @returns {Promise<boolean>} - Success status
+ */
+async function recordRedirectFailure(storage, failureData) {
+  try {
+    const summary = await storage.get('analytics:summary') || {
+      initialized: true,
+      totalClicks: 0,
+      clicksByNetwork: {},
+      redirectFailures: 0
+    };
+    
+    summary.redirectFailures = (summary.redirectFailures || 0) + 1;
+    summary.lastUpdated = new Date().toISOString();
+    
+    await storage.set('analytics:summary', summary);
+    
+    console.log('✅ Redirect failure recorded');
+    return true;
+  } catch (err) {
+    console.error('Failed to record redirect failure:', err);
+    return false;
+  }
+}
+
+/**
  * Get analytics summary
  * @param {Object} storage - Storage instance
  * @returns {Promise<Object>} - Analytics summary with guaranteed schema
@@ -194,6 +228,7 @@ async function getAnalyticsSummary(storage) {
       initialized: summary.initialized || false,
       totalClicks: summary.totalClicks || 0,
       clicksByNetwork: summary.clicksByNetwork || {},
+      redirectFailures: summary.redirectFailures || 0, // PHASE 5
       clicksByDay: Object.values(daily.buckets || {}).sort((a, b) => 
         a.date.localeCompare(b.date)
       ),
@@ -209,6 +244,7 @@ async function getAnalyticsSummary(storage) {
       initialized: false,
       totalClicks: 0,
       clicksByNetwork: {},
+      redirectFailures: 0, // PHASE 5
       clicksByDay: [],
       topDeals: [],
       error: err.message
@@ -220,5 +256,6 @@ module.exports = {
   initializeAnalytics,
   getTodayBucket,
   recordClick,
+  recordRedirectFailure, // PHASE 5
   getAnalyticsSummary
 };

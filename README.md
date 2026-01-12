@@ -48,6 +48,29 @@ A **fast, Pinterest-friendly affiliate site** with dark neon theme, featuring cl
   - JWT-based admin authentication
   - No PII stored
 
+## 🧪 Testing
+
+**Safe Playwright Execution (Never use | tail or | head):**
+
+```bash
+# Standard mode (shows each test result)
+npm run test:e2e
+# OR
+npx playwright test --reporter=line
+
+# Fast mode (dots only, faster feedback)
+npm run test:fast
+# OR
+npx playwright test --reporter=dot
+
+# Debug mode (verbose API calls)
+npm run test:debug
+# OR
+DEBUG=pw:api npx playwright test --reporter=line
+```
+
+**⚠️ NEVER pipe Playwright output to tail/head** - it breaks test runners and hides failures.
+
 ## 📋 Quick Start
 
 ### Prerequisites

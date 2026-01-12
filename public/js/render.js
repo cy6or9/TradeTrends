@@ -29,7 +29,17 @@ function buildCard(item, kind){
   const directUrl = item.affiliate_url || "#";
   const network = isTravel ? "travel" : "amazon";
   const id = item.id || item.title || "";
-  const goUrl = `/go?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}`;
+  
+  // PHASE 6: Kill switch - check for forceDirect flag
+  let primaryHref = `/go?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}`;
+  
+  // Check if forceDirect is enabled (emergency bypass)
+  if (window.TT_FORCE_DIRECT === true) {
+    console.warn('⚠️ KILL SWITCH ACTIVE: Using direct affiliate URLs (bypassing /go)');
+    primaryHref = directUrl;
+  }
+  
+  const goUrl = primaryHref;
   // Background tracking endpoint (returns 204, no redirect)
   const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
@@ -61,13 +71,18 @@ async function loadJson(path){
 }
 
 function renderList(container, items, kind){
-  // Filter published deals only - NEVER show drafts publicly
+  // PHASE 5: Preview mode support
+  const urlParams = new URLSearchParams(window.location.search);
+  const previewMode = urlParams.has('preview') && urlParams.get('preview') === 'true';
+  
+  // Filter deals based on mode
   const validItems = items.filter(item => {
     // Migration: treat missing status as published (existing deals)
     const status = item.status || 'published';
     
-    // MUST be published to appear publicly
-    if (status !== 'published') return false;
+    // Preview mode: show published + drafts
+    // Normal mode: published only
+    if (!previewMode && status !== 'published') return false;
     
     // Filter out incomplete/placeholder deals
     return item.title && 
@@ -78,6 +93,18 @@ function renderList(container, items, kind){
            item.image && 
            !item.image.startsWith('data:image/svg+xml');
   });
+  
+  // Show preview banner if in preview mode
+  if (previewMode && container.parentElement) {
+    const existingBanner = container.parentElement.querySelector('.preview-banner');
+    if (!existingBanner) {
+      const banner = document.createElement('div');
+      banner.className = 'preview-banner';
+      banner.style.cssText = 'background: #ff6b35; color: white; padding: 10px; text-align: center; font-weight: 600; margin-bottom: 20px; border-radius: 8px;';
+      banner.innerHTML = '👁️ PREVIEW MODE: Showing published + draft deals';
+      container.parentElement.insertBefore(banner, container);
+    }
+  }
   
   container.innerHTML = validItems.map(i => buildCard(i, kind)).join("");
 }
@@ -238,5 +265,26 @@ if (document.readyState === 'loading') {
 } else {
   initClickTracking();
 }
+
+// PHASE 6: Load kill switch flags from business.json
+async function loadEmergencyFlags() {
+  try {
+    const res = await fetch('/.ai/business.json');
+    if (res.ok) {
+      const config = await res.json();
+      if (config.emergencyFlags) {
+        window.TT_FORCE_DIRECT = config.emergencyFlags.forceDirect === true;
+        if (window.TT_FORCE_DIRECT) {
+          console.warn('🚨 EMERGENCY MODE: Direct affiliate links enabled (bypassing /go)');
+        }
+      }
+    }
+  } catch (err) {
+    console.debug('Could not load emergency flags:', err);
+  }
+}
+
+// Load flags on startup
+loadEmergencyFlags();
 
 window.TT = { initSection };

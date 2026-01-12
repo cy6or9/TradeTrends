@@ -60,6 +60,18 @@
       "reason": "Missing force flag on /api redirect - allows file override",
       "blockedAt": "2026-01-12",
       "severity": "HIGH"
+    },
+    {
+      "pattern": "affiliate_url.*tradetrend\\.netlify\\.app",
+      "reason": "Self-redirect: affiliate URL points to own domain causing infinite loops",
+      "blockedAt": "2026-01-13",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "affiliate_url.*localhost",
+      "reason": "Self-redirect: affiliate URL points to localhost",
+      "blockedAt": "2026-01-13",
+      "severity": "CRITICAL"
     }
   ],
   "filePatterns": {
@@ -92,7 +104,9 @@
     "netlify/functions/go.js": {
       "mustContain": [
         "recordClick",
-        "initializeAnalytics"
+        "initializeAnalytics",
+        "forbiddenHosts",
+        "logIncident"
       ],
       "mustNotContain": [
         "// Continue with redirect even if logging fails"

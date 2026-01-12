@@ -606,10 +606,20 @@ if (fs.existsSync('netlify/functions/go.js')) {
     success('go.js implements redirect loop detection');
   }
   
+  // PHASE 1: Verify self-redirect protection (forbiddenHosts)
+  const hasSelfRedirectProtection = goJs.includes('forbiddenHosts') && 
+                                    goJs.includes('tradetrend.netlify.app');
+  if (!hasSelfRedirectProtection) {
+    error('CRITICAL: go.js missing self-redirect protection (PHASE 1 requirement)');
+    error('  Must check forbiddenHosts before returning 302');
+  } else {
+    success('go.js prevents self-redirect loops');
+  }
+  
   // Verify Location points to affiliate domains (not our own)
   const locationLines = goJs.split('\n').filter(line => line.includes('Location:'));
   for (const line of locationLines) {
-    if (line.includes('tradetrend.netlify.app') && !line.includes('comment')) {
+    if (line.includes('tradetrend.netlify.app') && !line.includes('comment') && !line.includes('forbiddenHosts')) {
       error('CRITICAL: go.js redirects to our own domain (causes loops)');
       error(`  Line: ${line.trim()}`);
     }
@@ -626,7 +636,55 @@ try {
   error('Admin scripts validation failed - see errors above');
 }
 
-// 14. Summary
+// 14. Validate emergency flags exist
+section('Validating Emergency Kill Switch');
+if (fs.existsSync('.ai/business.json')) {
+  const businessJson = fs.readFileSync('.ai/business.json', 'utf8');
+  const config = JSON.parse(businessJson);
+  
+  if (!config.emergencyFlags) {
+    error('.ai/business.json missing emergencyFlags (PHASE 6 requirement)');
+  } else {
+    const flags = config.emergencyFlags;
+    if (typeof flags.disableGo === 'undefined') error('emergencyFlags missing disableGo flag');
+    if (typeof flags.forceDirect === 'undefined') error('emergencyFlags missing forceDirect flag');
+    
+    if (Object.keys(flags).length >= 2) {
+      success('Emergency kill switch flags configured');
+    }
+  }
+}
+
+// 15. PHASE 8: Validate Data Files for Self-Redirects
+section('Validating Deal Data for Self-Redirects (PHASE 8)');
+const dataFiles = ['public/data/amazon.json', 'public/data/travel.json'];
+let selfRedirectFound = false;
+
+for (const dataFile of dataFiles) {
+  if (fs.existsSync(dataFile)) {
+    const data = fs.readFileSync(dataFile, 'utf8');
+    const json = JSON.parse(data);
+    const deals = json.items || []; // Handle {items: [...]} structure
+    
+    for (const deal of deals) {
+      if (deal.affiliate_url) {
+        // Check for self-redirect patterns
+        if (deal.affiliate_url.includes('tradetrend.netlify.app') ||
+            deal.affiliate_url.includes('tradetrends.netlify.app') ||
+            deal.affiliate_url.includes('localhost')) {
+          error(`${dataFile}: Deal ${deal.id} has self-redirect URL: ${deal.affiliate_url}`);
+          selfRedirectFound = true;
+        }
+      }
+    }
+  }
+}
+
+if (!selfRedirectFound) {
+  success('No self-redirect URLs found in deal data');
+}
+
+// 16. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

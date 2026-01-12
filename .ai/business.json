@@ -1,5 +1,11 @@
 {
   "primaryGoal": "Affiliate revenue",
+  "emergencyFlags": {
+    "disableGo": false,
+    "forceDirect": false,
+    "disableAnalytics": false,
+    "maintenanceMode": false
+  },
   "mustNeverBreak": [
     "/go function",
     "affiliate redirects",

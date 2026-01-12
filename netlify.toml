@@ -8,6 +8,12 @@
   publish = "public"
   autoLaunch = false
 
+# PHASE 4: Scheduled function - Redirect canary (every 10 minutes)
+[functions]
+  # Uncomment to enable scheduled redirect monitoring
+  # [[functions.canary-redirect.schedule]]
+  #   cron = "*/10 * * * *"  # Every 10 minutes
+
 # Redirect /go to click tracking function (preserves query params)
 [[redirects]]
   from = "/go"

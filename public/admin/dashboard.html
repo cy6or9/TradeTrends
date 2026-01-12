@@ -205,6 +205,45 @@
     <h1>Analytics Dashboard</h1>
     <p class="subtitle">Click tracking and performance metrics</p>
 
+    <!-- PHASE 3: Revenue Health Tile -->
+    <div class="table-card" style="background: rgba(0,210,255,0.08); border-color: #00d2ff; margin-bottom: 30px;">
+      <h2 class="table-title" style="color: #00d2ff; margin-bottom: 15px;">💰 Revenue Health</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 20px;">
+        <!-- /go Redirect Status -->
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+          <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">/go Redirect Status</div>
+          <div id="goHealth" style="font-size: 20px; font-weight: 600;">⏳ Testing...</div>
+          <button id="testGoNow" class="admin-btn" style="margin-top: 10px; font-size: 12px; padding: 6px 12px;">Test Now</button>
+        </div>
+        
+        <!-- Kill Switch State -->
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+          <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Kill Switch State</div>
+          <div id="killSwitchState" style="font-size: 20px; font-weight: 600;">⏳ Loading...</div>
+          <div id="killSwitchDetails" style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;"></div>
+        </div>
+        
+        <!-- Last Redirect Failure -->
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+          <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Last Redirect Failure</div>
+          <div id="lastFailure" style="font-size: 14px; font-weight: 600;">⏳ Loading...</div>
+          <div id="lastFailureTime" style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;"></div>
+        </div>
+        
+        <!-- Revenue Leak Rate -->
+        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+          <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 5px;">Redirect Failure Rate</div>
+          <div id="leakRate" style="font-size: 20px; font-weight: 600;">⏳ Loading...</div>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Last 7 days</div>
+        </div>
+      </div>
+      
+      <div style="background: rgba(255,200,0,0.1); border-left: 3px solid #ffc107; padding: 12px; border-radius: 4px; font-size: 13px;">
+        <strong>⚠️ Revenue Protection:</strong> If /go fails or self-redirects detected, kill switch can be activated to bypass redirect layer.
+      </div>
+    </div>
+
     <div id="content">
       <div class="loading" data-testid="dashboard-loading">Loading analytics...</div>
     </div>
@@ -426,6 +465,187 @@
       return div.innerHTML;
     }
 
+    // PHASE 3: Revenue Health Functions
+    async function loadRevenueHealth() {
+      // Test /go redirect
+      testGoHealth();
+      
+      // Load kill switch state
+      loadKillSwitchState();
+      
+      // Load last failure from history.json
+      loadLastFailure();
+      
+      // Load failure rate from analytics
+      loadFailureRate();
+    }
+    
+    async function testGoHealth() {
+      const healthEl = document.getElementById('goHealth');
+      
+      try {
+        // Get a real published deal ID from data
+        const dealsResponse = await fetch('/data/amazon.json');
+        const dealsData = await dealsResponse.json();
+        const publishedDeals = (dealsData.items || []).filter(d => d.status === 'published' || !d.status);
+        const testDealId = publishedDeals[0]?.id || 'test-health-check';
+        
+        const response = await fetch(`/go?network=amazon&id=${testDealId}`, {
+          method: 'GET',
+          redirect: 'manual'
+        });
+        
+        const status = response.status;
+        const location = response.headers.get('Location') || '';
+        
+        if (status === 302) {
+          const isSelfRedirect = location.includes('tradetrend.netlify.app') || 
+                                 location.includes('localhost') ||
+                                 location.startsWith('/?network=');
+          const isExternal = location.includes('amazon') || location.includes('amzn.to') ||
+                            location.includes('booking') || location.includes('expedia');
+          
+          if (isSelfRedirect) {
+            healthEl.innerHTML = '🔴 FAIL: Self-redirect';
+            healthEl.style.color = '#ff5050';
+          } else if (isExternal) {
+            healthEl.innerHTML = '🟢 PASS: Working';
+            healthEl.style.color = '#4ade80';
+          } else {
+            healthEl.innerHTML = '🟡 WARN: Unknown destination';
+            healthEl.style.color = '#ffa500';
+          }
+        } else if (status === 200) {
+          healthEl.innerHTML = '🟡 WARN: Returns HTML';
+          healthEl.style.color = '#ffa500';
+        } else {
+          healthEl.innerHTML = `🔴 FAIL: HTTP ${status}`;
+          healthEl.style.color = '#ff5050';
+        }
+      } catch (err) {
+        healthEl.innerHTML = `🔴 ERROR: ${err.message}`;
+        healthEl.style.color = '#ff5050';
+      }
+    }
+    
+    async function loadKillSwitchState() {
+      const stateEl = document.getElementById('killSwitchState');
+      const detailsEl = document.getElementById('killSwitchDetails');
+      
+      try {
+        const response = await fetch('/.ai/business.json');
+        const config = await response.json();
+        const flags = config.emergencyFlags || {};
+        
+        const isActive = flags.forceDirect === true || flags.disableGo === true;
+        
+        if (isActive) {
+          stateEl.innerHTML = '🚨 ACTIVE';
+          stateEl.style.color = '#ff5050';
+          const activeFlags = [];
+          if (flags.forceDirect) activeFlags.push('forceDirect');
+          if (flags.disableGo) activeFlags.push('disableGo');
+          detailsEl.innerHTML = `Flags: ${activeFlags.join(', ')}`;
+        } else {
+          stateEl.innerHTML = '✅ Normal';
+          stateEl.style.color = '#4ade80';
+          detailsEl.innerHTML = 'All systems operational';
+        }
+      } catch (err) {
+        stateEl.innerHTML = '❓ Unknown';
+        stateEl.style.color = '#888';
+        detailsEl.innerHTML = 'Could not load flags';
+      }
+    }
+    
+    async function loadLastFailure() {
+      const failureEl = document.getElementById('lastFailure');
+      const timeEl = document.getElementById('lastFailureTime');
+      
+      try {
+        const response = await fetch('/.ai/history.json');
+        const history = await response.json();
+        const incidents = history.incidents || [];
+        
+        // Find most recent redirect_failure
+        const redirectFailures = incidents
+          .filter(i => i.type === 'redirect_failure')
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        if (redirectFailures.length > 0) {
+          const latest = redirectFailures[0];
+          failureEl.innerHTML = `Deal: ${latest.dealId || 'unknown'}`;
+          failureEl.style.color = '#ff9b9b';
+          
+          const timestamp = new Date(latest.timestamp);
+          const timeAgo = getTimeAgo(timestamp);
+          timeEl.innerHTML = `${timeAgo} ago`;
+        } else {
+          failureEl.innerHTML = '✅ None';
+          failureEl.style.color = '#4ade80';
+          timeEl.innerHTML = 'No failures recorded';
+        }
+      } catch (err) {
+        failureEl.innerHTML = '❓ Unknown';
+        failureEl.style.color = '#888';
+        timeEl.innerHTML = 'Could not load history';
+      }
+    }
+    
+    async function loadFailureRate() {
+      const rateEl = document.getElementById('leakRate');
+      
+      try {
+        const response = await fetch('/.netlify/functions/api/analytics?days=7');
+        const data = await response.json();
+        
+        const totalClicks = data.totalClicks || 0;
+        const redirectFailures = data.redirectFailures || 0;
+        
+        if (totalClicks === 0) {
+          rateEl.innerHTML = '0%';
+          rateEl.style.color = '#4ade80';
+        } else {
+          const failureRate = (redirectFailures / totalClicks * 100).toFixed(2);
+          
+          if (failureRate > 2) {
+            rateEl.innerHTML = `🔴 ${failureRate}%`;
+            rateEl.style.color = '#ff5050';
+          } else if (failureRate > 1) {
+            rateEl.innerHTML = `🟡 ${failureRate}%`;
+            rateEl.style.color = '#ffa500';
+          } else {
+            rateEl.innerHTML = `🟢 ${failureRate}%`;
+            rateEl.style.color = '#4ade80';
+          }
+        }
+      } catch (err) {
+        rateEl.innerHTML = '❓ N/A';
+        rateEl.style.color = '#888';
+      }
+    }
+    
+    function getTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      
+      if (seconds < 60) return `${seconds}s`;
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+      return `${Math.floor(seconds / 86400)}d`;
+    }
+    
+    // Bind test button
+    document.getElementById('testGoNow').addEventListener('click', testGoHealth);
+
+    // PHASE 4: Test /go redirect health (legacy - kept for backward compat)
+    async function testGoRedirect() {
+      testGoHealth();
+    }
+    
+    if (document.getElementById('testGoRedirect')) {
+      document.getElementById('testGoRedirect').addEventListener('click', testGoRedirect);
+    }
+
     // Logout handler
     document.getElementById('adminLogout').addEventListener('click', () => {
       if (window.netlifyIdentity) {
@@ -436,9 +656,15 @@
 
     // Load analytics when ready
     if (window.netlifyIdentity) {
-      window.netlifyIdentity.on('init', loadAnalytics);
+      window.netlifyIdentity.on('init', () => {
+        loadAnalytics();
+        loadRevenueHealth();
+      });
     }
-    setTimeout(loadAnalytics, 1000);
+    setTimeout(() => {
+      loadAnalytics();
+      loadRevenueHealth();
+    }, 1000);
   </script>
 </body>
 </html>

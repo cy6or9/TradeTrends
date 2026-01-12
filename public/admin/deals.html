@@ -263,11 +263,28 @@
     }
 
     function createDealCard(deal, index, type) {
-      // Status badge styling
+      // PHASE 7: Deal health status
       const isDraft = deal.status === 'draft';
-      const statusBadge = isDraft ? 
-        '<div style="background:#ff6b35; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">📝 DRAFT</div>' : 
-        '<div style="background:#4caf50; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">✅ PUBLISHED</div>';
+      const isPublished = !isDraft;
+      
+      // Check for missing required fields (for published deals)
+      const missingFields = [];
+      if (!deal.id || deal.id.trim() === '') missingFields.push('ID');
+      if (!deal.title || deal.title.trim() === '') missingFields.push('Title');
+      if (!deal.affiliate_url || deal.affiliate_url.trim() === '' || deal.affiliate_url === 'https://example.com/affiliate') missingFields.push('Affiliate URL');
+      if (!deal.image || deal.image.trim() === '' || deal.image.startsWith('data:image/svg+xml')) missingFields.push('Image');
+      
+      const isBroken = isPublished && missingFields.length > 0;
+      
+      let statusBadge;
+      if (isBroken) {
+        statusBadge = `<div style="background:#dc3545; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;" title="Missing: ${missingFields.join(', ')}">🔴 BROKEN</div>`;
+      } else if (isDraft) {
+        statusBadge = '<div style="background:#ff6b35; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">🟡 DRAFT</div>';
+      } else {
+        statusBadge = '<div style="background:#4caf50; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">🟢 VALID</div>';
+      }
+      
       // Simple gray placeholder image
       const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCBmaWxsPSIjMzM0MTU1IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIvPjx0ZXh0IGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
       

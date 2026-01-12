@@ -13,8 +13,11 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:8888';
 test.describe('Revenue Canary - /go Redirect Flow', () => {
   
   test('/go endpoint returns 302 with affiliate destination', async ({ request }) => {
-    // Test /go function directly (don't navigate to external sites)
-    const response = await request.get(`${BASE_URL}/go?network=amazon&id=test-deal`);
+    // PHASE 9: Test /go function directly with a real deal ID
+    // CRITICAL: Use maxRedirects: 0 to prevent following the 302
+    const response = await request.get(`${BASE_URL}/go?network=amazon&id=2dfd3aee-93dd-4c06-8ad3-8426f5eb007e`, {
+      maxRedirects: 0
+    });
     
     // Must return 302 redirect (not 200, not 404)
     expect(response.status()).toBe(302);
@@ -23,13 +26,19 @@ test.describe('Revenue Canary - /go Redirect Flow', () => {
     const location = response.headers()['location'];
     expect(location).toBeTruthy();
     
-    // Location must point to affiliate domain (not our own site)
+    // PHASE 1: Location must NOT be our own domain
+    const isSelfRedirect = location.includes('tradetrend.netlify.app') || 
+                          location.includes('localhost') ||
+                          location.startsWith('/?network=');
+    
+    expect(isSelfRedirect).toBe(false);
+    
+    // Location must point to affiliate domain
     const isAffiliateDestination = 
       location.includes('amazon') || 
       location.includes('amzn.to');
     
     expect(isAffiliateDestination).toBe(true);
-    expect(location).not.toContain('tradetrend.netlify.app');
     
     console.log('✅ /go redirect works:', location);
   });
@@ -66,23 +75,65 @@ test.describe('Revenue Canary - /go Redirect Flow', () => {
     console.log('✅ Deal has both /go href and direct URL fallback');
   });
   
-  test('redirect loop detector does not break normal flow', async ({ request }) => {
-    // Make two rapid /go requests (simulate potential loop scenario)
+  test('clicking deal invokes /go redirect (no external navigation)', async ({ page }) => {
+    await page.goto(`${BASE_URL}/`);
+    
+    // Wait for deals to render AND verify they have /go hrefs
+    await page.waitForSelector('a.link.primary[href*="/go?network="]', { timeout: 10000 });
+    
+    // Get first deal with /go href
+    const firstGoLink = page.locator('a.link.primary[href*="/go?network="]').first();
+    const href = await firstGoLink.getAttribute('href');
+    console.log('Deal link href:', href);
+    
+    // Verify the href uses /go pattern (not direct affiliate link)
+    expect(href).toContain('/go?network=');
+    expect(href).toMatch(/\/go\?network=(amazon|travel)&id=[a-f0-9\-]+/);
+    
+    // Extract and validate parameters
+    const url = new URL(href, BASE_URL);
+    const network = url.searchParams.get('network');
+    const dealId = url.searchParams.get('id');
+    
+    expect(network).toBeTruthy();
+    expect(dealId).toBeTruthy();
+    expect(['amazon', 'travel']).toContain(network);
+    
+    console.log(`✅ Deal uses /go redirect: ${network} deal ${dealId}`);
+    
+    // CRITICAL: This test verifies /go redirect structure without opening Amazon
+  });
+  
+  test('redirect loop detector correctly identifies loops but allows normal clicks', async ({ request }) => {
     const network = 'amazon';
-    const id = 'loop-test-' + Date.now();
+    const id = '2dfd3aee-93dd-4c06-8ad3-8426f5eb007e'; // Real deal ID
     
-    const response1 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`);
-    expect(response1.status()).toBe(302);
+    // PART 1: Rapid clicks within 2s window SHOULD trigger loop detection (status 200 HTML page)
+    const response1 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
+      maxRedirects: 0
+    });
+    const cookie1 = response1.headers()['set-cookie'] || '';
     
-    // Second request should also work (not be blocked as loop)
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const response2 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`);
+    const response2 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
+      maxRedirects: 0,
+      headers: {
+        Cookie: cookie1 // Send same cookie to simulate loop
+      }
+    });
     
-    // Should still redirect (not show loop error page)
-    expect(response2.status()).toBe(302);
+    // Should detect loop and return HTML error page (200)
+    expect(response2.status()).toBe(200);
+    const body2 = await response2.text();
+    expect(body2).toContain('Redirect Loop Detected');
     
-    const location2 = response2.headers()['location'];
-    expect(location2).toContain('amazon');
+    // PART 2: After waiting >2s, should work normally again
+    await new Promise(resolve => setTimeout(resolve, 2100));
+    const response3 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
+      maxRedirects: 0
+    });
+    expect(response3.status()).toBe(302);
+    const location3 = response3.headers()['location'];
+    expect(location3).toContain('amzn');
     
     console.log('✅ Loop detector does not interfere with normal redirects');
   });

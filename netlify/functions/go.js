@@ -5,7 +5,31 @@ const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
 const { createStorage } = require('./lib/storage');
-const { initializeAnalytics, recordClick } = require('./lib/initAnalytics');
+const { initializeAnalytics, recordClick, recordRedirectFailure } = require('./lib/initAnalytics');
+
+// PHASE 8: AI Self-Healing - Log incidents to history.json
+async function logIncident(incident) {
+  try {
+    const historyPath = path.join(__dirname, '../../.ai/history.json');
+    const historyData = await fs.readFile(historyPath, 'utf8');
+    const history = JSON.parse(historyData);
+    
+    history.incidents.push({
+      timestamp: new Date().toISOString(),
+      ...incident
+    });
+    
+    // Keep last 1000 incidents
+    if (history.incidents.length > 1000) {
+      history.incidents = history.incidents.slice(-1000);
+    }
+    
+    await fs.writeFile(historyPath, JSON.stringify(history, null, 2));
+  } catch (error) {
+    console.error('Failed to log incident:', error);
+    // Don't fail the request if logging fails
+  }
+}
 
 // Hash IP with salt for privacy
 function hashIp(ip, salt) {
@@ -245,6 +269,90 @@ exports.handler = async (event) => {
     
     // Redirect to affiliate URL
     const affiliateUrl = deal.affiliate_url || deal.affiliateUrl || '/';
+    
+    // PHASE 1: PREVENT SELF-REDIRECT LOOPS
+    const forbiddenHosts = [
+      'tradetrend.netlify.app',
+      'tradetrends.netlify.app',
+      'localhost',
+      '127.0.0.1'
+    ];
+    
+    try {
+      const targetUrl = new URL(affiliateUrl, 'https://tradetrend.netlify.app');
+      
+      if (forbiddenHosts.includes(targetUrl.hostname)) {
+        console.error('🚨 FATAL: /go attempted to redirect to own domain:', affiliateUrl);
+        
+        // PHASE 5: Record redirect failure in analytics
+        await recordRedirectFailure(storage, {
+          dealId: id,
+          network: network,
+          reason: 'self-redirect',
+          affiliate_url: affiliateUrl,
+          hostname: targetUrl.hostname,
+          timestamp: new Date().toISOString()
+        });
+        
+        // PHASE 8: Log to history.json for AI self-healing
+        await logIncident({
+          severity: 'CRITICAL',
+          type: 'redirect_failure',
+          description: `Self-redirect loop detected: /go attempted to redirect to own domain (${targetUrl.hostname})`,
+          affectedFiles: ['public/data/amazon.json', 'public/data/travel.json'],
+          dealId: id,
+          network: network,
+          affiliate_url: affiliateUrl,
+          rootCause: 'Deal affiliate_url points to own domain instead of external affiliate network',
+          fix: 'forbiddenHosts check prevented redirect, returned HTML error page',
+          preventionAdded: 'validate.js checks forbiddenHosts exists, canary test verifies no self-redirects'
+        });
+        
+        // Log the error for analysis
+        const errorLog = {
+          type: 'redirect-loop',
+          dealId: id,
+          network: network,
+          affiliate_url: affiliateUrl,
+          userAgent: event.headers['user-agent'] || 'unknown',
+          timestamp: new Date().toISOString()
+        };
+        console.error('Redirect loop error:', JSON.stringify(errorLog));
+        
+        // Return HTML fallback page with direct link
+        return {
+          statusCode: 200,
+          headers: { 
+            'Content-Type': 'text/html',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          body: `<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirect Error</title>
+  <meta name="robots" content="noindex">
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; background: #1a1a2e; color: #fff; }
+    .error { background: rgba(255,80,80,0.2); border: 2px solid #ff5050; padding: 20px; border-radius: 8px; }
+    .btn { display: inline-block; margin-top: 15px; padding: 12px 24px; background: #00d2ff; color: #000; text-decoration: none; border-radius: 6px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="error">
+    <h1>⚠️ Redirect Configuration Error</h1>
+    <p>This deal link is misconfigured and would cause a redirect loop.</p>
+    <p><strong>Deal ID:</strong> ${id}</p>
+    <p>We've notified our team to fix this issue.</p>
+    <p><a href="/" class="btn">← Return to Homepage</a></p>
+  </div>
+</body>
+</html>`
+        };
+      }
+    } catch (urlError) {
+      console.error('Failed to parse affiliate URL:', affiliateUrl, urlError);
+      // Invalid URL - fall through to normal redirect and let browser handle it
+    }
     
     // Success - redirect to affiliate URL
     // Set cookie to track this redirect for loop detection
