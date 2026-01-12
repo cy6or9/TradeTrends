@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activities Editor - TradeTrends</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    .deal-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      cursor: move;
+      position: relative;
+    }
+    
+    .deal-card.sortable-ghost {
+      opacity: 0.4;
+      background: rgba(138,43,226,0.3);
+    }
+    
+    .deal-card.sortable-drag {
+      opacity: 1;
+      transform: rotate(2deg);
+    }
+    
+    .deal-card:hover {
+      border-color: rgba(0,210,255,0.5);
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-group label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #00d2ff;
+      color: #000;
+    }
+    
+    .btn-success {
+      background: #4ade80;
+      color: #000;
+    }
+    
+    .btn-danger {
+      background: #dc3545;
+      color: #fff;
+    }
+    
+    .save-status {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      background: rgba(0,0,0,0.95);
+      border-radius: 8px;
+      border: 2px solid #4ade80;
+      color: #fff;
+      display: none;
+    }
+    
+    .save-status.show {
+      display: block;
+    }
+    
+    .featured-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(255,215,0,0.2);
+      border: 1px solid #ffd700;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #ffd700;
+      margin-left: 10px;
+    }
+    
+    .drag-handle {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(138,43,226,0.8);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      z-index: 10;
+      cursor: grab;
+    }
+    
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎭 Activities Editor</h1>
+    <div>
+      <a href="/admin/" class="btn btn-secondary">← Back</a>
+      <button onclick="addNewActivity()" class="btn btn-primary">➕ Add Activity</button>
+      <button onclick="saveAll()" class="btn btn-success" id="saveBtn">💾 Save Changes</button>
+    </div>
+  </div>
+
+  <div class="container" style="padding: 20px;">
+    <div style="background: rgba(0,210,255,0.1); border: 2px solid #00d2ff; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+      <h3 style="margin: 0 0 10px 0; color: #00d2ff;">Quick Start</h3>
+      <ol style="margin: 0; padding-left: 20px; color: rgba(255,255,255,0.8);">
+        <li>Click "Add Activity" to create a new entry</li>
+        <li>Fill in title, city, and paste your Travelpayouts link</li>
+        <li>Click "Save Changes" to publish</li>
+        <li>Activities appear instantly on the site</li>
+      </ol>
+    </div>
+    <div id="activitiesList"></div>
+  </div>
+
+  <div id="saveStatus" class="save-status"></div>
+
+  <script>
+    let activities = [];
+
+    // Load activities
+    async function loadActivities() {
+      try {
+        const res = await fetch('/data/activities.json');
+        const data = await res.json();
+        activities = data.items || [];
+        render();
+      } catch (error) {
+        console.error('Failed to load activities:', error);
+        alert('Failed to load activities');
+      }
+    }
+
+    // Render activities
+    function render() {
+      const container = document.getElementById('activitiesList');
+      container.innerHTML = activities.map((activity, index) => `
+        <div class="deal-card" data-id="${activity.id}">
+          <div class="drag-handle">⋮⋮ DRAG</div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0;">
+              Activity #${index + 1}
+              ${activity.featured ? '<span class="featured-badge">★ Featured</span>' : ''}
+            </h3>
+            <button onclick="deleteActivity(${index})" class="btn btn-danger">🗑️ Delete</button>
+          </div>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" value="${escapeHtml(activity.title || '')}" onchange="updateActivity(${index}, 'title', this.value)" />
+            </div>
+            
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" value="${escapeHtml(activity.city || '')}" onchange="updateActivity(${index}, 'city', this.value)" />
+            </div>
+            
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" value="${escapeHtml(activity.country || '')}" onchange="updateActivity(${index}, 'country', this.value)" />
+            </div>
+            
+            <div class="form-group">
+              <label>Category</label>
+              <select onchange="updateActivity(${index}, 'category', this.value)">
+                <option value="Tour" ${activity.category === 'Tour' ? 'selected' : ''}>Tour</option>
+                <option value="Attraction" ${activity.category === 'Attraction' ? 'selected' : ''}>Attraction</option>
+                <option value="Pass" ${activity.category === 'Pass' ? 'selected' : ''}>Pass</option>
+                <option value="Experience" ${activity.category === 'Experience' ? 'selected' : ''}>Experience</option>
+                <option value="Event" ${activity.category === 'Event' ? 'selected' : ''}>Event</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Price (optional)</label>
+              <input type="text" placeholder="From $50" value="${escapeHtml(activity.price || '')}" onchange="updateActivity(${index}, 'price', this.value)" />
+            </div>
+            
+            <div class="form-group">
+              <label>Status</label>
+              <select onchange="updateActivity(${index}, 'status', this.value)">
+                <option value="published" ${activity.status === 'published' ? 'selected' : ''}>Published</option>
+                <option value="draft" ${activity.status === 'draft' ? 'selected' : ''}>Draft</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label>Tagline</label>
+            <textarea onchange="updateActivity(${index}, 'tagline', this.value)">${escapeHtml(activity.tagline || '')}</textarea>
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label>Image URL *</label>
+            <input type="url" value="${escapeHtml(activity.image || '')}" onchange="updateActivity(${index}, 'image', this.value)" />
+          </div>
+          
+          <div class="form-group" style="margin-bottom: 15px;">
+            <label>Travelpayouts URL * (Just paste the activity link)</label>
+            <input type="url" placeholder="https://tp.media/..." value="${escapeHtml(activity.affiliate_url || '')}" onchange="updateActivity(${index}, 'affiliate_url', this.value)" />
+            <small style="color: rgba(255,255,255,0.5);">The Travelpayouts script will automatically monetize this link</small>
+          </div>
+          
+          <div class="form-group">
+            <label>
+              <input type="checkbox" ${activity.featured ? 'checked' : ''} onchange="updateActivity(${index}, 'featured', this.checked)" />
+              Featured (show on homepage)
+            </label>
+          </div>
+        </div>
+      `).join('');
+      
+      // Initialize drag-and-drop
+      initDragAndDrop();
+    }
+
+    // Update activity
+    function updateActivity(index, field, value) {
+      activities[index][field] = value;
+    }
+
+    // Add new activity
+    function addNewActivity() {
+      const newActivity = {
+        id: `act-${Date.now()}`,
+        title: 'New Activity',
+        city: '',
+        country: '',
+        tagline: '',
+        cta: 'View Deal',
+        image: '',
+        affiliate_url: '',
+        price: '',
+        category: 'Tour',
+        featured: false,
+        last_verified: new Date().toISOString().split('T')[0],
+        status: 'draft'
+      };
+      activities.push(newActivity);
+      render();
+    }
+
+    // Delete activity
+    function deleteActivity(index) {
+      if (confirm('Delete this activity?')) {
+        activities.splice(index, 1);
+        render();
+      }
+    }
+
+    // Save all
+    async function saveAll() {
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = '💾 Saving...';
+      
+      try {
+        const payload = {
+          items: activities
+        };
+        
+        const response = await fetch('/.netlify/functions/save-activities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        
+        if (response.ok) {
+          showSaveStatus(`✅ Saved ${result.count} activities successfully!`);
+          saveBtn.textContent = '✅ Saved!';
+          setTimeout(() => {
+            saveBtn.textContent = '💾 Save Changes';
+            saveBtn.disabled = false;
+          }, 2000);
+        } else {
+          throw new Error(result.error || 'Save failed');
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        showSaveStatus('❌ Save failed: ' + error.message);
+        saveBtn.textContent = '❌ Failed';
+        setTimeout(() => {
+          saveBtn.textContent = '💾 Save Changes';
+          saveBtn.disabled = false;
+        }, 2000);
+      }
+    }
+
+    // Show save status
+    function showSaveStatus(message) {
+      const status = document.getElementById('saveStatus');
+      status.textContent = message;
+      status.classList.add('show');
+      setTimeout(() => status.classList.remove('show'), 5000);
+    }
+
+    // HTML escape
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Initialize drag-and-drop functionality
+    function initDragAndDrop() {
+      const container = document.getElementById('activitiesList');
+      
+      if (container && !container.sortableInstance) {
+        container.sortableInstance = new Sortable(container, {
+          animation: 150,
+          handle: '.drag-handle',
+          ghostClass: 'sortable-ghost',
+          dragClass: 'sortable-drag',
+          onEnd: function(evt) {
+            // Reorder the activities array
+            const movedItem = activities.splice(evt.oldIndex, 1)[0];
+            activities.splice(evt.newIndex, 0, movedItem);
+            render();
+          }
+        });
+      }
+    }
+
+    // Initialize
+    loadActivities();
+  </script>
+  
+  <!-- Scroll health check sentinel -->
+  <div id="scroll-sentinel" data-testid="scroll-ok" style="height:1px;"></div>
+</body>
+</html>

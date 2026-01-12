@@ -17,25 +17,42 @@ function escapeHtml(str){
 
 function buildCard(item, kind){
   const isTravel = kind === "travel";
+  const isActivities = kind === "activities";
+  
   const badge = item.featured ? "Featured" : (item.category || (isTravel ? item.brand : "Deal"));
-  const title = isTravel ? `${item.brand}: ${item.title}` : item.title;
-  const ctaText = isTravel ? (item.cta || "View deal") : "View on Amazon";
-  const metaA = isTravel ? (item.category || "") : (item.category || "");
-  const metaB = isTravel ? "" : (item.price_hint || "");
+  
+  // Title formatting based on kind
+  let title = item.title;
+  if (isTravel) {
+    title = `${item.brand}: ${item.title}`;
+  }
+  
+  // CTA text
+  const ctaText = isActivities ? (item.cta || "View Deal") : 
+                  isTravel ? (item.cta || "View deal") : 
+                  "View on Amazon";
+  
+  // Meta fields
+  const metaA = isActivities ? (item.city || "") : 
+                isTravel ? (item.category || "") : 
+                (item.category || "");
+  const metaB = isActivities ? (item.price || "") :
+                isTravel ? "" : 
+                (item.price_hint || "");
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
   
   // DIRECT NAVIGATION: Open affiliate URL directly (no /go redirect)
   // Background tracking via sendBeacon (non-blocking)
   const directUrl = item.affiliate_url || "#";
-  const network = isTravel ? "travel" : "amazon";
+  const network = isActivities ? "activities" : (isTravel ? "travel" : "amazon");
   const id = item.id || item.title || "";
   
   // Background tracking endpoint (returns 204, no redirect)
   const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
   return `
-  <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}">
+  <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}" data-city="${escapeHtml(item.city || "")}">
     <div class="itemMedia">
       <img loading="lazy" decoding="async" src="${escapeHtml(img)}" alt="${escapeHtml(title)}">
     </div>
@@ -107,9 +124,10 @@ function applyFilters(container, {query, category}){
 
   cards.forEach(card => {
     const title = (card.getAttribute("data-title") || "").toLowerCase();
+    const city = (card.getAttribute("data-city") || "").toLowerCase();
     const c = (card.getAttribute("data-category") || "").toLowerCase();
 
-    const matchQ = !q || title.includes(q);
+    const matchQ = !q || title.includes(q) || city.includes(q);
     const matchC = !cat || c === cat;
 
     card.style.display = (matchQ && matchC) ? "" : "none";

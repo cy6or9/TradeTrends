@@ -680,7 +680,79 @@ if (!selfRedirectFound) {
   success('No self-redirect URLs found in deal data');
 }
 
-// 16. Summary
+// 17. CRITICAL: Validate Admin Pages for Scroll Lock Bug
+section('Validating Admin Pages for Scroll Lock Bug');
+const adminPagesForScrollCheck = [
+  'public/admin/deals.html',
+  'public/admin/activities.html',
+  'public/admin/dashboard.html',
+  'public/admin/trends.html'
+];
+
+let scrollLockFound = false;
+
+for (const adminPage of adminPagesForScrollCheck) {
+  if (fs.existsSync(adminPage)) {
+    const content = fs.readFileSync(adminPage, 'utf8');
+    
+    // Check for dangerous CSS patterns that block scrolling
+    const dangerousPatterns = [
+      { pattern: /body\s*{[^}]*overflow:\s*hidden/i, message: 'body { overflow: hidden }' },
+      { pattern: /html\s*{[^}]*overflow:\s*hidden/i, message: 'html { overflow: hidden }' },
+      { pattern: /html\s*,\s*body\s*{[^}]*overflow:\s*hidden/i, message: 'html, body { overflow: hidden }' }
+    ];
+    
+    for (const { pattern, message } of dangerousPatterns) {
+      if (pattern.test(content)) {
+        // Check if it's whitelisted (only #nc-root is allowed to have overflow:hidden)
+        const hasWhitelist = /#nc-root\s*{[^}]*overflow:\s*hidden/i.test(content);
+        if (!hasWhitelist || !content.includes('#nc-root')) {
+          error(`${adminPage}: SCROLL LOCK BUG DETECTED - ${message}`);
+          error(`  This prevents admin pages from scrolling and blocks CMS usage`);
+          scrollLockFound = true;
+        }
+      }
+    }
+    
+    // Check for position:fixed with height:100vh on main containers
+    const fixedFullHeightPattern = /position:\s*fixed[^}]*height:\s*100vh/i;
+    if (fixedFullHeightPattern.test(content)) {
+      // Check if it's an allowed element (modals, overlays)
+      const allowedPatterns = ['#accessDenied', '.modal', '.overlay', '.save-status'];
+      const hasAllowed = allowedPatterns.some(pattern => content.includes(pattern));
+      
+      if (!hasAllowed) {
+        warning(`${adminPage}: position:fixed with height:100vh detected (may block scrolling)`);
+      }
+    }
+  }
+}
+
+if (!scrollLockFound) {
+  success('No scroll lock bugs detected in admin pages');
+}
+
+// Check admin.css separately
+const adminCssPath = 'public/admin/admin.css';
+if (fs.existsSync(adminCssPath)) {
+  const cssContent = fs.readFileSync(adminCssPath, 'utf8');
+  
+  // Check for body/html overflow:hidden (only #nc-root is allowed)
+  if (/html\s*,\s*body.*overflow:\s*hidden/i.test(cssContent) || 
+      (/body\s*{[^}]*overflow:\s*hidden/i.test(cssContent) && !/overflow-y:\s*auto/i.test(cssContent))) {
+    error(`${adminCssPath}: SCROLL LOCK BUG - body/html should have overflow-y: auto`);
+    scrollLockFound = true;
+  } else {
+    success('admin.css: body/html scroll enabled correctly');
+  }
+}
+
+if (scrollLockFound) {
+  error('CRITICAL: Scroll lock bugs found! Admin pages cannot be used.');
+  error('Fix required: Ensure html, body { overflow-y: auto; height: 100%; }');
+}
+
+// 18. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

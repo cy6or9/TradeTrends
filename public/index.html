@@ -58,8 +58,10 @@
       <nav class="navlinks" aria-label="Primary">
         <a class="pill" href="/#amazon">Amazon</a>
         <a class="pill" href="/#travel">Travel</a>
+        <a class="pill" href="/#activities">Activities</a>
         <a class="pill" href="/amazon.html">Amazon page</a>
         <a class="pill" href="/travel.html">Travel page</a>
+        <a class="pill" href="/activities.html">Activities page</a>
         <a class="pill" id="adminLink" href="/admin/" style="display:none;">Admin</a>
       </nav>
     </div>
@@ -94,6 +96,20 @@
     </div>
     <div class="grid" id="travGrid" aria-live="polite"></div>
   </section>
+
+  <section class="section" id="activities">
+    <div class="sectionHeader">
+      <div>
+        <h2>Popular Activities</h2>
+        <p>Top-rated tours, attractions & experiences worldwide.</p>
+      </div>
+      <div class="filters">
+        <input class="input" id="actSearch" placeholder="Search by city…" inputmode="search" />
+        <select id="actCategory" aria-label="Activity categories"></select>
+      </div>
+    </div>
+    <div class="grid" id="actGrid" aria-live="polite"></div>
+  </section>
 </main>
 
 <script src="/js/render.js?v=2"></script>
@@ -111,6 +127,13 @@
     category: "#travCategory",
     json: "/data/travel.json",
     kind: "travel"
+  });
+  TT.initSection({
+    container: "#actGrid",
+    search: "#actSearch",
+    category: "#actCategory",
+    json: "/data/activities.json",
+    kind: "activities"
   });
 </script>
 

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
+    (function () {
+        var script = document.createElement("script");
+        script.async = 1;
+        script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
+        document.head.appendChild(script);
+    })();
+  </script>
+  <title>Top Things To Do & Experiences Worldwide | TradeTrends</title>
+  <meta name="description" content="Discover and book top-rated activities, tours, attractions and experiences worldwide. Skip-the-line tickets, guided tours, and unique local experiences." />
+  <meta name="theme-color" content="#0b0f14" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tradetrend.netlify.app/activities" />
+  <meta property="og:title" content="Top Things To Do & Experiences Worldwide | TradeTrends" />
+  <meta property="og:description" content="Discover skip-the-line tickets, guided tours, and unique experiences in top destinations worldwide." />
+  <meta property="og:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://tradetrend.netlify.app/activities" />
+  <meta name="twitter:title" content="Top Things To Do & Experiences Worldwide" />
+  <meta name="twitter:description" content="Discover skip-the-line tickets, guided tours, and unique experiences in top destinations worldwide." />
+  <meta name="twitter:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://tradetrend.netlify.app/activities" />
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+
+<header class="primary">
+  <div class="container">
+    <div class="logoRow">
+      <h1 class="logo"><a href="/">TradeTrends</a></h1>
+      <nav class="navLinks">
+        <a href="/">Home</a>
+        <a href="/amazon.html">Amazon</a>
+        <a href="/travel.html">Travel</a>
+        <a href="/activities.html" class="active">Activities</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  
+  <!-- Hero Section -->
+  <section class="hero" style="text-align: center; padding: 60px 20px; margin-bottom: 40px;">
+    <h1 style="font-size: 42px; margin-bottom: 16px; background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+      Top Things To Do & Experiences Worldwide
+    </h1>
+    <p style="font-size: 18px; color: rgba(255,255,255,0.7); margin-bottom: 32px;">
+      Skip-the-line tickets, guided tours & unique local experiences
+    </p>
+    
+    <!-- Search by City -->
+    <div style="max-width: 600px; margin: 0 auto;">
+      <input 
+        type="text" 
+        id="citySearch" 
+        placeholder="Search by city (e.g., Paris, Tokyo, New York...)"
+        style="width: 100%; padding: 16px 20px; border-radius: 12px; border: 2px solid rgba(0,210,255,0.3); background: rgba(255,255,255,0.05); color: #fff; font-size: 16px;"
+      />
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filters" style="margin-bottom: 30px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <label style="color: rgba(255,255,255,0.7); font-weight: 600;">Filter by:</label>
+    <select id="categoryFilter" style="padding: 10px 16px; border-radius: 8px; border: 2px solid rgba(0,210,255,0.3); background: rgba(255,255,255,0.05); color: #fff; font-size: 14px;">
+      <option value="">All Categories</option>
+      <option value="Tour">Tours</option>
+      <option value="Attraction">Attractions</option>
+      <option value="Pass">Passes</option>
+      <option value="Experience">Experiences</option>
+      <option value="Event">Events</option>
+    </select>
+  </div>
+
+  <!-- Activities Grid -->
+  <section class="grid" id="activitiesGrid"></section>
+
+  <!-- Empty State -->
+  <div id="emptyState" style="display: none; text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.5);">
+    <p style="font-size: 18px;">No activities found. Try a different search or filter.</p>
+  </div>
+
+</main>
+
+<footer class="primary">
+  <div class="container">
+    <p>&copy; 2026 TradeTrends. Affiliate links help support this site.</p>
+    <div style="margin-top: 12px;">
+      <a href="/" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Home</a>
+      <a href="/amazon.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Amazon</a>
+      <a href="/travel.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Travel</a>
+      <a href="/activities.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Activities</a>
+    </div>
+  </div>
+</footer>
+
+<script src="/js/render.js"></script>
+<script>
+// Initialize activities section
+if(window.TT){
+  window.TT.initSection({
+    container: "#activitiesGrid",
+    search: "#citySearch",
+    category: "#categoryFilter",
+    json: "/data/activities.json",
+    kind: "activities"
+  });
+}
+
+// Show/hide empty state
+const observer = new MutationObserver(() => {
+  const grid = document.getElementById('activitiesGrid');
+  const emptyState = document.getElementById('emptyState');
+  const visibleCards = grid ? grid.querySelectorAll('.card[style*="display: none"]').length : 0;
+  const totalCards = grid ? grid.querySelectorAll('.card').length : 0;
+  
+  if (grid && emptyState) {
+    if (totalCards === 0 || visibleCards === totalCards) {
+      emptyState.style.display = 'block';
+    } else {
+      emptyState.style.display = 'none';
+    }
+  }
+});
+
+const gridEl = document.getElementById('activitiesGrid');
+if (gridEl) {
+  observer.observe(gridEl, { childList: true, subtree: true, attributes: true });
+}
+</script>
+
+</body>
+</html>
