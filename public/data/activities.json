@@ -1,6 +1,21 @@
 {
   "items": [
     {
+      "id": "act-1768257865689",
+      "title": "Yosemite National Park Guided Tour",
+      "city": "Sierra Nevada Mountains, California, USA",
+      "country": "USA",
+      "tagline": "Explore Yosemite’s Beauty with a Variety of Tours",
+      "cta": "View Deal",
+      "image": "https://res.klook.com/image/upload/c_crop,h_1873,w_2997,x_0,y_0,z_0.3/w_1265,h_791,c_fill,q_85/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/nnadvng1ffkek9iowk9f.webp",
+      "affiliate_url": "https://klook.tpx.gr/nZQiehxV",
+      "price": "US$ 197.10",
+      "category": "Tour",
+      "featured": true,
+      "last_verified": "2026-01-12",
+      "status": "published"
+    },
+    {
       "id": "act-001",
       "title": "Eiffel Tower Skip-the-Line Tickets",
       "city": "Paris",
@@ -11,7 +26,7 @@
       "affiliate_url": "https://tp.media/click?shmarker=487456&promo_id=7876&source_type=link&type=click&campaign_id=0&trs=309854",
       "price": "From €32",
       "category": "Attraction",
-      "featured": true,
+      "featured": false,
       "last_verified": "2026-01-12",
       "status": "published"
     },
@@ -26,7 +41,7 @@
       "affiliate_url": "https://tp.media/click?shmarker=487456&promo_id=7876&source_type=link&type=click&campaign_id=0&trs=309854",
       "price": "From ¥8,500",
       "category": "Tour",
-      "featured": true,
+      "featured": false,
       "last_verified": "2026-01-12",
       "status": "published"
     },
@@ -41,7 +56,7 @@
       "affiliate_url": "https://tp.media/click?shmarker=487456&promo_id=7876&source_type=link&type=click&campaign_id=0&trs=309854",
       "price": "From $134",
       "category": "Pass",
-      "featured": true,
+      "featured": false,
       "last_verified": "2026-01-12",
       "status": "published"
     },
@@ -71,7 +86,7 @@
       "affiliate_url": "https://tp.media/click?shmarker=487456&promo_id=7876&source_type=link&type=click&campaign_id=0&trs=309854",
       "price": "From AED 250",
       "category": "Experience",
-      "featured": true,
+      "featured": false,
       "last_verified": "2026-01-12",
       "status": "published"
     },
@@ -86,7 +101,7 @@
       "affiliate_url": "https://tp.media/click?shmarker=487456&promo_id=7876&source_type=link&type=click&campaign_id=0&trs=309854",
       "price": "From £32",
       "category": "Attraction",
-      "featured": true,
+      "featured": false,
       "last_verified": "2026-01-12",
       "status": "published"
     }
