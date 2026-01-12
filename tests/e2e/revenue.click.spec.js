@@ -108,32 +108,42 @@ test.describe('Revenue Canary - /go Redirect Flow', () => {
     const network = 'amazon';
     const id = '2dfd3aee-93dd-4c06-8ad3-8426f5eb007e'; // Real deal ID
     
-    // PART 1: Rapid clicks within 2s window SHOULD trigger loop detection (status 200 HTML page)
+    // PART 1: 3 rapid clicks within 5s window SHOULD trigger loop detection (status 200 HTML page)
     const response1 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
       maxRedirects: 0
     });
     const cookie1 = response1.headers()['set-cookie'] || '';
+    expect(response1.status()).toBe(302); // First hit: normal redirect
     
     const response2 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
       maxRedirects: 0,
       headers: {
-        Cookie: cookie1 // Send same cookie to simulate loop
+        Cookie: cookie1 // Send cookie from first hit
+      }
+    });
+    const cookie2 = response2.headers()['set-cookie'] || '';
+    expect(response2.status()).toBe(302); // Second hit: still redirects (not a loop yet)
+    
+    const response3 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
+      maxRedirects: 0,
+      headers: {
+        Cookie: cookie2 // Send cookie from second hit
       }
     });
     
-    // Should detect loop and return HTML error page (200)
-    expect(response2.status()).toBe(200);
-    const body2 = await response2.text();
-    expect(body2).toContain('Redirect Loop Detected');
+    // Third hit within 5s: NOW it detects the loop and returns HTML error page
+    expect(response3.status()).toBe(200);
+    const body3 = await response3.text();
+    expect(body3).toContain('Redirect Loop Detected');
     
-    // PART 2: After waiting >2s, should work normally again
-    await new Promise(resolve => setTimeout(resolve, 2100));
-    const response3 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
+    // PART 2: After waiting >5s, should work normally again
+    await new Promise(resolve => setTimeout(resolve, 5100));
+    const response4 = await request.get(`${BASE_URL}/go?network=${network}&id=${id}`, {
       maxRedirects: 0
     });
-    expect(response3.status()).toBe(302);
-    const location3 = response3.headers()['location'];
-    expect(location3).toContain('amzn');
+    expect(response4.status()).toBe(302);
+    const location4 = response4.headers()['location'];
+    expect(location4).toContain('amzn');
     
     console.log('✅ Loop detector does not interfere with normal redirects');
   });

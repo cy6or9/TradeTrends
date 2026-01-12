@@ -115,6 +115,7 @@ exports.handler = async (event) => {
     
     // REDIRECT LOOP DETECTION
     // Check cookie to detect rapid repeated redirects to same destination
+    // Only trigger if we've seen 3+ redirects to the same ID within 5 seconds
     const cookies = event.headers.cookie || '';
     const cookieMatch = cookies.match(/tt_last_go=([^;]+)/);
     
@@ -123,10 +124,14 @@ exports.handler = async (event) => {
         const lastGo = JSON.parse(decodeURIComponent(cookieMatch[1]));
         const now = Date.now();
         const timeDiff = now - (lastGo.time || 0);
+        const hitCount = (lastGo.count || 0) + 1;
         
-        // If same ID within 2 seconds, likely a redirect loop
-        if (lastGo.id === id && timeDiff < 2000) {
-          console.error(`REDIRECT LOOP DETECTED: id=${id}, timeDiff=${timeDiff}ms`);
+        // Only trigger loop detection if:
+        // 1. Same ID is being accessed repeatedly
+        // 2. Within 5 seconds
+        // 3. This is the 3rd+ hit (allows double-clicks, but catches real loops)
+        if (lastGo.id === id && timeDiff < 5000 && hitCount >= 3) {
+          console.error(`REDIRECT LOOP DETECTED: id=${id}, hitCount=${hitCount}, timeDiff=${timeDiff}ms`);
           
           // Load deals to get direct URL as fallback
           const deals = await loadDeals();
@@ -140,7 +145,8 @@ exports.handler = async (event) => {
             statusCode: 200,
             headers: { 
               'Content-Type': 'text/html',
-              'Cache-Control': 'no-cache, no-store, must-revalidate'
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Set-Cookie': 'tt_last_go=; Path=/; Max-Age=0' // Clear the cookie
             },
             body: `<!DOCTYPE html>
 <html>
@@ -356,9 +362,24 @@ exports.handler = async (event) => {
     
     // Success - redirect to affiliate URL
     // Set cookie to track this redirect for loop detection
+    // Reuse cookies variable from loop detection above
+    let hitCount = 1;
+    
+    if (cookieMatch) {
+      try {
+        const lastGo = JSON.parse(decodeURIComponent(cookieMatch[1]));
+        if (lastGo.id === id) {
+          hitCount = (lastGo.count || 0) + 1;
+        }
+      } catch (e) {
+        // Invalid cookie, reset count
+      }
+    }
+    
     const trackingCookie = encodeURIComponent(JSON.stringify({
       id: id,
-      time: Date.now()
+      time: Date.now(),
+      count: hitCount
     }));
     
     return {
@@ -366,7 +387,7 @@ exports.handler = async (event) => {
       headers: {
         Location: affiliateUrl,
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Set-Cookie': `tt_last_go=${trackingCookie}; Path=/; Max-Age=5; SameSite=Lax`
+        'Set-Cookie': `tt_last_go=${trackingCookie}; Path=/; Max-Age=10; SameSite=Lax`
       },
       body: ''
     };
