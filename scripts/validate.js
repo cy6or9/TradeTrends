@@ -79,11 +79,24 @@ function validateDeal(deal, index, network) {
     return false;
   }
   
-  // REVENUE-LEVEL VALIDATION: Amazon deals must use /go endpoint (not direct links)
-  if (network === 'Amazon' && !deal.affiliate_url.includes('/go?network=')) {
-    // Allow existing direct Amazon links, but warn
-    if (deal.affiliate_url.includes('amazon.com') || deal.affiliate_url.includes('amzn.to')) {
-      warning(`Deal #${index} "${deal.title}" uses direct Amazon link (should use /go?network=amazon for tracking)`);
+  // REVENUE-LEVEL VALIDATION: Amazon deals must use direct affiliate URLs (amzn.to or amazon.com)
+  if (network === 'Amazon') {
+    const url = deal.affiliate_url.toLowerCase();
+    if (!url.includes('amzn.to') && !url.includes('amazon.com')) {
+      error(`REVENUE LOSS: Amazon deal #${index} "${deal.title}" has invalid affiliate URL: ${deal.affiliate_url}`);
+      error('  Expected: amzn.to or amazon.com domain');
+      return false;
+    }
+  }
+  
+  // REVENUE-LEVEL VALIDATION: Travel deals must use known travel partner domains
+  if (network === 'Travel') {
+    const url = deal.affiliate_url.toLowerCase();
+    const validTravelDomains = ['booking.com', 'travelpayouts.com', 'viator.com', 'expedia.com'];
+    const hasValidDomain = validTravelDomains.some(domain => url.includes(domain));
+    if (!hasValidDomain) {
+      warning(`Travel deal #${index} "${deal.title}" uses unknown affiliate domain: ${deal.affiliate_url}`);
+      warning(`  Expected one of: ${validTravelDomains.join(', ')}`);
     }
   }
   
@@ -203,17 +216,42 @@ if (checkFile('public/_redirects')) {
   }
 });
 
-// Check render.js doesn't generate broken links
+// Check render.js uses direct affiliate URLs (not /go redirect)
 if (fs.existsSync('public/js/render.js')) {
   const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
+  
+  // Check for broken patterns
   if (renderJs.includes('`/?network=') || renderJs.includes('"/?network=') || renderJs.includes("'/?network=")) {
-    error('public/js/render.js generates broken /?network= URLs (should be /go?network=)');
+    error('public/js/render.js generates broken /?network= URLs');
   }
-  if (!renderJs.includes('/go?network=')) {
-    error('public/js/render.js missing expected /go?network= URL generation');
-  } else {
-    success('Valid render.js: generates /go?network= URLs');
+  
+  // CRITICAL: Ensure render.js uses direct affiliate URLs (not /go redirect)
+  // This fixes iPad/Safari blank tab issue
+  if (renderJs.includes('href="${escapeHtml(url)}"') && renderJs.includes('/go?network=')) {
+    error('CRITICAL: public/js/render.js uses /go redirect in CTA href (causes iPad/Safari blank tab loop)');
+    error('  FIX: Change CTA href to use item.affiliate_url directly');
+    error('  Tracking should be done via background API call, not redirect');
   }
+  
+  // Verify direct URL usage
+  if (!renderJs.includes('const directUrl = item.affiliate_url')) {
+    error('public/js/render.js missing direct affiliate URL extraction');
+  }
+  
+  // Verify background tracking setup
+  if (!renderJs.includes('data-track-url')) {
+    error('public/js/render.js missing background tracking data attribute');
+  }
+  
+  if (!renderJs.includes('/.netlify/functions/api/click')) {
+    error('public/js/render.js missing background click tracking endpoint');
+  }
+  
+  if (!renderJs.includes('navigator.sendBeacon') && !renderJs.includes('fetch(trackUrl')) {
+    error('public/js/render.js missing sendBeacon or fetch for background tracking');
+  }
+  
+  success('Valid render.js: uses direct affiliate URLs with background tracking');
 }
 
 // 7. Validate sitemap

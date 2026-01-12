@@ -25,12 +25,12 @@ function buildCard(item, kind){
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
   
-  // Use /go redirect for click tracking, fallback to direct affiliate_url
-  const network = isTravel ? "travel" : "amazon";
-  const url = item.id ? `/go?network=${network}&id=${encodeURIComponent(item.id)}` : (item.affiliate_url || "#");
-  
-  // In dev mode or if /go might not work, use direct affiliate URL as onclick fallback
+  // REVENUE-SAFE: Open affiliate URL directly (no intermediary redirect)
   const directUrl = item.affiliate_url || "#";
+  const network = isTravel ? "travel" : "amazon";
+  const id = item.id || item.title || "";
+  // Background tracking endpoint (returns 204, no redirect)
+  const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
   return `
   <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}">
@@ -47,7 +47,7 @@ function buildCard(item, kind){
         ${verified ? `<span class="small">${verified}</span>` : ""}
       </div>
       <div class="itemCta">
-        <a class="link primary" href="${escapeHtml(url)}" data-direct-url="${escapeHtml(directUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
       </div>
     </div>
   </article>`;
@@ -155,6 +155,53 @@ async function initSection(opts){
     container.innerHTML = `<div class="notice">Could not load deals right now. Please refresh. <span class="small">${escapeHtml(err.message)}</span></div>`;
     console.error(err);
   }
+}
+
+// Background click tracking (non-blocking, best effort)
+let clickTrackingInitialized = false;
+
+function initClickTracking() {
+  if (clickTrackingInitialized) return;
+  clickTrackingInitialized = true;
+  
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a.link.primary[data-track-url]');
+    if (!link) return;
+    
+    const trackUrl = link.getAttribute('data-track-url');
+    if (!trackUrl) return;
+    
+    // Best effort tracking (doesn't block navigation)
+    try {
+      if (navigator.sendBeacon) {
+        // Preferred: sendBeacon guarantees delivery even if page unloads
+        navigator.sendBeacon(trackUrl, '');
+      } else if (window.fetch) {
+        // Fallback: fetch with keepalive
+        fetch(trackUrl, { 
+          method: 'GET',
+          mode: 'no-cors',
+          keepalive: true 
+        }).catch(() => {});
+      } else {
+        // Last resort: pixel tracking
+        const img = new Image();
+        img.src = trackUrl;
+      }
+    } catch (err) {
+      // Silently fail - don't block user navigation
+      console.debug('Click tracking failed:', err);
+    }
+    
+    // Don't preventDefault - let normal navigation happen
+  }, { passive: true, capture: true });
+}
+
+// Initialize tracking on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initClickTracking);
+} else {
+  initClickTracking();
 }
 
 window.TT = { initSection };

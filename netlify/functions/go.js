@@ -96,6 +96,46 @@ exports.handler = async (event) => {
     
     if (!deal) {
       console.warn(`Deal not found: ${id}`);
+      
+      // Fallback: check for direct URL parameter (for shared links)
+      const directUrl = params.u;
+      if (directUrl) {
+        // Allowlist of trusted affiliate domains
+        const allowedHosts = [
+          'amzn.to',
+          'amazon.com',
+          'www.amazon.com',
+          'booking.com',
+          'www.booking.com',
+          'travelpayouts.com'
+        ];
+        
+        try {
+          const url = new URL(directUrl);
+          const hostname = url.hostname.toLowerCase();
+          
+          // Check if hostname or any parent domain is in allowlist
+          const isAllowed = allowedHosts.some(allowed => 
+            hostname === allowed || hostname.endsWith('.' + allowed)
+          );
+          
+          if (isAllowed) {
+            console.log(`Redirecting to allowed domain: ${hostname}`);
+            return {
+              statusCode: 302,
+              headers: { 
+                Location: directUrl,
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
+              },
+              body: ''
+            };
+          }
+        } catch (err) {
+          console.error('Invalid direct URL:', err);
+        }
+      }
+      
+      // No valid deal or fallback - redirect to home
       return {
         statusCode: 302,
         headers: { Location: '/' },

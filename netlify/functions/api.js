@@ -206,6 +206,70 @@ async function handleRefreshTrends(event, storage) {
   }
 }
 
+// Click tracking handler (no redirect, returns 204)
+async function handleClickTracking(event, storage) {
+  try {
+    // Validate network and id
+    const params = event.queryStringParameters || {};
+    const network = params.network;
+    const id = params.id;
+    
+    if (!network || !['amazon', 'travel'].includes(network)) {
+      console.warn('Invalid network:', network);
+      return { statusCode: 204, headers: { 'Cache-Control': 'no-store' }, body: '' };
+    }
+    
+    if (!id || id.trim() === '') {
+      console.warn('Missing deal id');
+      return { statusCode: 204, headers: { 'Cache-Control': 'no-store' }, body: '' };
+    }
+    
+    // Ensure analytics are initialized
+    await initializeAnalytics(storage);
+    
+    // Get IP and hash it
+    const ip = event.headers['x-forwarded-for'] || event.headers['client-ip'] || 'unknown';
+    const crypto = require('crypto');
+    const salt = process.env.TT_SALT || 'default-salt';
+    const ipHash = crypto.createHash('sha256').update(ip + salt).digest('hex').substring(0, 16);
+    
+    // Create click event
+    const clickEvent = {
+      timestamp: new Date().toISOString(),
+      network: network,
+      deal_id: id,
+      user_agent: event.headers['user-agent'] || 'unknown',
+      referrer: event.headers.referer || event.headers.referrer || 'direct',
+      ip_hash: ipHash
+    };
+    
+    // Record click (best effort, don't block)
+    console.log(`Background click tracking: ${network}/${id}`);
+    await recordClick(storage, clickEvent).catch(err => {
+      console.error('Click tracking failed:', err);
+    });
+    
+    // Always return 204 (no content)
+    return {
+      statusCode: 204,
+      headers: { 
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: ''
+    };
+    
+  } catch (err) {
+    console.error('Click tracking error:', err);
+    // Still return 204 even on error
+    return {
+      statusCode: 204,
+      headers: { 'Cache-Control': 'no-store' },
+      body: ''
+    };
+  }
+}
+
 exports.handler = async (event) => {
   // CRASH-PROOF: Wrap entire handler to never throw uncaught errors
   try {
@@ -221,6 +285,10 @@ exports.handler = async (event) => {
     const storage = await createStorage();
     
     // Route handlers
+    if (route === 'click' && (event.httpMethod === 'GET' || event.httpMethod === 'POST')) {
+      return await handleClickTracking(event, storage);
+    }
+    
     if (route === 'analytics' && event.httpMethod === 'GET') {
       return await handleAnalytics(event, storage);
     }
