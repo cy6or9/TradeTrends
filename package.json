@@ -7,7 +7,9 @@
     "dev:offline": "netlify dev --offline",
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "node scripts/validate.js",
-    "test": "node scripts/validate.js",
+    "test": "npm run validate && npm run test:e2e",
+    "test:e2e": "playwright test",
+    "test:production": "node scripts/check-production.js",
     "validate": "node scripts/validate.js"
   },
   "keywords": [
@@ -22,6 +24,7 @@
   "license": "ISC",
   "devDependencies": {
     "@netlify/blobs": "^7.0.0",
+    "@playwright/test": "^1.40.0",
     "netlify-cli": "^17.0.0"
   }
 }

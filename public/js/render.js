@@ -60,8 +60,15 @@ async function loadJson(path){
 }
 
 function renderList(container, items, kind){
-  // Filter out placeholder/incomplete deals
+  // Filter published deals only - NEVER show drafts publicly
   const validItems = items.filter(item => {
+    // Migration: treat missing status as published (existing deals)
+    const status = item.status || 'published';
+    
+    // MUST be published to appear publicly
+    if (status !== 'published') return false;
+    
+    // Filter out incomplete/placeholder deals
     return item.title && 
            item.title !== 'New Deal Title' &&
            item.title.trim() !== '' &&

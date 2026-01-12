@@ -1,0 +1,90 @@
+{
+  "patterns": [
+    {
+      "pattern": "href=\"/?network=",
+      "reason": "Old broken URL pattern - should be /go?network=",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "/go  /.netlify/functions/go  200$",
+      "reason": "Missing force flag (!) - allows SPA catch-all to override",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "/*  /index.html  200\\n/go",
+      "reason": "Catch-all before /go - wrong precedence order",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "affiliate_url.*example\\.com",
+      "reason": "Placeholder affiliate URL in production data",
+      "blockedAt": "2026-01-12",
+      "severity": "HIGH"
+    },
+    {
+      "pattern": "\"affiliate_url\":\\s*\"\"",
+      "reason": "Empty affiliate URL - no revenue possible",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "analytics-not-recording",
+      "reason": "Analytics system fails to record clicks - revenue tracking broken",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "/api.*200[^!]",
+      "reason": "Missing force flag on /api redirect - allows file override",
+      "blockedAt": "2026-01-12",
+      "severity": "HIGH"
+    }
+  ],
+  "filePatterns": {
+    "public/_redirects": {
+      "mustContain": [
+        "/go  /.netlify/functions/go  200!",
+        "/go/*  /.netlify/functions/go  200!",
+        "/api/*  /.netlify/functions/api  200!"
+      ],
+      "mustNotContain": [
+        "/go  /.netlify/functions/go  200$",
+        "/api/*  /.netlify/functions/api  200$"
+      ]
+    },
+    "public/data/*.json": {
+      "mustNotContain": [
+        "\"affiliate_url\": \"\"",
+        "example.com",
+        "placeholder"
+      ]
+    },
+    "public/js/render.js": {
+      "mustContain": [
+        "/go?network="
+      ],
+      "mustNotContain": [
+        "/?network="
+      ]
+    },
+    "netlify/functions/go.js": {
+      "mustContain": [
+        "recordClick",
+        "initializeAnalytics"
+      ],
+      "mustNotContain": [
+        "// Continue with redirect even if logging fails"
+      ]
+    },
+    "netlify/functions/api.js": {
+      "mustContain": [
+        "getAnalyticsSummary",
+        "initializeAnalytics",
+        "initialized"
+      ]
+    }
+  }
+}

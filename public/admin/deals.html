@@ -231,8 +231,8 @@
         const amazonData = await amazonRes.json();
         const travelData = await travelRes.json();
         
-        amazonDeals = amazonData.items || [];
-        travelDeals = travelData.items || [];
+        amazonDeals = (amazonData.items || []).map(normalizeDeal);
+        travelDeals = (travelData.items || []).map(normalizeDeal);
         
         renderDeals();
       } catch (error) {
@@ -240,37 +240,40 @@
         alert('Failed to load deals. Check console for details.');
       }
     }
+    
+    // Normalize deal: ensure status exists (migration)
+    function normalizeDeal(deal) {
+      if (!deal.status) {
+        deal.status = 'published'; // Treat existing deals as published
+      }
+      if (!deal.id || deal.id === deal.title) {
+        // Generate unique ID if missing or same as title
+        deal.id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      }
+      return deal;
+    }
 
     function renderDeals() {
       const amazonContainer = document.getElementById('amazon-deals');
       const travelContainer = document.getElementById('travel-deals');
       
-      // Filter out placeholder/empty deals
-      const validAmazon = amazonDeals.filter(deal => !isPlaceholderDeal(deal));
-      const validTravel = travelDeals.filter(deal => !isPlaceholderDeal(deal));
-      
-      amazonContainer.innerHTML = validAmazon.map((deal, idx) => createDealCard(deal, idx, 'amazon')).join('');
-      travelContainer.innerHTML = validTravel.map((deal, idx) => createDealCard(deal, idx, 'travel')).join('');
-    }
-
-    function isPlaceholderDeal(deal) {
-      // Check if deal is placeholder/not filled out
-      return (
-        !deal.title || 
-        deal.title === 'New Deal Title' ||
-        deal.title.trim() === '' ||
-        deal.affiliate_url === 'https://example.com/affiliate' ||
-        deal.price_hint === '$0 - $0' ||
-        (!deal.image || deal.image.startsWith('data:image/svg+xml'))
-      );
+      // Show ALL deals in admin (drafts + published)
+      amazonContainer.innerHTML = amazonDeals.map((deal, idx) => createDealCard(deal, idx, 'amazon')).join('');
+      travelContainer.innerHTML = travelDeals.map((deal, idx) => createDealCard(deal, idx, 'travel')).join('');
     }
 
     function createDealCard(deal, index, type) {
+      // Status badge styling
+      const isDraft = deal.status === 'draft';
+      const statusBadge = isDraft ? 
+        '<div style="background:#ff6b35; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">📝 DRAFT</div>' : 
+        '<div style="background:#4caf50; color:white; padding:4px 12px; border-radius:6px; font-weight:600; display:inline-block; margin-bottom:10px;">✅ PUBLISHED</div>';
       // Simple gray placeholder image
       const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCBmaWxsPSIjMzM0MTU1IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIvPjx0ZXh0IGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5ObyBJbWFnZTwvdGV4dD48L3N2Zz4=';
       
       return `
         <div class="deal-card" id="${type}-${index}">
+          ${statusBadge}
           <img src="${deal.image || placeholderImg}" alt="${deal.title}" onerror="this.src='${placeholderImg}'">
           <div class="deal-content">
             <label>Title</label>
@@ -292,6 +295,10 @@
             <input type="url" value="${deal.image}" onchange="updateDeal('${type}', ${index}, 'image', this.value)">
             
             <div class="deal-actions">
+              ${isDraft ? 
+                `<button class="btn btn-success" onclick="publishDeal('${type}', ${index})">✅ Publish</button>` :
+                `<button class="btn btn-secondary" onclick="unpublishDeal('${type}', ${index})">📝 Unpublish</button>`
+              }
               <button class="btn btn-secondary" onclick="toggleFeatured('${type}', ${index})">
                 ${deal.featured ? '⭐ Featured' : '☆ Feature'}
               </button>
@@ -305,8 +312,38 @@
     function updateDeal(type, index, field, value) {
       const deals = type === 'amazon' ? amazonDeals : travelDeals;
       deals[index][field] = value;
-      deals[index].id = deals[index].title; // Keep ID synced with title
+      // Don't auto-sync ID with title anymore - ID should be stable/unique
       deals[index].last_verified = new Date().toISOString().split('T')[0];
+    }
+    
+    function publishDeal(type, index) {
+      const deals = type === 'amazon' ? amazonDeals : travelDeals;
+      const deal = deals[index];
+      
+      // VALIDATION: Check required fields
+      const missing = [];
+      if (!deal.title || deal.title.trim() === '') missing.push('Title');
+      if (!deal.affiliate_url || deal.affiliate_url.trim() === '' || deal.affiliate_url === 'https://example.com/affiliate') missing.push('Affiliate URL');
+      if (!deal.image || deal.image.trim() === '' || deal.image.startsWith('data:image/svg+xml')) missing.push('Image URL');
+      if (!deal.id || deal.id.trim() === '') missing.push('Unique ID');
+      
+      if (missing.length > 0) {
+        alert(`Cannot publish deal. Missing required fields:\\n\\n${missing.join('\\n')}`);
+        return;
+      }
+      
+      // Publish: set status and update verification date
+      deal.status = 'published';
+      deal.last_verified = new Date().toISOString().split('T')[0];
+      renderDeals();
+    }
+    
+    function unpublishDeal(type, index) {
+      if (!confirm('Unpublish this deal? It will no longer appear on the public site.')) return;
+      
+      const deals = type === 'amazon' ? amazonDeals : travelDeals;
+      deals[index].status = 'draft';
+      renderDeals();
     }
 
     function toggleFeatured(type, index) {
@@ -326,16 +363,20 @@
     function addNewDeal() {
       const placeholderImg = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIj48cmVjdCBmaWxsPSIjMzM0MTU1IiB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIvPjx0ZXh0IGZpbGw9IiM5NGEzYjgiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgeD0iNTAlIiB5PSI1MCUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BZGQgSW1hZ2UgVVJMPC90ZXh0Pjwvc3ZnPg==';
       
+      // Generate unique ID
+      const uniqueId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const newDeal = {
+        id: uniqueId,
+        status: 'draft', // NEW DEALS START AS DRAFT
         priority: 0,
         evergreen: true,
         featured: false,
         network: currentTab,
-        tagline: "New deal tagline",
+        tagline: "",
         last_verified: new Date().toISOString().split('T')[0],
-        title: "New Deal Title",
-        id: "New Deal Title",
-        image: placeholderImg,
+        title: "",
+        image: "",
         affiliate_url: "https://example.com/affiliate",
         price_hint: "$0 - $0",
         category: "Uncategorized"
@@ -354,6 +395,33 @@
     async function saveAllChanges() {
       const saveStatus = document.getElementById('save-status');
       const saveMessage = document.getElementById('save-message');
+      
+      // VALIDATION: Only validate PUBLISHED deals - drafts can be incomplete
+      const allDeals = [...amazonDeals, ...travelDeals];
+      const publishedDeals = allDeals.filter(d => d.status === 'published');
+      
+      const invalidPublished = publishedDeals.filter(deal => {
+        return !deal.id || deal.id.trim() === '' ||
+               !deal.title || deal.title.trim() === '' ||
+               !deal.affiliate_url || deal.affiliate_url.trim() === '' || deal.affiliate_url === 'https://example.com/affiliate' ||
+               !deal.image || deal.image.trim() === '' || deal.image.startsWith('data:image/svg+xml');
+      });
+      
+      if (invalidPublished.length > 0) {
+        saveStatus.classList.remove('hidden');
+        saveMessage.innerHTML = `
+          <strong>⚠️ Validation Failed</strong><br>
+          ${invalidPublished.length} PUBLISHED deal(s) missing required fields:<br>
+          <ul style="text-align:left; margin-top:10px;">
+            <li><strong>Unique ID</strong> - Cannot be empty</li>
+            <li><strong>Title</strong> - Cannot be empty</li>
+            <li><strong>Affiliate URL</strong> - Must be valid URL</li>
+            <li><strong>Image URL</strong> - Must be valid URL</li>
+          </ul>
+          <p>Unpublish invalid deals or fix the issues before saving.</p>
+        `;
+        return; // Block save
+      }
       
       saveStatus.classList.remove('hidden');
       saveMessage.innerHTML = '💾 Saving changes...';

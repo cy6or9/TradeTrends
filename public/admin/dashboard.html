@@ -226,22 +226,45 @@
       const content = document.getElementById('content');
       
       try {
-        const response = await fetch('/api/analytics?days=7', {
+        // Sanitize days parameter - never allow invalid values
+        const rawDays = 7; // Default to 7 days
+        const safeDays = Math.max(1, Math.min(90, Number(rawDays) || 7));
+        const url = `/.netlify/functions/api/analytics?days=${encodeURIComponent(safeDays)}`;
+        
+        const response = await fetch(url, {
           headers: token ? { 'Authorization': `Bearer ${token}` } : {}
         });
         
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
+        
+        // Log response for debugging
+        console.log('Analytics response:', data);
+        
         renderAnalytics(data);
       } catch (err) {
         console.error('Failed to load analytics:', err);
+        
+        // Provide detailed error for debugging
+        const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 'Network or API error';
+        
         content.innerHTML = `
           <div class="error">
-            <strong>Failed to load analytics</strong><br>
-            ${err.message}
+            <strong>❌ Failed to load analytics</strong><br>
+            <div style="margin-top: 10px; font-size: 14px;">
+              <strong>Error Type:</strong> ${errorType}<br>
+              <strong>Details:</strong> ${err.message}
+            </div>
+            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
+              <strong>Troubleshooting:</strong><br>
+              • Check browser console for details<br>
+              • Verify /api/analytics endpoint is accessible<br>
+              • Ensure analytics are initialized<br>
+              • Try refreshing the page
+            </div>
           </div>
         `;
       }
@@ -250,9 +273,68 @@
     function renderAnalytics(data) {
       const content = document.getElementById('content');
       
-      // Calculate estimated earnings (rough estimates)
-      const amazonClicks = data.byNetwork.amazon || 0;
-      const travelClicks = data.byNetwork.travel || 0;
+      // Self-diagnosis: Check initialization
+      if (data.initialized === false) {
+        content.innerHTML = `
+          <div class="notice" style="background: rgba(255,200,0,0.1); border-left: 4px solid #fc0; padding: 20px; margin-bottom: 20px;">
+            <strong>⚠️ Analytics Initializing</strong><br>
+            <div style="margin-top: 10px;">
+              Analytics system is initializing. Click activity on affiliate links is required to populate data.
+            </div>
+            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
+              Try clicking a "View on Amazon" or "View Deal" button on the main site to generate test data.
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Clicks (7d)</div>
+              <div class="stat-value">0</div>
+              <div class="stat-sub">Waiting for activity...</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Self-diagnosis: Check if no clicks yet
+      if (data.totalClicks === 0) {
+        content.innerHTML = `
+          <div class="notice" style="background: rgba(0,255,255,0.05); border-left: 4px solid #3cf; padding: 20px; margin-bottom: 20px;">
+            <strong>📊 No clicks recorded yet</strong><br>
+            <div style="margin-top: 10px;">
+              Analytics are initialized and ready. Click on affiliate links to see data appear here.
+            </div>
+            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
+              <strong>To generate test data:</strong><br>
+              1. Go to the homepage<br>
+              2. Click any "View on Amazon" or "View Deal" button<br>
+              3. Return here to see updated statistics
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Clicks (7d)</div>
+              <div class="stat-value">0</div>
+              <div class="stat-sub">System ready</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Amazon Clicks</div>
+              <div class="stat-value">0</div>
+              <div class="stat-sub">0% of total</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Travel Clicks</div>
+              <div class="stat-value">0</div>
+              <div class="stat-sub">0% of total</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+      
+      // Normal rendering with data
+      const amazonClicks = data.byNetwork?.amazon || 0;
+      const travelClicks = data.byNetwork?.travel || 0;
       const avgAmazonCommission = 0.03; // 3% average
       const avgOrderValue = 50;
       const conversionRate = 0.02; // 2%

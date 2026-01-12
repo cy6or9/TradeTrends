@@ -1,0 +1,14 @@
+{
+  "incidents": [],
+  "template": {
+    "timestamp": "ISO 8601 datetime",
+    "severity": "CRITICAL|HIGH|MEDIUM|LOW",
+    "type": "redirect_failure|validation_error|test_failure|production_failure",
+    "description": "What went wrong",
+    "affectedFiles": ["list of files"],
+    "rootCause": "Why it happened",
+    "fix": "What was done to resolve it",
+    "preventionAdded": "What validation/test was added to prevent recurrence"
+  },
+  "instructions": "When a failure occurs, append a new incident record using the template structure. This helps AI learn from past mistakes and prevents regression."
+}

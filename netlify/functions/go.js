@@ -4,7 +4,8 @@
 const crypto = require('crypto');
 const fs = require('fs').promises;
 const path = require('path');
-const { createStorage, atomicUpdate } = require('./lib/storage');
+const { createStorage } = require('./lib/storage');
+const { initializeAnalytics, recordClick } = require('./lib/initAnalytics');
 
 // Hash IP with salt for privacy
 function hashIp(ip, salt) {
@@ -110,6 +111,9 @@ exports.handler = async (event) => {
     // Initialize storage
     const storage = await createStorage();
     
+    // Ensure analytics are initialized
+    await initializeAnalytics(storage);
+    
     // Check rate limit
     const rateCheck = await checkRateLimit(storage, ipHash);
     if (!rateCheck.allowed) {
@@ -121,31 +125,24 @@ exports.handler = async (event) => {
       };
     }
     
-    // Log click event
+    // Create click event with enforced schema
     const clickEvent = {
-      ts: new Date().toISOString(),
-      id: id,
+      timestamp: new Date().toISOString(),
       network: network,
+      deal_id: id,
+      user_agent: event.headers['user-agent'] || 'unknown',
       referrer: event.headers.referer || event.headers.referrer || 'direct',
-      ua: event.headers['user-agent'] || 'unknown',
-      ipHash: ipHash
+      ip_hash: ipHash
     };
     
-    try {
-      await atomicUpdate(storage, 'tt_clicks', (current) => {
-        const clicks = current.clicks || [];
-        clicks.push(clickEvent);
-        
-        // Keep last 10,000 clicks
-        if (clicks.length > 10000) {
-          clicks.splice(0, clicks.length - 10000);
-        }
-        
-        return { clicks, lastUpdated: new Date().toISOString() };
-      });
-    } catch (err) {
-      console.error('Failed to log click:', err);
-      // Continue with redirect even if logging fails
+    // Record click BEFORE redirect (with timeout protection)
+    console.log(`Recording click: ${network}/${id}`);
+    const recorded = await recordClick(storage, clickEvent);
+    
+    if (!recorded) {
+      console.error('⚠️  Click recording failed, but continuing redirect');
+    } else {
+      console.log('✅ Click recorded successfully');
     }
     
     // Redirect to affiliate URL

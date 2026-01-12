@@ -1,0 +1,262 @@
+name: Canary Deployment - Revenue Protection
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [canary]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Step 1: Validate code quality and business rules
+  validate:
+    name: Validate Business Rules
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run validation script
+        run: npm run validate
+      
+      - name: Check for blocked patterns
+        run: |
+          echo "Checking for revenue-breaking patterns..."
+          
+          # Check for broken URL patterns
+          if grep -r "href=\"/?network=" public/ 2>/dev/null; then
+            echo "❌ ERROR: Found broken /?network= URL pattern"
+            exit 1
+          fi
+          
+          # Check for missing force flags
+          if grep -E "/go.*200[^!]" public/_redirects 2>/dev/null; then
+            echo "❌ ERROR: /go redirect missing force flag (!)"
+            exit 1
+          fi
+          
+          # Check for placeholder data
+          if grep -r "example.com" public/data/ 2>/dev/null; then
+            echo "❌ ERROR: Found placeholder URLs in production data"
+            exit 1
+          fi
+          
+          echo "✅ No blocked patterns detected"
+
+  # Step 2: Build the site
+  build:
+    name: Build Site
+    runs-on: ubuntu-latest
+    needs: validate
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build site
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: public/
+          retention-days: 7
+
+  # Step 3: Run E2E tests
+  e2e-tests:
+    name: E2E Revenue Tests
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: public/
+      
+      - name: Start local server
+        run: |
+          npx netlify dev &
+          npx wait-on http://localhost:8888 --timeout 60000
+      
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          BASE_URL: http://localhost:8888
+      
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # Step 4: Deploy to Canary (Netlify preview)
+  deploy-canary:
+    name: Deploy to Canary
+    runs-on: ubuntu-latest
+    needs: [validate, build, e2e-tests]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: public/
+      
+      - name: Deploy to Netlify Preview
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=public --alias=pr-${{ github.event.pull_request.number }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      
+      - name: Get preview URL
+        id: preview
+        run: |
+          PREVIEW_URL="https://pr-${{ github.event.pull_request.number }}--tradetrend.netlify.app"
+          echo "url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "Preview URL: $PREVIEW_URL"
+      
+      - name: Comment preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Preview Deployment\n\n**URL:** ${{ steps.preview.outputs.url }}\n\n**Status:** ✅ Passed all validation and E2E tests\n\nThe preview is live and ready for testing.`
+            })
+
+  # Step 5: Test canary deployment
+  test-canary:
+    name: Test Canary Deployment
+    runs-on: ubuntu-latest
+    needs: deploy-canary
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Wait for deployment to be ready
+        run: sleep 30
+      
+      - name: Check canary /go function
+        run: |
+          PREVIEW_URL="https://pr-${{ github.event.pull_request.number }}--tradetrend.netlify.app"
+          
+          echo "Testing /go function on canary: $PREVIEW_URL"
+          
+          # Test Amazon redirect
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -L "$PREVIEW_URL/go?network=amazon&id=test")
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Amazon redirect failed (got $RESPONSE)"
+            exit 1
+          fi
+          echo "✅ Amazon redirect working"
+          
+          # Test Travel redirect
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -L "$PREVIEW_URL/go?network=travel&id=test")
+          if [ "$RESPONSE" != "200" ]; then
+            echo "❌ Travel redirect failed (got $RESPONSE)"
+            exit 1
+          fi
+          echo "✅ Travel redirect working"
+          
+          echo "✅ Canary deployment is healthy"
+      
+      - name: Update PR with test results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ✅ Canary Tests Passed\n\n- Amazon affiliate redirect: ✅\n- Travel affiliate redirect: ✅\n\n**Safe to merge to main**`
+            })
+
+  # Step 6: Monitor production (runs on main branch pushes)
+  monitor-production:
+    name: Monitor Production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Wait for production deployment
+        run: sleep 60
+      
+      - name: Run production monitor
+        run: node scripts/check-production.js
+      
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 CRITICAL: Production Revenue Flow Broken',
+              body: `**Deployment:** ${context.sha}\n**Time:** ${new Date().toISOString()}\n\n**Action Required:** Affiliate links are not redirecting correctly. Revenue is at risk.\n\nCheck the production monitor output in the workflow logs.`,
+              labels: ['critical', 'revenue', 'production']
+            })

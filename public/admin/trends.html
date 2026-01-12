@@ -251,13 +251,18 @@
       const messages = document.getElementById('messages');
       
       try {
-        const response = await fetch('/api/trends');
+        // Sanitized URL - no query params needed for trends GET
+        const url = '/.netlify/functions/api/trends';
+        
+        const response = await fetch(url);
         
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('Trends response:', data);
+        
         currentData = data;
         renderTrends(data);
         
@@ -284,10 +289,27 @@
         }
       } catch (err) {
         console.error('Failed to load trends:', err);
+        
+        // Provide detailed error for debugging
+        const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 
+                         err.name === 'TypeError' ? 'Network error' : 'API error';
+        
         content.innerHTML = `
           <div class="error">
-            <strong>Failed to load trends</strong><br>
-            ${escapeHtml(err.message)}
+            <strong>❌ Failed to load trends</strong><br>
+            <div style="margin-top: 10px; font-size: 14px;">
+              <strong>Error Type:</strong> ${errorType}<br>
+              <strong>Details:</strong> ${escapeHtml(err.message)}
+            </div>
+            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
+              <strong>Troubleshooting:</strong><br>
+              • Check browser console for details<br>
+              • Verify /api/trends endpoint is accessible<br>
+              • Try refreshing the page<br>
+              • Check Netlify function logs
+            </div>
+          </div>
+        `;
           </div>
         `;
       }
@@ -381,7 +403,7 @@
           headers['Authorization'] = `Bearer ${token}`;
         }
         
-        const response = await fetch('/api/refresh-trends', {
+        const response = await fetch('/.netlify/functions/api/refresh-trends', {
           method: 'POST',
           headers
         });

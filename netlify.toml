@@ -20,6 +20,7 @@
   from = "/api/*"
   to = "/.netlify/functions/api"
   status = 200
+  force = true
 
 # Protect admin assets from being rewritten - MUST come before any catch-all
 [[redirects]]

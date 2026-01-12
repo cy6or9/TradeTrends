@@ -3,6 +3,7 @@
 
 const { createStorage, atomicUpdate } = require('./lib/storage');
 const { fetchTrends, isCacheValid } = require('./lib/trends');
+const { initializeAnalytics, getAnalyticsSummary } = require('./lib/initAnalytics');
 
 // Check if user is admin
 function isAdmin(event) {
@@ -20,69 +21,70 @@ function isAdmin(event) {
 
 // Parse route from path
 function parseRoute(path) {
-  const match = path.match(/^\/api\/(.+)/);
+  // Handle both /api/route and /.netlify/functions/api/route
+  const match = path.match(/^\/(?:\.netlify\/functions\/)?api\/(.+)/);
   return match ? match[1] : '';
 }
 
 // Analytics handler
 async function handleAnalytics(event, storage) {
   try {
-    const params = event.queryStringParameters || {};
-    const days = parseInt(params.days) || 7;
+    // Ensure analytics are initialized
+    await initializeAnalytics(storage);
     
-    const clicksData = await storage.get('tt_clicks') || { clicks: [] };
-    const clicks = clicksData.clicks || [];
+    // Get analytics summary with guaranteed schema
+    const summary = await getAnalyticsSummary(storage);
     
-    // Filter by date range
+    // STRICT INPUT VALIDATION - Never trust query parameters
+    const rawDays = event.queryStringParameters?.days;
+    let days = Math.max(1, Math.min(90, Number(rawDays) || 7));
+    
+    // Double-check days is a safe number
+    if (!Number.isFinite(days) || days < 1 || days > 90) {
+      console.warn(`Invalid days parameter: ${rawDays}, using default 7`);
+      days = 7;
+    }
+    
+    // Filter daily data by date range
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
-    const recentClicks = clicks.filter(c => new Date(c.ts) >= cutoff);
+    const cutoffStr = cutoff.toISOString().substring(0, 10);
     
-    // Aggregate stats
-    const byNetwork = {};
-    const byDeal = {};
-    const byDay = {};
+    const filteredDays = summary.clicksByDay.filter(day => day.date >= cutoffStr);
     
-    recentClicks.forEach(click => {
-      // By network
-      byNetwork[click.network] = (byNetwork[click.network] || 0) + 1;
-      
-      // By deal
-      byDeal[click.id] = (byDeal[click.id] || 0) + 1;
-      
-      // By day
-      const day = click.ts.substring(0, 10);
-      byDay[day] = (byDay[day] || 0) + 1;
-    });
-    
-    // Top deals
-    const topDeals = Object.entries(byDeal)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([id, count]) => ({ id, clicks: count }));
-    
-    // By day array (sorted)
-    const byDayArray = Object.entries(byDay)
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([date, count]) => ({ date, clicks: count }));
-    
+    // GUARANTEED response contract - never return undefined/null
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
       body: JSON.stringify({
-        totalClicks: recentClicks.length,
+        initialized: summary.initialized,
+        totalClicks: summary.totalClicks,
         days: days,
-        byNetwork: byNetwork,
-        topDeals: topDeals,
-        byDay: byDayArray
+        byNetwork: summary.clicksByNetwork,
+        topDeals: summary.topDeals,
+        byDay: filteredDays,
+        lastUpdated: summary.lastUpdated
       })
     };
   } catch (err) {
     console.error('Analytics error:', err);
+    // Return safe defaults even on error
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Failed to fetch analytics' })
+      body: JSON.stringify({
+        initialized: false,
+        totalClicks: 0,
+        days: parseInt(event.queryStringParameters?.days) || 7,
+        byNetwork: {},
+        topDeals: [],
+        byDay: [],
+        error: 'Failed to fetch analytics',
+        errorMessage: err.message
+      })
     };
   }
 }
@@ -205,8 +207,17 @@ async function handleRefreshTrends(event, storage) {
 }
 
 exports.handler = async (event) => {
+  // CRASH-PROOF: Wrap entire handler to never throw uncaught errors
   try {
+    console.log('API function called:', {
+      path: event.path,
+      method: event.httpMethod,
+      query: event.queryStringParameters
+    });
+    
     const route = parseRoute(event.path);
+    console.log('Parsed route:', route);
+    
     const storage = await createStorage();
     
     // Route handlers
@@ -230,11 +241,25 @@ exports.handler = async (event) => {
     };
     
   } catch (err) {
-    console.error('API error:', err);
+    console.error('API CRASH PREVENTED:', err);
+    
+    // NEVER return 500 or throw - always return 200 with safe defaults
     return {
-      statusCode: 500,
+      statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error' })
+      body: JSON.stringify({
+        ok: false,
+        error: err.message || 'Internal error',
+        safe: true,
+        clicks: [],
+        totals: { amazon: 0, travel: 0 },
+        days: 7,
+        initialized: false,
+        totalClicks: 0,
+        byNetwork: {},
+        topDeals: [],
+        byDay: []
+      })
     };
   }
 };

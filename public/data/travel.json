@@ -11,7 +11,8 @@
       "category": "Hotels",
       "network": "travel",
       "featured": true,
-      "last_verified": "2026-01-08"
+      "last_verified": "2026-01-08",
+      "status": "published"
     },
     {
       "id": "trav-002",
@@ -24,7 +25,8 @@
       "category": "Packages",
       "network": "travel",
       "featured": true,
-      "last_verified": "2026-01-08"
+      "last_verified": "2026-01-08",
+      "status": "published"
     },
     {
       "id": "trav-003",
@@ -37,7 +39,8 @@
       "category": "Gear",
       "network": "travel",
       "featured": false,
-      "last_verified": "2026-01-08"
+      "last_verified": "2026-01-08",
+      "status": "published"
     }
   ]
 }

@@ -1,0 +1,84 @@
+{
+  "primaryGoal": "Affiliate revenue",
+  "mustNeverBreak": [
+    "/go function",
+    "affiliate redirects",
+    "analytics recording",
+    "sitemap.xml",
+    "SEO meta tags",
+    "Pinterest Open Graph tags",
+    "Amazon affiliate links",
+    "Travel affiliate links",
+    "public/_redirects force flags (200!)",
+    "/api/analytics endpoint"
+  ],
+  "analytics": {
+    "mustRecordClicks": true,
+    "minimumClicksForHealthy": 1,
+    "analyticsMustNever500": true,
+    "adminMustAllowNewDeals": true,
+    "requiredSchema": {
+      "timestamp": "ISO 8601 datetime",
+      "network": "amazon|travel",
+      "deal_id": "string",
+      "user_agent": "string",
+      "referrer": "string",
+      "ip_hash": "string (hashed for privacy)"
+    },
+    "storageKeys": [
+      "analytics:summary",
+      "analytics:daily",
+      "analytics:deals",
+      "tt_clicks"
+    ],
+    "guaranteedResponseContract": {
+      "initialized": "boolean",
+      "totalClicks": "number",
+      "byNetwork": "object",
+      "topDeals": "array",
+      "byDay": "array"
+    }
+  },
+  "revenueFlowChecklist": [
+    "User clicks 'View on Amazon' button",
+    "Link href uses /go?network=amazon&id=X format",
+    "/go function receives request",
+    "Function returns 302 redirect",
+    "User lands on Amazon product page",
+    "Affiliate tag is present in URL"
+  ],
+  "criticalFiles": {
+    "public/_redirects": "Controls all URL routing - /go and /api MUST come before /*",
+    "netlify/functions/go.js": "Handles affiliate redirect logic AND records analytics",
+    "netlify/functions/api.js": "Serves analytics and trends data",
+    "netlify/functions/lib/initAnalytics.js": "Initializes analytics storage with schema",
+    "public/js/render.js": "Generates affiliate link HTML",
+    "public/data/amazon.json": "Amazon deal inventory",
+    "public/data/travel.json": "Travel deal inventory",
+    "public/admin/dashboard.html": "Analytics dashboard UI",
+    "public/admin/trends.html": "Trends analysis UI",
+    "scripts/validate.js": "Pre-build validation catches config errors",
+    "tests/e2e/revenue.spec.js": "E2E tests verify real user flow AND analytics recording"
+  },
+  "deploymentBlocking": {
+    "cannotDeploy": [
+      "Missing /go redirect rules",
+      "Missing /api redirect rules",
+      "Missing 200! force flag",
+      "/go or /api rules after /* catch-all",
+      "Any deal missing affiliate_url",
+      "Analytics not recording clicks",
+      "E2E tests failing",
+      "Production monitor failing",
+      "Validation script errors"
+    ]
+  },
+  "monitoringEndpoints": [
+    "https://tradetrend.netlify.app/go?network=amazon&id=test",
+    "https://tradetrend.netlify.app/go?network=travel&id=test",
+    "https://tradetrend.netlify.app/api/analytics",
+    "https://tradetrend.netlify.app/api/trends",
+    "https://tradetrend.netlify.app/sitemap.xml",
+    "https://tradetrend.netlify.app/robots.txt"
+  ]
+}

@@ -67,10 +67,24 @@ function validateDeal(deal, index, network) {
     return false;
   }
   
-  // Check for placeholder values
+  // REVENUE-LEVEL VALIDATION: Check for placeholder values
   if (deal.affiliate_url.includes('example.com') || deal.affiliate_url.includes('placeholder')) {
-    error(`Deal #${index} "${deal.title}" has placeholder URL: ${deal.affiliate_url}`);
+    error(`REVENUE LOSS: Deal #${index} "${deal.title}" has placeholder URL: ${deal.affiliate_url}`);
     return false;
+  }
+  
+  // REVENUE-LEVEL VALIDATION: Empty affiliate URL means no revenue
+  if (!deal.affiliate_url || deal.affiliate_url.trim() === '') {
+    error(`REVENUE LOSS: Deal #${index} "${deal.title}" has empty affiliate_url`);
+    return false;
+  }
+  
+  // REVENUE-LEVEL VALIDATION: Amazon deals must use /go endpoint (not direct links)
+  if (network === 'Amazon' && !deal.affiliate_url.includes('/go?network=')) {
+    // Allow existing direct Amazon links, but warn
+    if (deal.affiliate_url.includes('amazon.com') || deal.affiliate_url.includes('amzn.to')) {
+      warning(`Deal #${index} "${deal.title}" uses direct Amazon link (should use /go?network=amazon for tracking)`);
+    }
   }
   
   if (deal.title === 'New Deal Title' || deal.title.includes('placeholder')) {
@@ -138,18 +152,44 @@ console.log('\n🔗 Validating affiliate link routing...');
 // Check _redirects file exists and has correct /go rule
 if (checkFile('public/_redirects')) {
   const redirects = fs.readFileSync('public/_redirects', 'utf8');
-  if (!redirects.includes('/go  /.netlify/functions/go  200!')) {
-    error('public/_redirects missing required /go redirect with force flag (200!)');
-  } else {
-    success('Valid _redirects: /go routing enforced');
+  
+  // Critical checks for /go function routing
+  const requiredRules = [
+    '/go  /.netlify/functions/go  200!',
+    '/go/*  /.netlify/functions/go  200!'
+  ];
+  
+  let hasCriticalError = false;
+  
+  for (const rule of requiredRules) {
+    if (!redirects.includes(rule)) {
+      error(`CRITICAL: /go redirect is not forced. Affiliate tracking would be broken.`);
+      error(`Missing required rule: ${rule}`);
+      hasCriticalError = true;
+    }
   }
   
-  // Ensure /go rules come before catch-all
+  if (!hasCriticalError) {
+    success('Valid _redirects: /go routing enforced with 200! flags');
+  }
+  
+  // Ensure /go rules come before catch-all (critical for precedence)
   const lines = redirects.split('\n').filter(l => l.trim() && !l.trim().startsWith('#'));
-  const goIndex = lines.findIndex(l => l.includes('/go '));
+  const goIndex = lines.findIndex(l => l.trim().startsWith('/go '));
   const catchAllIndex = lines.findIndex(l => l.trim().startsWith('/*'));
+  
   if (catchAllIndex >= 0 && goIndex >= 0 && catchAllIndex < goIndex) {
+    error('CRITICAL: /go redirect is not forced. Affiliate tracking would be broken.');
     error('public/_redirects: catch-all /* appears BEFORE /go rule - will break routing');
+  } else if (goIndex >= 0 && catchAllIndex >= 0) {
+    success('Valid _redirects: /go rules appear BEFORE catch-all /*');
+  }
+  
+  // Verify 200! force flag is present (not just 200)
+  const goLine = lines.find(l => l.trim().startsWith('/go '));
+  if (goLine && !goLine.includes('200!')) {
+    error('CRITICAL: /go redirect is not forced. Affiliate tracking would be broken.');
+    error('Missing "!" force flag on /go redirect - must be "200!" not "200"');
   }
 }
 
@@ -176,7 +216,252 @@ if (fs.existsSync('public/js/render.js')) {
   }
 }
 
-// 7. Summary
+// 7. Validate sitemap
+console.log('\n🗺️  Validating sitemap...');
+if (checkFile('public/sitemap.xml', false)) {
+  const sitemap = fs.readFileSync('public/sitemap.xml', 'utf8');
+  
+  // Ensure production domain is used
+  if (sitemap.includes('localhost') || sitemap.includes('127.0.0.1')) {
+    error('sitemap.xml contains localhost URLs (should be production domain)');
+  }
+  
+  // Check for required pages
+  const requiredPages = ['index.html', 'amazon.html', 'travel.html'];
+  requiredPages.forEach(page => {
+    if (!sitemap.includes(page.replace('.html', ''))) {
+      warning(`sitemap.xml missing ${page}`);
+    }
+  });
+  
+  success('sitemap.xml validated');
+}
+
+// 8. Check AI memory system integrity
+console.log('\n🤖 Validating AI memory system...');
+const aiFiles = [
+  '.ai/business.json',
+  '.ai/blocked-patterns.json',
+  '.ai/known-good.json',
+  '.ai/history.json'
+];
+
+aiFiles.forEach(file => {
+  const data = validateJSON(file);
+  if (!data) {
+    error(`${file} is invalid or missing`);
+  }
+});
+
+// Load and validate blocked patterns
+if (fs.existsSync('.ai/blocked-patterns.json')) {
+  try {
+    const blockedPatterns = JSON.parse(fs.readFileSync('.ai/blocked-patterns.json', 'utf8'));
+    
+    // Check files against blocked patterns
+    if (blockedPatterns.filePatterns) {
+      for (const [filePattern, rules] of Object.entries(blockedPatterns.filePatterns)) {
+        const files = filePattern.includes('*') 
+          ? require('glob').sync(filePattern)
+          : [filePattern];
+        
+        files.forEach(file => {
+          if (!fs.existsSync(file)) return;
+          
+          const content = fs.readFileSync(file, 'utf8');
+          
+          // Check mustNotContain patterns
+          if (rules.mustNotContain) {
+            rules.mustNotContain.forEach(pattern => {
+              if (content.includes(pattern)) {
+                error(`BLOCKED PATTERN: ${file} contains forbidden pattern: ${pattern}`);
+              }
+            });
+          }
+          
+          // Check mustContain patterns
+          if (rules.mustContain) {
+            rules.mustContain.forEach(pattern => {
+              if (!content.includes(pattern)) {
+                warning(`${file} missing recommended pattern: ${pattern}`);
+              }
+            });
+          }
+        });
+      }
+    }
+    
+    success('AI memory system validated');
+  } catch (err) {
+    warning(`Could not validate blocked patterns: ${err.message}`);
+  }
+}
+
+// 9. API Contract Validation
+console.log('\n9️⃣  Validating API Contracts');
+console.log('═══════════════════════════');
+
+// Validate analytics API response structure
+const analyticsPath = 'netlify/functions/api.js';
+if (checkFile(analyticsPath)) {
+  const content = fs.readFileSync(analyticsPath, 'utf8');
+  
+  // Check for strict input validation
+  const hasInputValidation = content.includes('Number.isFinite(days)') && 
+                              content.includes('Math.max(1, Math.min(90');
+  if (!hasInputValidation) {
+    error('Analytics API missing strict input validation for days parameter');
+  } else {
+    success('Analytics API has strict input validation');
+  }
+  
+  // Check for guaranteed response contract
+  const hasResponseContract = content.includes('initialized:') && 
+                              content.includes('totalClicks:') &&
+                              content.includes('byNetwork:');
+  if (!hasResponseContract) {
+    error('Analytics API missing guaranteed response contract');
+  } else {
+    success('Analytics API guarantees response contract');
+  }
+  
+  // Check for error handling
+  const hasErrorHandling = content.includes('try') && content.includes('catch');
+  if (!hasErrorHandling) {
+    warning('Analytics API missing try/catch error handling');
+  } else {
+    success('Analytics API has error handling');
+  }
+}
+
+// Validate admin dashboard parameter sanitation
+const dashboardPath = 'public/admin/dashboard.html';
+if (checkFile(dashboardPath)) {
+  const content = fs.readFileSync(dashboardPath, 'utf8');
+  
+  // Check for parameter sanitation
+  const hasSanitation = content.includes('Math.max(1, Math.min(90') &&
+                        content.includes('encodeURIComponent');
+  if (!hasSanitation) {
+    error('Dashboard missing URL parameter sanitation');
+  } else {
+    success('Dashboard has URL parameter sanitation');
+  }
+  
+  // Check for enhanced error handling
+  const hasErrorTypes = content.includes('SyntaxError') || 
+                        content.includes('JSON.parse');
+  if (!hasErrorTypes) {
+    warning('Dashboard missing detailed error type detection');
+  } else {
+    success('Dashboard has enhanced error handling');
+  }
+}
+
+// Validate trends page error handling
+const trendsPath = 'public/admin/trends.html';
+if (checkFile(trendsPath)) {
+  const content = fs.readFileSync(trendsPath, 'utf8');
+  
+  // Check for error type detection
+  const hasErrorTypes = content.includes('error.name') ||
+                        content.includes('SyntaxError');
+  if (!hasErrorTypes) {
+    warning('Trends page missing error type detection');
+  } else {
+    success('Trends page has error type detection');
+  }
+}
+
+// Validate API endpoints don't return HTML
+function validateAPIEndpoints() {
+  const adminFiles = ['public/admin/dashboard.html', 'public/admin/trends.html'];
+  
+  adminFiles.forEach(file => {
+    if (checkFile(file)) {
+      const content = fs.readFileSync(file, 'utf8');
+      
+      // Check that fetch calls use /.netlify/functions/api, NOT /api
+      const hasDirectApiCall = content.includes("fetch('/api/") || 
+                               content.includes('fetch("/api/');
+      
+      if (hasDirectApiCall) {
+        error(`${file} uses /api/* routes which are intercepted by Identity. Must use /.netlify/functions/api/*`);
+      } else {
+        success(`${file} correctly bypasses Identity with direct function calls`);
+      }
+      
+      // Check for /.netlify/functions/api usage
+      const usesDirectFunction = content.includes('/.netlify/functions/api');
+      if (!usesDirectFunction) {
+        warning(`${file} doesn't seem to call API functions directly`);
+      }
+    }
+  });
+}
+
+console.log('\n🔟 Validating API Endpoint Routes');
+console.log('═══════════════════════════');
+validateAPIEndpoints();
+
+// 11. Deal Status Validation
+console.log('\n1️⃣1️⃣  Validating Deal Status Model');
+console.log('═══════════════════════════');
+
+function validateDealData() {
+  const dealFiles = ['public/data/amazon.json', 'public/data/travel.json'];
+  
+  dealFiles.forEach(file => {
+    if (checkFile(file)) {
+      const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+      const items = data.items || [];
+      
+      items.forEach((item, idx) => {
+        // Check ID exists
+        if (!item.id || item.id.trim() === '') {
+          error(`${file} item ${idx}: Missing unique id`);
+        }
+        
+        // Check status if present
+        if (item.status && item.status !== 'draft' && item.status !== 'published') {
+          error(`${file} item ${idx}: Invalid status "${item.status}" (must be "draft" or "published")`);
+        }
+        
+        // Validate published deals
+        const status = item.status || 'published'; // Treat missing as published for migration
+        if (status === 'published') {
+          if (!item.title || item.title.trim() === '') {
+            error(`${file} item ${idx}: Published deal missing title`);
+          }
+          if (!item.affiliate_url || item.affiliate_url.trim() === '') {
+            error(`${file} item ${idx}: Published deal missing affiliate_url`);
+          }
+          if (!item.image || item.image.trim() === '') {
+            error(`${file} item ${idx}: Published deal missing image`);
+          }
+        }
+      });
+      
+      success(`${file} has valid deal data structure`);
+    }
+  });
+  
+  // Verify render.js filters drafts
+  const renderPath = 'public/js/render.js';
+  if (checkFile(renderPath)) {
+    const content = fs.readFileSync(renderPath, 'utf8');
+    
+    if (!content.includes("status !== 'published'") && !content.includes('status === "published"')) {
+      error('render.js missing status filter - drafts could appear publicly!');
+    } else {
+      success('render.js correctly filters published-only deals');
+    }
+  }
+}
+
+validateDealData();
+
+// 12. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

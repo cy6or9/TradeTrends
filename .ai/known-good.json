@@ -1,0 +1,37 @@
+{
+  "lastKnownGoodCommit": null,
+  "validatedConfigs": {
+    "redirects": {
+      "structure": [
+        "/go  /.netlify/functions/go  200!",
+        "/go/*  /.netlify/functions/go  200!",
+        "/*  /index.html  200"
+      ],
+      "validatedAt": null
+    },
+    "functions": {
+      "go.js": {
+        "returns": "302 redirect",
+        "networks": ["amazon", "travel"],
+        "validatedAt": null
+      }
+    },
+    "dataFiles": {
+      "amazon.json": {
+        "location": "public/data/amazon.json",
+        "requiredFields": ["id", "title", "affiliate_url", "image", "category", "network"],
+        "validatedAt": null
+      },
+      "travel.json": {
+        "location": "public/data/travel.json",
+        "requiredFields": ["id", "title", "affiliate_url", "image", "category", "network"],
+        "validatedAt": null
+      }
+    }
+  },
+  "testResults": {
+    "lastValidation": null,
+    "lastE2E": null,
+    "lastProductionCheck": null
+  }
+}
