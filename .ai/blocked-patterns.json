@@ -7,6 +7,25 @@
       "severity": "CRITICAL"
     },
     {
+      "pattern": "fetch\\(['\"]\/api\/",
+      "reason": "Admin pages using /api instead of /.netlify/functions/api - Identity will intercept",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL"
+    },
+    {
+      "pattern": "Unexpected token '<'",
+      "reason": "HTML returned instead of JSON - symptom of Identity interception",
+      "blockedAt": "2026-01-12",
+      "severity": "CRITICAL",
+      "symptom": true
+    },
+    {
+      "pattern": "text/html.*application/json",
+      "reason": "Missing content-type guard in fetch - will parse HTML as JSON",
+      "blockedAt": "2026-01-12",
+      "severity": "HIGH"
+    },
+    {
       "pattern": "/go  /.netlify/functions/go  200$",
       "reason": "Missing force flag (!) - allows SPA catch-all to override",
       "blockedAt": "2026-01-12",

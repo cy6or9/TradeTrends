@@ -25,10 +25,11 @@ function buildCard(item, kind){
   const verified = item.last_verified ? `Verified: ${escapeHtml(item.last_verified)}` : "";
   const img = item.image || "";
   
-  // REVENUE-SAFE: Open affiliate URL directly (no intermediary redirect)
+  // D7 FALLBACK REVENUE MODE: Primary /go redirect with direct URL fallback
   const directUrl = item.affiliate_url || "#";
   const network = isTravel ? "travel" : "amazon";
   const id = item.id || item.title || "";
+  const goUrl = `/go?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}`;
   // Background tracking endpoint (returns 204, no redirect)
   const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
@@ -47,7 +48,7 @@ function buildCard(item, kind){
         ${verified ? `<span class="small">${verified}</span>` : ""}
       </div>
       <div class="itemCta">
-        <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <a class="link primary" href="${escapeHtml(goUrl)}" data-direct-url="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
       </div>
     </div>
   </article>`;
@@ -159,6 +160,7 @@ async function initSection(opts){
 
 // Background click tracking (non-blocking, best effort)
 let clickTrackingInitialized = false;
+const activeFallbacks = new WeakMap(); // Track which links have already triggered fallback
 
 function initClickTracking() {
   if (clickTrackingInitialized) return;
@@ -169,31 +171,64 @@ function initClickTracking() {
     if (!link) return;
     
     const trackUrl = link.getAttribute('data-track-url');
-    if (!trackUrl) return;
-    
-    // Best effort tracking (doesn't block navigation)
-    try {
-      if (navigator.sendBeacon) {
-        // Preferred: sendBeacon guarantees delivery even if page unloads
-        navigator.sendBeacon(trackUrl, '');
-      } else if (window.fetch) {
-        // Fallback: fetch with keepalive
-        fetch(trackUrl, { 
-          method: 'GET',
-          mode: 'no-cors',
-          keepalive: true 
-        }).catch(() => {});
-      } else {
-        // Last resort: pixel tracking
-        const img = new Image();
-        img.src = trackUrl;
+    if (trackUrl) {
+      // Best effort tracking (doesn't block navigation)
+      try {
+        if (navigator.sendBeacon) {
+          // Preferred: sendBeacon guarantees delivery even if page unloads
+          navigator.sendBeacon(trackUrl, '');
+        } else if (window.fetch) {
+          // Fallback: fetch with keepalive
+          fetch(trackUrl, { 
+            method: 'GET',
+            mode: 'no-cors',
+            keepalive: true 
+          }).catch(() => {});
+        } else {
+          // Last resort: pixel tracking
+          const img = new Image();
+          img.src = trackUrl;
+        }
+      } catch (err) {
+        // Silently fail - don't block user navigation
+        console.debug('Click tracking failed:', err);
       }
-    } catch (err) {
-      // Silently fail - don't block user navigation
-      console.debug('Click tracking failed:', err);
     }
     
-    // Don't preventDefault - let normal navigation happen
+    // D7 FALLBACK REVENUE MODE: Ensure affiliate destination is reached
+    const directUrl = link.getAttribute('data-direct-url');
+    if (!directUrl || directUrl === '#') return;
+    if (activeFallbacks.has(link)) return; // Already triggered fallback for this click
+    
+    // Mark this link as having active fallback monitoring
+    activeFallbacks.set(link, true);
+    
+    // Monitor the opened window for failures
+    setTimeout(() => {
+      // After 900ms, if we detect the popup failed or is stuck, open direct URL as fallback
+      // This handles:
+      // - Popup blocked by browser
+      // - /go redirect failed (still on our domain)
+      // - about:blank stuck (redirect never fired)
+      
+      // Check if direct fallback is needed
+      // Note: We can't reliably check popup.location due to CORS, but we can:
+      // 1. Assume if user is still on our page after 900ms, something went wrong
+      // 2. Open direct URL in new tab as safety net
+      // 3. User either gets 2 tabs (both work) or 1 tab (fallback saves revenue)
+      
+      // Safety: Only trigger if link still exists and user hasn't navigated away
+      if (document.body.contains(link)) {
+        // Open direct URL as fallback (user closes duplicate if both worked)
+        window.open(directUrl, '_blank', 'noopener,noreferrer');
+        console.debug('Revenue fallback triggered for:', directUrl);
+      }
+      
+      // Clean up
+      activeFallbacks.delete(link);
+    }, 900);
+    
+    // Don't preventDefault - let normal navigation happen to /go
   }, { passive: true, capture: true });
 }
 

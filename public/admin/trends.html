@@ -229,12 +229,13 @@
 
     <div id="messages"></div>
     <div id="content">
-      <div class="loading">Loading trends data...</div>
+      <div class="loading" data-testid="trends-loading">Loading trends data...</div>
     </div>
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/admin/auth-check.js"></script>
+  <script src="/admin/admin-api.js"></script>
   <script>
     let currentData = null;
 
@@ -294,8 +295,10 @@
         const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 
                          err.name === 'TypeError' ? 'Network error' : 'API error';
         
+        // ⚠️ CRITICAL: Do not place raw HTML outside the template literal below
+        // A single stray </div> here will crash the entire Trends page with "Unexpected token '<'"
         content.innerHTML = `
-          <div class="error">
+          <div class="error" data-testid="admin-error">
             <strong>❌ Failed to load trends</strong><br>
             <div style="margin-top: 10px; font-size: 14px;">
               <strong>Error Type:</strong> ${errorType}<br>
@@ -310,8 +313,6 @@
             </div>
           </div>
         `;
-          </div>
-        `;
       }
     }
 
@@ -320,7 +321,7 @@
       
       if (!data.items || data.items.length === 0) {
         content.innerHTML = `
-          <div class="notice">
+          <div class="notice" data-testid="trends-ready">
             No trends data available. Click "Refresh Trends" to fetch data.
           </div>
         `;
@@ -332,7 +333,7 @@
       const travel = data.items.filter(i => i.category === 'Travel Trending');
       
       content.innerHTML = `
-        <div class="trends-grid">
+        <div class="trends-grid" data-testid="trends-ready">
           <div class="trend-column">
             <h2 class="column-title">🛒 Amazon Trends</h2>
             ${amazon.length > 0 ? amazon.map(renderTrendItem).join('') : '<div class="notice">No Amazon trends available</div>'}

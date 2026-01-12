@@ -12,6 +12,16 @@
     "public/_redirects force flags (200!)",
     "/api/analytics endpoint"
   ],
+  "mustAlwaysBeTrue": [
+    "/go returns 302 redirect to affiliate destination",
+    "Admin pages never parse HTML as JSON",
+    "Admin fetches must use /.netlify/functions/api paths (not /api)",
+    "Clicking a deal must reach affiliate destination",
+    "No published deal missing affiliate_url",
+    "Admin inline scripts must be syntactically valid",
+    "public/_redirects /go rules come BEFORE catch-all",
+    "Redirect loops are detected and broken"
+  ],
   "analytics": {
     "mustRecordClicks": true,
     "minimumClicksForHealthy": 1,

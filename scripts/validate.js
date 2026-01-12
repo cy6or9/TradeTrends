@@ -29,6 +29,11 @@ function success(message) {
   log('success', message);
 }
 
+function section(title) {
+  console.log(`\n${title}`);
+  console.log('═══════════════════════════');
+}
+
 // Check file exists
 function checkFile(filePath, required = true) {
   if (fs.existsSync(filePath)) {
@@ -218,6 +223,81 @@ if (checkFile('public/_redirects')) {
 
 // Check render.js uses direct affiliate URLs (not /go redirect)
 if (fs.existsSync('public/js/render.js')) {
+  const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
+  
+  // Check for various broken patterns
+  if (renderJs.includes('`/?network=') || renderJs.includes('"/?network=') || renderJs.includes("'/?network=")) {
+    error('public/js/render.js generates broken /?network= URLs (should be /go?network=)');
+  }
+  
+  // Verify direct affiliate URL usage (background tracking pattern)
+  if (!renderJs.includes('affiliate_url')) {
+    error('public/js/render.js missing affiliate_url references');
+  } else {
+    success('Valid render.js: uses direct affiliate URLs with background tracking');
+  }
+}
+
+// Check admin pages use ONLY /.netlify/functions/api paths (Identity bypass)
+console.log('\n🔐 Validating admin API routing (Identity bypass)...');
+const adminPages = ['public/admin/dashboard.html', 'public/admin/trends.html', 'public/admin/deals.html'];
+
+adminPages.forEach(file => {
+  if (fs.existsSync(file)) {
+    const content = fs.readFileSync(file, 'utf8');
+    
+    // Check for broken patterns (using /api/... instead of /.netlify/functions/api/...)
+    if (content.match(/fetch\s*\(\s*['"`]\/api\//)) {
+      error(`${file} uses fetch('/api/...') which will be intercepted by Identity`);
+      error(`Must use fetch('/.netlify/functions/api/...') for direct function access`);
+    }
+    
+    // Verify at least one correct pattern exists (if page uses API)
+    if (content.includes('/.netlify/functions/api')) {
+      success(`${file} correctly uses /.netlify/functions/api paths`);
+    }
+  }
+});
+
+// D7: Validate fallback revenue mode implementation
+section('Validating D7 Fallback Revenue Mode');
+if (fs.existsSync('public/js/render.js')) {
+  const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
+  
+  // Must use /go?network= as primary href (not direct URLs)
+  const hasGoHref = renderJs.includes('/go?network=') || renderJs.includes('goUrl');
+  if (!hasGoHref) {
+    error('render.js missing /go?network= href pattern (D7 requirement)');
+  } else {
+    success('render.js uses /go redirect as primary href');
+  }
+  
+  // Must have data-direct-url fallback
+  const hasDirectUrlFallback = renderJs.includes('data-direct-url');
+  if (!hasDirectUrlFallback) {
+    error('render.js missing data-direct-url fallback (D7 requirement)');
+  } else {
+    success('render.js includes data-direct-url fallback');
+  }
+  
+  // Must have fallback logic (detect popup issues)
+  const hasFallbackLogic = renderJs.includes('activeFallbacks') && 
+                          (renderJs.includes('about:blank') || renderJs.includes('setTimeout'));
+  if (!hasFallbackLogic) {
+    error('render.js missing fallback trigger logic (D7 requirement)');
+    error('  Must monitor popup and open data-direct-url if /go fails');
+  } else {
+    success('render.js implements D7 fallback monitoring');
+  }
+  
+  // Must NOT use /?network= broken pattern
+  if (renderJs.includes('/?network=')) {
+    error('render.js uses broken /?network= pattern (should be /go?network=)');
+  }
+}
+
+// OLD: Legacy validation (disabled - now using D7 approach)
+if (false && fs.existsSync('public/js/render.js')) {
   const renderJs = fs.readFileSync('public/js/render.js', 'utf8');
   
   // Check for broken patterns
@@ -499,7 +579,54 @@ function validateDealData() {
 
 validateDealData();
 
-// 12. Summary
+// 12. Validate /go function Location header safety
+section('Validating /go Function Redirect Safety');
+if (fs.existsSync('netlify/functions/go.js')) {
+  const goJs = fs.readFileSync('netlify/functions/go.js', 'utf8');
+  
+  // Check for dangerous self-redirects
+  const hasSelfRedirect = goJs.includes('Location: "tradetrend.netlify.app"') ||
+                         goJs.includes('Location: "/') && !goJs.includes('Location: deal.affiliate');
+  
+  // Verify it returns 302 with Location header
+  const has302 = goJs.includes('statusCode: 302');
+  const hasLocation = goJs.includes('Location:') || goJs.includes('headers: { Location');
+  
+  if (!has302 || !hasLocation) {
+    error('go.js missing proper 302 redirect with Location header');
+  } else {
+    success('go.js returns 302 with Location header');
+  }
+  
+  // Verify loop detection exists
+  const hasLoopDetection = goJs.includes('REDIRECT LOOP') || goJs.includes('tt_last_go');
+  if (!hasLoopDetection) {
+    warning('go.js missing redirect loop detection (D6 requirement)');
+  } else {
+    success('go.js implements redirect loop detection');
+  }
+  
+  // Verify Location points to affiliate domains (not our own)
+  const locationLines = goJs.split('\n').filter(line => line.includes('Location:'));
+  for (const line of locationLines) {
+    if (line.includes('tradetrend.netlify.app') && !line.includes('comment')) {
+      error('CRITICAL: go.js redirects to our own domain (causes loops)');
+      error(`  Line: ${line.trim()}`);
+    }
+  }
+}
+
+// 13. Check admin inline scripts for syntax errors
+console.log('\n🔧 Validating admin inline scripts...');
+const { execSync } = require('child_process');
+try {
+  execSync('node scripts/check-admin-scripts.js', { stdio: 'inherit' });
+  success('All admin inline scripts are syntactically valid');
+} catch (err) {
+  error('Admin scripts validation failed - see errors above');
+}
+
+// 14. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

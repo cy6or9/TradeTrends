@@ -89,6 +89,64 @@ exports.handler = async (event) => {
       };
     }
     
+    // REDIRECT LOOP DETECTION
+    // Check cookie to detect rapid repeated redirects to same destination
+    const cookies = event.headers.cookie || '';
+    const cookieMatch = cookies.match(/tt_last_go=([^;]+)/);
+    
+    if (cookieMatch) {
+      try {
+        const lastGo = JSON.parse(decodeURIComponent(cookieMatch[1]));
+        const now = Date.now();
+        const timeDiff = now - (lastGo.time || 0);
+        
+        // If same ID within 2 seconds, likely a redirect loop
+        if (lastGo.id === id && timeDiff < 2000) {
+          console.error(`REDIRECT LOOP DETECTED: id=${id}, timeDiff=${timeDiff}ms`);
+          
+          // Load deals to get direct URL as fallback
+          const deals = await loadDeals();
+          const allDeals = [...deals.amazon, ...deals.travel];
+          const deal = allDeals.find(d => d.id === id);
+          
+          const fallbackUrl = deal?.affiliate_url || '/';
+          
+          // Return HTML page explaining the issue
+          return {
+            statusCode: 200,
+            headers: { 
+              'Content-Type': 'text/html',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            },
+            body: `<!DOCTYPE html>
+<html>
+<head>
+  <title>Redirect Loop Detected</title>
+  <meta name="robots" content="noindex">
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+    .error { background: #fee; border: 2px solid #c00; padding: 20px; border-radius: 8px; }
+    .btn { display: inline-block; margin-top: 15px; padding: 10px 20px; background: #0066cc; color: white; text-decoration: none; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="error">
+    <h1>⚠️ Redirect Loop Detected</h1>
+    <p>Our affiliate routing system detected a redirect loop and stopped to prevent infinite redirects.</p>
+    <p><strong>What happened:</strong> You were redirected to this deal multiple times in rapid succession.</p>
+    ${deal ? `<p><a href="${fallbackUrl}" class="btn" target="_blank" rel="nofollow sponsored">→ Continue to Deal (Direct Link)</a></p>` : ''}
+    <p><a href="/">← Return to Homepage</a></p>
+  </div>
+</body>
+</html>`
+          };
+        }
+      } catch (err) {
+        // Cookie parsing failed, ignore and continue
+        console.warn('Failed to parse tt_last_go cookie:', err);
+      }
+    }
+    
     // Load deals
     const deals = await loadDeals();
     const allDeals = [...deals.amazon, ...deals.travel];
@@ -188,11 +246,19 @@ exports.handler = async (event) => {
     // Redirect to affiliate URL
     const affiliateUrl = deal.affiliate_url || deal.affiliateUrl || '/';
     
+    // Success - redirect to affiliate URL
+    // Set cookie to track this redirect for loop detection
+    const trackingCookie = encodeURIComponent(JSON.stringify({
+      id: id,
+      time: Date.now()
+    }));
+    
     return {
       statusCode: 302,
       headers: {
         Location: affiliateUrl,
-        'Cache-Control': 'no-cache, no-store, must-revalidate'
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Set-Cookie': `tt_last_go=${trackingCookie}; Path=/; Max-Age=5; SameSite=Lax`
       },
       body: ''
     };

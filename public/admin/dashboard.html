@@ -206,12 +206,13 @@
     <p class="subtitle">Click tracking and performance metrics</p>
 
     <div id="content">
-      <div class="loading">Loading analytics...</div>
+      <div class="loading" data-testid="dashboard-loading">Loading analytics...</div>
     </div>
   </div>
 
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script src="/admin/auth-check.js"></script>
+  <script src="/admin/admin-api.js"></script>
   <script>
     // Get auth token
     function getAuthToken() {
@@ -252,7 +253,7 @@
         const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 'Network or API error';
         
         content.innerHTML = `
-          <div class="error">
+          <div class="error" data-testid="admin-error">
             <strong>❌ Failed to load analytics</strong><br>
             <div style="margin-top: 10px; font-size: 14px;">
               <strong>Error Type:</strong> ${errorType}<br>
@@ -342,6 +343,7 @@
       const estimatedEarnings = (amazonClicks * conversionRate * avgOrderValue * avgAmazonCommission).toFixed(2);
       
       content.innerHTML = `
+        <div data-testid="dashboard-ready">
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Total Clicks (7d)</div>
@@ -413,6 +415,7 @@
               `).join('')}
             </tbody>
           </table>
+        </div>
         </div>
       `;
     }
