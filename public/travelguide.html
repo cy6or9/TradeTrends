@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
+    (function () {
+        var script = document.createElement("script");
+        script.async = 1;
+        script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
+        document.head.appendChild(script);
+    })();
+  </script>
+  <title>Travel Guide Dashboard | TradeTrends</title>
+  <meta name="description" content="Plan your next trip with curated destination guides, activities, and travel essentials." />
+  <meta name="theme-color" content="#0b0f14" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tradetrend.netlify.app/travelguide" />
+  <meta property="og:title" content="Travel Guide Dashboard | TradeTrends" />
+  <meta property="og:description" content="Explore destinations, activities, and travel essentials for your next adventure." />
+  <meta property="og:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://tradetrend.netlify.app/travelguide" />
+  <meta name="twitter:title" content="Travel Guide Dashboard | TradeTrends" />
+  <meta name="twitter:description" content="Plan your next trip with curated destination guides and activities." />
+  <meta name="twitter:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <!-- Canonical -->
+  <link rel="canonical" href="https://tradetrend.netlify.app/travelguide" />
+  <link rel="preconnect" href="https://res.klook.com">
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        <span>TradeTrends Deals</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="pill" href="/#shop">Shop</a>
+        <a class="pill" href="/#activities">Activities</a>
+        <a class="pill active" href="/travelguide">Travel Guide</a>
+        <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
+          More
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="moreMenu" id="moreMenu" role="menu" aria-hidden="true">
+          <a href="/products.html" role="menuitem">All Products</a>
+          <a href="/activities.html" role="menuitem">All Activities</a>
+          <a href="/admin" role="menuitem">Admin</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- Hero Section -->
+  <section class="heroGrid" style="margin-top: 24px; margin-bottom: 32px;">
+    <div class="card" style="background: linear-gradient(135deg, rgba(16,24,38,.95), rgba(15,23,36,.85)), url('/assets/img_0358.webp') center/cover; min-height: 300px;">
+      <div class="heroMain" style="display: flex; flex-direction: column; justify-content: center; gap: 20px;">
+        <div class="kicker">
+          <span class="dot"></span>
+          <span>Discover Your Next Adventure</span>
+        </div>
+        <h1 class="h1" style="margin: 0;">Plan Your Next Trip</h1>
+        <p class="sub">Explore destinations, activities, and travel essentials.</p>
+        <form class="heroCtas" id="searchForm" style="max-width: 500px;">
+          <input 
+            type="search" 
+            id="destinationSearch" 
+            placeholder="Where are you going?" 
+            style="flex: 1; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 15px;"
+            aria-label="Search destinations"
+          />
+          <button type="submit" class="btn primary" style="white-space: nowrap;">Explore</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Destinations -->
+  <section class="section" id="trending" data-testid="section-trending">
+    <div class="sectionHeader">
+      <div>
+        <h2>🔥 Trending Now</h2>
+        <p>Popular destinations travelers are exploring</p>
+      </div>
+    </div>
+    <div class="gridWrap" style="margin-top: 18px;">
+      <div class="grid" id="trendingGrid" data-testid="trending-grid">
+        <!-- Cards will be inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Experiences -->
+  <section class="section" id="experiences" style="margin-top: 48px;" data-testid="section-experiences">
+    <div class="sectionHeader">
+      <div>
+        <h2>🎟 Top Experiences Right Now</h2>
+        <p>Book unforgettable activities and tours</p>
+      </div>
+      <a href="/activities.html" class="link" data-testid="see-more-experiences">See more activities →</a>
+    </div>
+    <div class="gridWrap" style="margin-top: 18px;">
+      <div class="grid" id="experiencesGrid" data-testid="experiences-grid">
+        <!-- Cards will be inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Trip Tools -->
+  <section class="section" id="tools" style="margin-top: 48px;">
+    <div class="sectionHeader">
+      <div>
+        <h2>🛠 Trip Tools</h2>
+        <p>Everything you need for your journey</p>
+      </div>
+    </div>
+    <div class="gridWrap" style="margin-top: 18px;">
+      <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));">
+        <a href="#flights" class="card" style="padding: 20px; text-align: center; cursor: pointer; text-decoration: none;">
+          <div style="font-size: 32px; margin-bottom: 8px;">✈️</div>
+          <h3 style="font-size: 16px; margin: 0;">Flights</h3>
+        </a>
+        <a href="#hotels" class="card" style="padding: 20px; text-align: center; cursor: pointer; text-decoration: none;">
+          <div style="font-size: 32px; margin-bottom: 8px;">🏨</div>
+          <h3 style="font-size: 16px; margin: 0;">Hotels</h3>
+        </a>
+        <a href="#cars" class="card" style="padding: 20px; text-align: center; cursor: pointer; text-decoration: none;">
+          <div style="font-size: 32px; margin-bottom: 8px;">🚗</div>
+          <h3 style="font-size: 16px; margin: 0;">Cars</h3>
+        </a>
+        <a href="#esim" class="card" style="padding: 20px; text-align: center; cursor: pointer; text-decoration: none;">
+          <div style="font-size: 32px; margin-bottom: 8px;">📶</div>
+          <h3 style="font-size: 16px; margin: 0;">eSIM</h3>
+        </a>
+        <a href="/activities.html" class="card" style="padding: 20px; text-align: center; cursor: pointer; text-decoration: none;">
+          <div style="font-size: 32px; margin-bottom: 8px;">🎭</div>
+          <h3 style="font-size: 16px; margin: 0;">Activities</h3>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Weekend Trips -->
+  <section class="section" id="weekend" style="margin-top: 48px;">
+    <div class="sectionHeader">
+      <div>
+        <h2>Weekend Trips</h2>
+        <p>Perfect getaways for a short break</p>
+      </div>
+    </div>
+    <div class="gridWrap" style="margin-top: 18px;">
+      <div class="grid" id="weekendGrid">
+        <!-- Cards will be inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Strip -->
+  <section class="section" style="margin-top: 48px; margin-bottom: 48px;">
+    <div class="card" style="padding: 24px;">
+      <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; align-items: center; text-align: center; font-size: 14px; color: var(--muted);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>✓</span>
+          <span>No booking fees</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>✓</span>
+          <span>Fast, mobile-friendly</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>✓</span>
+          <span>Curated experiences</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span>✓</span>
+          <span>Travel smarter</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer style="margin-top: 80px; padding: 32px 0; border-top: 1px solid var(--border);">
+  <div class="container" style="text-align: center; color: var(--muted); font-size: 14px;">
+    <p>© 2026 TradeTrends. Curated deals and travel guides.</p>
+  </div>
+</footer>
+
+<script src="/js/render.js"></script>
+<script>
+(function(){
+  // Load travel guide data
+  async function loadTravelGuide() {
+    try {
+      const [guideData, activitiesData] = await Promise.all([
+        fetch('/data/travelguide.json').then(r => r.json()),
+        fetch('/data/activities.json').then(r => r.json())
+      ]);
+
+      // Render trending cities
+      renderCityCards('trendingGrid', guideData, guideData.defaultTrending);
+      
+      // Render weekend trips
+      renderCityCards('weekendGrid', guideData, guideData.weekendTrips);
+      
+      // Render top experiences (first 6 activities)
+      const activities = (activitiesData.items || activitiesData).filter(a => a.status === 'published').slice(0, 6);
+      renderExperienceCards('experiencesGrid', activities);
+
+      // Setup search
+      setupSearch(guideData);
+    } catch (err) {
+      console.error('Failed to load travel guide:', err);
+    }
+  }
+
+  function renderCityCards(containerId, guideData, slugList) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const cityMap = {};
+    guideData.featuredCities.forEach(city => {
+      cityMap[city.slug] = city;
+    });
+
+    const html = slugList.map(slug => {
+      const city = cityMap[slug];
+      if (!city) return '';
+
+      return `
+        <a href="/travelguide/${encodeURIComponent(city.slug)}" class="card item" style="text-decoration: none; cursor: pointer;">
+          <div class="itemMedia">
+            <img loading="lazy" decoding="async" src="${city.heroImage}" alt="${city.fullName}" width="400" height="250" style="object-fit: cover;">
+          </div>
+          <div class="itemBody">
+            <h3 class="itemTitle">${city.fullName}</h3>
+            <p class="itemTagline">${city.tagline}</p>
+            <div class="itemCta">
+              <span class="link primary">View guide →</span>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
+  function renderExperienceCards(containerId, activities) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (activities.length === 0) {
+      container.innerHTML = '<div class="notice">No experiences available right now. Check back soon!</div>';
+      return;
+    }
+
+    const html = activities.map(activity => {
+      const trackUrl = `/.netlify/functions/api/click?network=activities&id=${encodeURIComponent(activity.id)}&t=${Date.now()}`;
+      
+      return `
+        <article class="card item" data-kind="activities">
+          <div class="itemMedia">
+            <img loading="lazy" decoding="async" src="${activity.image}" alt="${activity.title}" width="400" height="250">
+          </div>
+          <div class="badge">${activity.category || 'Experience'}</div>
+          <div class="itemBody">
+            <h3 class="itemTitle">${activity.title}</h3>
+            <p class="itemTagline">${activity.city || ''}</p>
+            <div class="itemMeta">
+              ${activity.price ? `<span class="chip">${activity.price}</span>` : ''}
+            </div>
+            <div class="itemCta">
+              <a class="link primary" href="${activity.affiliate_url}" data-track-url="${trackUrl}" target="_blank" rel="nofollow sponsored noopener">Book</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
+  function setupSearch(guideData) {
+    const form = document.getElementById('searchForm');
+    const input = document.getElementById('destinationSearch');
+    
+    if (!form || !input) return;
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = input.value.trim().toLowerCase();
+      
+      if (!query) return;
+
+      // Try to match a featured city
+      const matchedCity = guideData.featuredCities.find(city => 
+        city.name.toLowerCase().includes(query) || 
+        city.fullName.toLowerCase().includes(query) ||
+        city.slug.toLowerCase().includes(query)
+      );
+
+      if (matchedCity) {
+        window.location.href = `/travelguide/${encodeURIComponent(matchedCity.slug)}`;
+      } else {
+        // Fallback to activities page
+        window.location.href = '/activities.html';
+      }
+    });
+  }
+
+  // Init on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadTravelGuide);
+  } else {
+    loadTravelGuide();
+  }
+
+  // More menu toggle
+  const moreBtn = document.getElementById('moreMenuBtn');
+  const moreMenu = document.getElementById('moreMenu');
+  if (moreBtn && moreMenu) {
+    moreBtn.addEventListener('click', function() {
+      const isOpen = moreMenu.getAttribute('aria-hidden') === 'false';
+      moreMenu.setAttribute('aria-hidden', !isOpen);
+      moreBtn.setAttribute('aria-expanded', !isOpen);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
+        moreMenu.setAttribute('aria-hidden', 'true');
+        moreBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

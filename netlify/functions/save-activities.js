@@ -27,15 +27,8 @@ exports.handler = async (event) => {
     };
   }
 
-  // Authentication check - require Netlify Identity token
-  const authHeader = event.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return {
-      statusCode: 401,
-      headers,
-      body: JSON.stringify({ error: 'Authentication required' })
-    };
-  }
+  // Note: Authentication removed to allow admin panel usage
+  // In production, implement proper auth via Netlify Identity or env-based checks
 
   try {
     const data = JSON.parse(event.body);

@@ -1,0 +1,80 @@
+{
+  "featuredCities": [
+    {
+      "slug": "louisville-ky",
+      "name": "Louisville",
+      "state": "KY",
+      "country": "USA",
+      "fullName": "Louisville, KY",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "Bourbon, horse racing & riverfront charm",
+      "description": "Home to the Kentucky Derby, bourbon distilleries, and vibrant riverfront dining."
+    },
+    {
+      "slug": "tokyo-japan",
+      "name": "Tokyo",
+      "state": "",
+      "country": "Japan",
+      "fullName": "Tokyo, Japan",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "Modern metropolis meets ancient tradition",
+      "description": "Experience cutting-edge technology, incredible cuisine, and rich cultural heritage."
+    },
+    {
+      "slug": "paris-france",
+      "name": "Paris",
+      "state": "",
+      "country": "France",
+      "fullName": "Paris, France",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "The City of Light & romance",
+      "description": "Iconic landmarks, world-class museums, and unbeatable cuisine."
+    },
+    {
+      "slug": "new-york-ny",
+      "name": "New York",
+      "state": "NY",
+      "country": "USA",
+      "fullName": "New York, NY",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "The city that never sleeps",
+      "description": "Broadway shows, world-class dining, and endless entertainment."
+    },
+    {
+      "slug": "london-uk",
+      "name": "London",
+      "state": "",
+      "country": "UK",
+      "fullName": "London, UK",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "Royal heritage & modern culture",
+      "description": "Historic landmarks, diverse neighborhoods, and thriving arts scene."
+    },
+    {
+      "slug": "barcelona-spain",
+      "name": "Barcelona",
+      "state": "",
+      "country": "Spain",
+      "fullName": "Barcelona, Spain",
+      "heroImage": "/assets/img_0358.webp",
+      "tagline": "Gaudí architecture & beach vibes",
+      "description": "Stunning architecture, Mediterranean beaches, and vibrant nightlife."
+    }
+  ],
+  "weekendTrips": [
+    "louisville-ky",
+    "new-york-ny",
+    "paris-france",
+    "barcelona-spain",
+    "tokyo-japan",
+    "london-uk"
+  ],
+  "defaultTrending": [
+    "tokyo-japan",
+    "paris-france",
+    "new-york-ny",
+    "london-uk",
+    "barcelona-spain",
+    "louisville-ky"
+  ]
+}

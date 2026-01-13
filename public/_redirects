@@ -11,6 +11,10 @@
 # API function - MUST be forced to prevent file overrides
 /api/*  /.netlify/functions/api  200!
 
+# Travel Guide clean URLs - v1.1
+/travelguide           /travelguide.html        200
+/travelguide/*         /travelguide/city.html   200
+
 # Admin routes - protect from SPA rewrite
 /admin/*  /admin/:splat  200
 /admin  /admin/  301

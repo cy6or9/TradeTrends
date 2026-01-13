@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
+    (function () {
+        var script = document.createElement("script");
+        script.async = 1;
+        script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
+        document.head.appendChild(script);
+    })();
+  </script>
+  <title id="pageTitle">City Guide | TradeTrends</title>
+  <meta name="description" content="Explore top experiences, hotels, and travel tips for your destination." id="pageDescription" />
+  <meta name="theme-color" content="#0b0f14" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tradetrend.netlify.app/travelguide/city" id="ogUrl" />
+  <meta property="og:title" content="City Guide | TradeTrends" id="ogTitle" />
+  <meta property="og:description" content="Explore top experiences and travel tips" id="ogDescription" />
+  <meta property="og:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://tradetrend.netlify.app/travelguide/city" id="twitterUrl" />
+  <meta name="twitter:title" content="City Guide | TradeTrends" id="twitterTitle" />
+  <meta name="twitter:description" content="Explore top experiences and travel tips" id="twitterDescription" />
+  <meta name="twitter:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
+  
+  <link rel="preconnect" href="https://res.klook.com">
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body>
+
+<header class="header">
+  <div class="container">
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        <span>TradeTrends Deals</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="pill" href="/#shop">Shop</a>
+        <a class="pill" href="/#activities">Activities</a>
+        <a class="pill" href="/travelguide">Travel Guide</a>
+        <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
+          More
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="moreMenu" id="moreMenu" role="menu" aria-hidden="true">
+          <a href="/products.html" role="menuitem">All Products</a>
+          <a href="/activities.html" role="menuitem">All Activities</a>
+          <a href="/admin" role="menuitem">Admin</a>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main class="container" id="mainContent">
+  <!-- Loading state -->
+  <div id="loadingState" style="text-align: center; padding: 60px 20px;">
+    <div style="font-size: 48px; margin-bottom: 16px;">🌍</div>
+    <p style="color: var(--muted);">Loading city guide...</p>
+  </div>
+
+  <!-- Error state (hidden by default) -->
+  <div id="errorState" style="display: none; text-align: center; padding: 60px 20px;">
+    <div style="font-size: 48px; margin-bottom: 16px;">🗺️</div>
+    <h1 style="margin-bottom: 16px;">City Not Found</h1>
+    <p style="color: var(--muted); margin-bottom: 24px;">We couldn't find this destination in our travel guide.</p>
+    <a href="/travelguide" class="btn primary">Back to Travel Guide</a>
+  </div>
+
+  <!-- City content (hidden by default, populated by JS) -->
+  <div id="cityContent" style="display: none;">
+    <!-- City Header -->
+    <section class="heroGrid" style="margin-top: 24px; margin-bottom: 32px;" data-testid="city-header">
+      <div class="card" id="cityHero" style="background: linear-gradient(135deg, rgba(16,24,38,.95), rgba(15,23,36,.85)), url('/assets/img_0358.webp') center/cover; min-height: 280px;">
+        <div class="heroMain" style="display: flex; flex-direction: column; justify-content: center; gap: 16px;">
+          <h1 class="h1" id="cityName" style="margin: 0;">City Name</h1>
+          <p class="sub" id="cityTagline">City tagline</p>
+          <div class="heroCtas" style="gap: 12px;">
+            <a href="#experiences" class="btn primary">Find Experiences</a>
+            <a href="#hotels" class="btn secondary">Find Hotels</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Experiences -->
+    <section class="section" id="experiences" data-testid="city-experiences">
+      <div class="sectionHeader">
+        <div>
+          <h2>Top Experiences</h2>
+          <p id="experiencesSubtext">Discover the best activities</p>
+        </div>
+        <a href="/activities.html" class="link">Browse all →</a>
+      </div>
+      <div class="gridWrap" style="margin-top: 18px;">
+        <div class="grid" id="experiencesGrid">
+          <!-- Cards will be inserted here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Hotels -->
+    <section class="section" id="hotels" style="margin-top: 48px;">
+      <div class="sectionHeader">
+        <div>
+          <h2>Stay</h2>
+          <p>Find the perfect accommodation</p>
+        </div>
+      </div>
+      <div class="card" style="padding: 32px; text-align: center; margin-top: 18px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🏨</div>
+        <h3 style="margin-bottom: 8px;">Search Hotels</h3>
+        <p style="color: var(--muted); margin-bottom: 16px;">Find great deals on hotels and accommodations</p>
+        <a href="/activities.html" class="btn primary">Explore Options</a>
+      </div>
+    </section>
+
+    <!-- Getting Around -->
+    <section class="section" id="cars" style="margin-top: 48px;">
+      <div class="sectionHeader">
+        <div>
+          <h2>Getting Around</h2>
+          <p>Car rentals and transfers</p>
+        </div>
+      </div>
+      <div class="card" style="padding: 32px; text-align: center; margin-top: 18px;">
+        <div style="font-size: 48px; margin-bottom: 16px;">🚗</div>
+        <h3 style="margin-bottom: 8px;">Rent a Car</h3>
+        <p style="color: var(--muted); margin-bottom: 16px;">Compare prices from top rental companies</p>
+        <a href="/activities.html" class="btn primary">Find Cars</a>
+      </div>
+    </section>
+
+    <!-- Stay Connected -->
+    <section class="section" id="esim" style="margin-top: 48px;">
+      <div class="sectionHeader">
+        <div>
+          <h2>Stay Connected</h2>
+          <p>eSIM and mobile data</p>
+        </div>
+      </div>
+      <div class="card" style="padding: 24px; background: linear-gradient(135deg, rgba(21,197,255,0.1), rgba(21,197,255,0.05)); margin-top: 18px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="font-size: 32px;">📶</div>
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 4px 0; font-size: 18px;">Stay connected abroad</h3>
+            <p style="color: var(--muted); margin: 0; font-size: 14px;">eSIM data plans for travelers</p>
+          </div>
+          <span style="color: var(--muted); font-size: 14px;">Coming soon</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nearby Trips -->
+    <section class="section" id="nearby" style="margin-top: 48px; margin-bottom: 48px;">
+      <div class="sectionHeader">
+        <div>
+          <h2>Nearby Trips</h2>
+          <p>Other destinations to explore</p>
+        </div>
+      </div>
+      <div class="gridWrap" style="margin-top: 18px;">
+        <div class="grid" id="nearbyGrid">
+          <!-- Cards will be inserted here -->
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer style="margin-top: 80px; padding: 32px 0; border-top: 1px solid var(--border);">
+  <div class="container" style="text-align: center; color: var(--muted); font-size: 14px;">
+    <p>© 2026 TradeTrends. Curated deals and travel guides.</p>
+  </div>
+</footer>
+
+<script src="/js/render.js"></script>
+<script>
+(function(){
+  // Extract slug from URL - v1.1: prefer pathname, fallback to query param
+  let citySlug = null;
+  
+  // Try pathname first: /travelguide/<slug>
+  const pathParts = window.location.pathname.split('/').filter(p => p);
+  if (pathParts.length >= 2 && pathParts[0] === 'travelguide') {
+    citySlug = pathParts[1];
+  }
+  
+  // Fallback to query param for backward compatibility
+  if (!citySlug) {
+    const urlParams = new URLSearchParams(window.location.search);
+    citySlug = urlParams.get('slug');
+  }
+
+  if (!citySlug) {
+    showError();
+    return;
+  }
+
+  // Load city data
+  async function loadCityGuide() {
+    try {
+      const [guideData, activitiesData] = await Promise.all([
+        fetch('/data/travelguide.json').then(r => r.json()),
+        fetch('/data/activities.json').then(r => r.json())
+      ]);
+
+      const city = guideData.featuredCities.find(c => c.slug === citySlug);
+      
+      if (!city) {
+        showError();
+        return;
+      }
+
+      // Update meta tags
+      updateMetaTags(city);
+
+      // Show city content
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('cityContent').style.display = 'block';
+
+      // Populate city header
+      document.getElementById('cityName').textContent = city.fullName;
+      document.getElementById('cityTagline').textContent = city.tagline;
+      
+      const cityHero = document.getElementById('cityHero');
+      if (city.heroImage) {
+        cityHero.style.background = `linear-gradient(135deg, rgba(16,24,38,.95), rgba(15,23,36,.85)), url('${city.heroImage}') center/cover`;
+      }
+
+      // Filter activities by city
+      const activities = (activitiesData.items || activitiesData)
+        .filter(a => a.status === 'published')
+        .filter(a => {
+          // Try to match city name in the city field
+          if (!a.city) return false;
+          const activityCity = a.city.toLowerCase();
+          const searchName = city.name.toLowerCase();
+          return activityCity.includes(searchName);
+        })
+        .slice(0, 8);
+
+      // If no city-specific activities, show general activities
+      if (activities.length === 0) {
+        const generalActivities = (activitiesData.items || activitiesData)
+          .filter(a => a.status === 'published')
+          .filter(a => a.featured)
+          .slice(0, 8);
+        renderExperienceCards('experiencesGrid', generalActivities, city.name);
+      } else {
+        renderExperienceCards('experiencesGrid', activities, city.name);
+      }
+
+      // Render nearby cities (exclude current)
+      const nearbyCities = guideData.featuredCities
+        .filter(c => c.slug !== citySlug)
+        .slice(0, 4);
+      renderCityCards('nearbyGrid', nearbyCities);
+
+    } catch (err) {
+      console.error('Failed to load city guide:', err);
+      showError();
+    }
+  }
+
+  function updateMetaTags(city) {
+    const title = `${city.fullName} Travel Guide | TradeTrends`;
+    const description = `${city.description || city.tagline} Explore top experiences, hotels, and travel tips.`;
+    
+    document.getElementById('pageTitle').textContent = title;
+    document.getElementById('pageDescription').setAttribute('content', description);
+    document.getElementById('ogTitle').setAttribute('content', title);
+    document.getElementById('ogDescription').setAttribute('content', description);
+    document.getElementById('twitterTitle').setAttribute('content', title);
+    document.getElementById('twitterDescription').setAttribute('content', description);
+  }
+
+  function renderExperienceCards(containerId, activities, cityName) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (activities.length === 0) {
+      document.getElementById('experiencesSubtext').textContent = 'No city-specific experiences yet';
+      container.innerHTML = `
+        <div class="card" style="padding: 32px; text-align: center;">
+          <div style="font-size: 48px; margin-bottom: 16px;">🎭</div>
+          <h3 style="margin-bottom: 8px;">Coming Soon</h3>
+          <p style="color: var(--muted); margin-bottom: 16px;">We're working on adding activities for ${cityName}</p>
+          <a href="/activities.html" class="btn primary" data-testid="browse-all-button">Browse All Activities</a>
+        </div>
+      `;
+      return;
+    }
+
+    const html = activities.map(activity => {
+      const trackUrl = `/.netlify/functions/api/click?network=activities&id=${encodeURIComponent(activity.id)}&t=${Date.now()}`;
+      
+      return `
+        <article class="card item" data-kind="activities">
+          <div class="itemMedia">
+            <img loading="lazy" decoding="async" src="${activity.image}" alt="${activity.title}" width="400" height="250">
+          </div>
+          <div class="badge">${activity.category || 'Experience'}</div>
+          <div class="itemBody">
+            <h3 class="itemTitle">${activity.title}</h3>
+            <p class="itemTagline">${activity.city || ''}</p>
+            <div class="itemMeta">
+              ${activity.price ? `<span class="chip">${activity.price}</span>` : ''}
+            </div>
+            <div class="itemCta">
+              <a class="link primary" href="${activity.affiliate_url}" data-track-url="${trackUrl}" target="_blank" rel="nofollow sponsored noopener" data-testid="book-button">Book</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
+  function renderCityCards(containerId, cities) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const html = cities.map(city => {
+      return `
+        <a href="/travelguide/${encodeURIComponent(city.slug)}" class="card item" style="text-decoration: none; cursor: pointer;">
+          <div class="itemMedia">
+            <img loading="lazy" decoding="async" src="${city.heroImage}" alt="${city.fullName}" width="400" height="250" style="object-fit: cover;">
+          </div>
+          <div class="itemBody">
+            <h3 class="itemTitle">${city.fullName}</h3>
+            <p class="itemTagline">${city.tagline}</p>
+            <div class="itemCta">
+              <span class="link primary">View guide →</span>
+            </div>
+          </div>
+        </a>
+      `;
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
+  function showError() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+  }
+
+  // Init on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadCityGuide);
+  } else {
+    loadCityGuide();
+  }
+
+  // More menu toggle
+  const moreBtn = document.getElementById('moreMenuBtn');
+  const moreMenu = document.getElementById('moreMenu');
+  if (moreBtn && moreMenu) {
+    moreBtn.addEventListener('click', function() {
+      const isOpen = moreMenu.getAttribute('aria-hidden') === 'false';
+      moreMenu.setAttribute('aria-hidden', !isOpen);
+      moreBtn.setAttribute('aria-expanded', !isOpen);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!moreBtn.contains(e.target) && !moreMenu.contains(e.target)) {
+        moreMenu.setAttribute('aria-hidden', 'true');
+        moreBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
