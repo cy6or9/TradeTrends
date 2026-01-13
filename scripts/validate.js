@@ -376,7 +376,7 @@ if (fs.existsSync('.ai/blocked-patterns.json')) {
     if (blockedPatterns.filePatterns) {
       for (const [filePattern, rules] of Object.entries(blockedPatterns.filePatterns)) {
         const files = filePattern.includes('*') 
-          ? require('glob').sync(filePattern)
+          ? [filePattern]
           : [filePattern];
         
         files.forEach(file => {

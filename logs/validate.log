@@ -1,0 +1,114 @@
+
+🔍 TradeTrends Build Validation
+
+📄 Validating HTML files...
+
+📦 Validating data files...
+✅ Valid JSON: public/data/amazon.json
+✅ Valid JSON: public/data/travel.json
+  Found 14 Amazon deals
+  Found 2 Travel deals
+
+🎨 Validating assets...
+
+⚙️  Validating Netlify config...
+
+⚡ Validating serverless functions...
+
+🔗 Validating affiliate link routing...
+✅ Valid _redirects: /go routing enforced with 200! flags
+✅ Valid _redirects: /go rules appear BEFORE catch-all /*
+✅ Valid render.js: uses direct affiliate URLs with background tracking
+
+🔐 Validating admin API routing (Identity bypass)...
+✅ public/admin/dashboard.html correctly uses /.netlify/functions/api paths
+✅ public/admin/trends.html correctly uses /.netlify/functions/api paths
+
+Validating Direct Affiliate Navigation
+═══════════════════════════
+✅ render.js uses direct affiliate URLs
+✅ render.js implements background click tracking
+✅ render.js does not use /go in primary navigation
+
+🗺️  Validating sitemap...
+⚠️ sitemap.xml missing index.html
+✅ sitemap.xml validated
+
+🤖 Validating AI memory system...
+✅ Valid JSON: .ai/business.json
+✅ Valid JSON: .ai/blocked-patterns.json
+✅ Valid JSON: .ai/known-good.json
+✅ Valid JSON: .ai/history.json
+⚠️ public/js/render.js missing recommended pattern: /go?network=
+✅ AI memory system validated
+
+9️⃣  Validating API Contracts
+═══════════════════════════
+✅ Analytics API has strict input validation
+✅ Analytics API guarantees response contract
+✅ Analytics API has error handling
+✅ Dashboard has URL parameter sanitation
+✅ Dashboard has enhanced error handling
+✅ Trends page has error type detection
+
+🔟 Validating API Endpoint Routes
+═══════════════════════════
+✅ public/admin/dashboard.html correctly bypasses Identity with direct function calls
+✅ public/admin/trends.html correctly bypasses Identity with direct function calls
+
+1️⃣1️⃣  Validating Deal Status Model
+═══════════════════════════
+✅ public/data/amazon.json has valid deal data structure
+✅ public/data/travel.json has valid deal data structure
+✅ render.js correctly filters published-only deals
+
+Validating /go Function Redirect Safety
+═══════════════════════════
+✅ go.js returns 302 with Location header
+✅ go.js implements redirect loop detection
+✅ go.js prevents self-redirect loops
+
+🔧 Validating admin inline scripts...
+
+🔍 Admin Scripts Sanity Check
+
+ℹ️ dashboard.html: Checking 3 inline script(s)...
+✅ dashboard.html [script #1] Valid
+✅ dashboard.html [script #2] Valid
+✅ dashboard.html [script #3] Valid
+ℹ️ trends.html: Checking 3 inline script(s)...
+✅ trends.html [script #1] Valid
+✅ trends.html [script #2] Valid
+✅ trends.html [script #3] Valid
+ℹ️ deals.html: Checking 2 inline script(s)...
+✅ deals.html [script #1] Valid
+✅ deals.html [script #2] Valid
+
+📊 Summary
+═══════════════════════════
+Errors: 0
+═══════════════════════════
+
+✅ All admin scripts are syntactically valid
+✅ All admin inline scripts are syntactically valid
+
+Validating Emergency Kill Switch
+═══════════════════════════
+✅ Emergency kill switch flags configured
+
+Validating Deal Data for Self-Redirects (PHASE 8)
+═══════════════════════════
+✅ No self-redirect URLs found in deal data
+
+Validating Admin Pages for Scroll Lock Bug
+═══════════════════════════
+✅ No scroll lock bugs detected in admin pages
+✅ admin.css: body/html scroll enabled correctly
+
+📊 Validation Summary
+═══════════════════════════
+Errors:   0
+Warnings: 2
+═══════════════════════════
+
+⚠️ Build validation passed with 2 warning(s)

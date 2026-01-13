@@ -1,6 +1,21 @@
 {
   "items": [
     {
+      "id": "5a03c996-0bec-4762-a409-469bb055c8eb",
+      "status": "published",
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Your Xbox. Your PC. In your hands anywhere.",
+      "last_verified": "2026-01-13",
+      "title": "ASUS ROG Xbox Ally – 7” 1080p 120Hz Touchscreen Gaming Handheld, 3-month Xbox Game Pass Premium included, AMD Ryzen Z2 A, 16GB RAM, 512GB SSD, White",
+      "image": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/b5510b6d-389a-460f-8999-6457bfd9c2b6.jpg;maxHeight=1080;maxWidth=900?format=webp",
+      "affiliate_url": "https://amzn.to/3NkG0tg",
+      "price_hint": "$500 - $1200",
+      "category": "Tech"
+    },
+    {
       "priority": 0,
       "evergreen": true,
       "featured": false,

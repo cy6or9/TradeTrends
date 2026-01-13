@@ -6,23 +6,19 @@ test.describe('Homepage Carousels', () => {
   });
 
   test('homepage loads and all carousel sections exist', async ({ page }) => {
-    // Check that all three main sections exist
+    // Check that main sections exist (shop and activities)
     await expect(page.locator('[data-testid="section-shop"]')).toBeVisible();
-    await expect(page.locator('[data-testid="section-travel"]')).toBeVisible();
     await expect(page.locator('[data-testid="section-activities"]')).toBeVisible();
     
     // Check carousel containers exist
     await expect(page.locator('[data-testid="carousel-shop"]')).toBeVisible();
-    await expect(page.locator('[data-testid="carousel-travel"]')).toBeVisible();
     await expect(page.locator('[data-testid="carousel-activities"]')).toBeVisible();
     
     // Check that carousels have content (at least one card each)
     const shopCards = page.locator('[data-testid="carousel-shop"] .item');
-    const travelCards = page.locator('[data-testid="carousel-travel"] .item');
     const activityCards = page.locator('[data-testid="carousel-activities"] .item');
     
     await expect(shopCards.first()).toBeVisible();
-    await expect(travelCards.first()).toBeVisible();
     await expect(activityCards.first()).toBeVisible();
   });
 
@@ -44,7 +40,7 @@ test.describe('Homepage Carousels', () => {
     expect(newScrollLeft).toBeGreaterThan(initialScrollLeft);
   });
 
-  test('travel carousel navigation works', async ({ page }) => {
+  test.skip('travel carousel navigation works - section removed from homepage', async ({ page }) => {
     const carousel = page.locator('[data-testid="carousel-travel"]');
     const nextBtn = page.locator('.carousel-next[data-carousel="travel"]');
     const prevBtn = page.locator('.carousel-prev[data-carousel="travel"]');
@@ -78,15 +74,10 @@ test.describe('Homepage Carousels', () => {
   });
 
   test('see more links exist and have correct URLs', async ({ page }) => {
-    // Shop see more link
+    // Shop see more link (now goes to products.html)
     const shopSeeMore = page.locator('[data-testid="see-more-shop"]');
     await expect(shopSeeMore).toBeVisible();
-    await expect(shopSeeMore).toHaveAttribute('href', '/amazon.html');
-    
-    // Travel see more link
-    const travelSeeMore = page.locator('[data-testid="see-more-travel"]');
-    await expect(travelSeeMore).toBeVisible();
-    await expect(travelSeeMore).toHaveAttribute('href', '/travel.html');
+    await expect(shopSeeMore).toHaveAttribute('href', '/products.html');
     
     // Activities see more link
     const activitiesSeeMore = page.locator('[data-testid="see-more-activities"]');
@@ -96,11 +87,11 @@ test.describe('Homepage Carousels', () => {
 
   test('clicking see more shop navigates to full products page', async ({ page }) => {
     await page.click('[data-testid="see-more-shop"]');
-    await page.waitForURL('**/amazon.html');
-    expect(page.url()).toContain('/amazon.html');
+    await page.waitForURL('**/products.html');
+    expect(page.url()).toContain('/products.html');
   });
 
-  test('clicking see more travel navigates to full travel page', async ({ page }) => {
+  test.skip('clicking see more travel navigates to full travel page - section removed', async ({ page }) => {
     await page.click('[data-testid="see-more-travel"]');
     await page.waitForURL('**/travel.html');
     expect(page.url()).toContain('/travel.html');
@@ -112,7 +103,7 @@ test.describe('Homepage Carousels', () => {
     expect(page.url()).toContain('/activities.html');
   });
 
-  test('rentals section exists with proper elements', async ({ page }) => {
+  test.skip('rentals section exists with proper elements - section removed from homepage', async ({ page }) => {
     // Check rentals section exists
     await expect(page.locator('[data-testid="section-rentals"]')).toBeVisible();
     
@@ -126,7 +117,7 @@ test.describe('Homepage Carousels', () => {
     await expect(page.locator('[data-testid="rentals-near-me"]')).toBeVisible();
   });
 
-  test('rentals search button opens external URL with location', async ({ page, context }) => {
+  test.skip('rentals search button opens external URL with location - section removed', async ({ page, context }) => {
     const rentalsInput = page.locator('[data-testid="rentals-input"]');
     const searchBtn = page.locator('[data-testid="rentals-search"]');
     
@@ -154,7 +145,7 @@ test.describe('Homepage Carousels', () => {
     expect(capturedUrl).toContain('Paris');
   });
 
-  test('rentals search without input shows hint', async ({ page }) => {
+  test.skip('rentals search without input shows hint - section removed', async ({ page }) => {
     const searchBtn = page.locator('[data-testid="rentals-search"]');
     const hint = page.locator('#rentalsHint');
     
@@ -206,13 +197,11 @@ test.describe('Homepage Carousels', () => {
   });
 
   test('header navigation uses anchor links', async ({ page }) => {
-    // Check that header links use anchors
+    // Check that header links use anchors for sections that exist
     const shopLink = page.locator('header a.pill[href="/#shop"]');
-    const travelLink = page.locator('header a.pill[href="/#travel"]');
     const activitiesLink = page.locator('header a.pill[href="/#activities"]');
     
     await expect(shopLink).toBeVisible();
-    await expect(travelLink).toBeVisible();
     await expect(activitiesLink).toBeVisible();
   });
 });

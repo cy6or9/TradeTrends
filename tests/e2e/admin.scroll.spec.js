@@ -88,23 +88,42 @@ test.describe("Admin Pages - Scroll Health", () => {
       return {
         scrollHeight: document.body.scrollHeight,
         clientHeight: document.documentElement.clientHeight,
-        initialScroll: window.scrollY
+        initialScroll: window.scrollY,
+        bodyOverflow: getComputedStyle(document.body).overflow,
+        bodyOverflowY: getComputedStyle(document.body).overflowY,
+        htmlOverflow: getComputedStyle(document.documentElement).overflow,
+        htmlOverflowY: getComputedStyle(document.documentElement).overflowY
       };
     });
 
+    console.log('Scroll info:', scrollInfo);
+
     // If page has scrollable content, verify scrolling works
-    if (scrollInfo.scrollHeight > scrollInfo.clientHeight) {
-      // Scroll to bottom
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    if (scrollInfo.scrollHeight > scrollInfo.clientHeight + 10) {
+      // Scroll using multiple methods to ensure it works
+      await page.evaluate(() => {
+        // Try scrolling the body element
+        document.documentElement.scrollTop = document.body.scrollHeight;
+        document.body.scrollTop = document.body.scrollHeight;
+      });
       
       // Wait for scroll to complete
       await page.waitForTimeout(500);
 
       // Verify scroll actually moved
-      const finalScroll = await page.evaluate(() => window.scrollY);
+      const finalScroll = await page.evaluate(() => 
+        Math.max(window.scrollY, document.documentElement.scrollTop, document.body.scrollTop)
+      );
       expect(finalScroll).toBeGreaterThan(scrollInfo.initialScroll);
     } else {
       console.log('⚠️ Activities page content fits in viewport - scroll not needed');
+      // Verify overflow is not set to hidden (blocking scroll if content grows)
+      console.log('⚠️ Page appears scrollable but scroll did not move - checking for CSS blockers');
+      expect(scrollInfo.bodyOverflow).not.toBe('hidden');
+      expect(scrollInfo.bodyOverflowY).not.toBe('hidden');
+      expect(scrollInfo.htmlOverflow).not.toBe('hidden');
+      expect(scrollInfo.htmlOverflowY).not.toBe('hidden');
+      console.log('✅ Overflow is not hidden - scroll capability preserved');
     }
 
     // Verify sentinel is visible

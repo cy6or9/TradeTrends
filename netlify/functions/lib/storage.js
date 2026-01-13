@@ -118,4 +118,5 @@ async function atomicUpdate(storage, key, updateFn, maxRetries = 3) {
   throw new Error(`Failed to update ${key} after ${maxRetries} attempts`);
 }
 
-module.exports = { createStorage, atomicUpdate };
+module.exports = { createStorage, atomicUpdate, BlobStorage, FileStorage };
+

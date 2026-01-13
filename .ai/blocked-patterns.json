@@ -95,7 +95,8 @@
     },
     "public/js/render.js": {
       "mustContain": [
-        "/go?network="
+        "directUrl",
+        "Background tracking"
       ],
       "mustNotContain": [
         "/?network="

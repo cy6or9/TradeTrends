@@ -1,11 +1,10 @@
-const fs = require('fs').promises;
-const path = require('path');
+const { createStorage } = require('./lib/storage');
 
 exports.handler = async (event, context) => {
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Content-Type': 'application/json',
   };
@@ -28,6 +27,16 @@ exports.handler = async (event, context) => {
     };
   }
 
+  // Authentication check - require Netlify Identity token
+  const authHeader = event.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return {
+      statusCode: 401,
+      headers,
+      body: JSON.stringify({ error: 'Authentication required' })
+    };
+  }
+
   try {
     const data = JSON.parse(event.body);
     
@@ -40,13 +49,12 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Paths to JSON files
-    const amazonPath = path.join(process.cwd(), 'public', 'data', 'amazon.json');
-    const travelPath = path.join(process.cwd(), 'public', 'data', 'travel.json');
-
-    // Write files
-    await fs.writeFile(amazonPath, JSON.stringify(data.amazon, null, 2), 'utf8');
-    await fs.writeFile(travelPath, JSON.stringify(data.travel, null, 2), 'utf8');
+    // Use Netlify Blobs for persistent storage
+    const storage = await createStorage();
+    
+    // Save to blobs
+    await storage.set('deals-amazon', data.amazon);
+    await storage.set('deals-travel', data.travel);
 
     return {
       statusCode: 200,

@@ -1,0 +1,343 @@
+
+> tradetrends@1.0.0 test
+> npm run validate && npm run test:e2e
+
+
+> tradetrends@1.0.0 validate
+> node scripts/validate.js
+
+
+🔍 TradeTrends Build Validation
+
+📄 Validating HTML files...
+
+📦 Validating data files...
+✅ Valid JSON: public/data/amazon.json
+✅ Valid JSON: public/data/travel.json
+  Found 14 Amazon deals
+  Found 2 Travel deals
+
+🎨 Validating assets...
+
+⚙️  Validating Netlify config...
+
+⚡ Validating serverless functions...
+
+🔗 Validating affiliate link routing...
+✅ Valid _redirects: /go routing enforced with 200! flags
+✅ Valid _redirects: /go rules appear BEFORE catch-all /*
+✅ Valid render.js: uses direct affiliate URLs with background tracking
+
+🔐 Validating admin API routing (Identity bypass)...
+✅ public/admin/dashboard.html correctly uses /.netlify/functions/api paths
+✅ public/admin/trends.html correctly uses /.netlify/functions/api paths
+
+Validating Direct Affiliate Navigation
+═══════════════════════════
+✅ render.js uses direct affiliate URLs
+✅ render.js implements background click tracking
+✅ render.js does not use /go in primary navigation
+
+🗺️  Validating sitemap...
+✅ sitemap.xml validated
+
+🤖 Validating AI memory system...
+✅ Valid JSON: .ai/business.json
+✅ Valid JSON: .ai/blocked-patterns.json
+✅ Valid JSON: .ai/known-good.json
+✅ Valid JSON: .ai/history.json
+✅ AI memory system validated
+
+9️⃣  Validating API Contracts
+═══════════════════════════
+✅ Analytics API has strict input validation
+✅ Analytics API guarantees response contract
+✅ Analytics API has error handling
+✅ Dashboard has URL parameter sanitation
+✅ Dashboard has enhanced error handling
+✅ Trends page has error type detection
+
+🔟 Validating API Endpoint Routes
+═══════════════════════════
+✅ public/admin/dashboard.html correctly bypasses Identity with direct function calls
+✅ public/admin/trends.html correctly bypasses Identity with direct function calls
+
+1️⃣1️⃣  Validating Deal Status Model
+═══════════════════════════
+✅ public/data/amazon.json has valid deal data structure
+✅ public/data/travel.json has valid deal data structure
+✅ render.js correctly filters published-only deals
+
+Validating /go Function Redirect Safety
+═══════════════════════════
+✅ go.js returns 302 with Location header
+✅ go.js implements redirect loop detection
+✅ go.js prevents self-redirect loops
+
+🔧 Validating admin inline scripts...
+
+🔍 Admin Scripts Sanity Check
+
+ℹ️ dashboard.html: Checking 3 inline script(s)...
+✅ dashboard.html [script #1] Valid
+✅ dashboard.html [script #2] Valid
+✅ dashboard.html [script #3] Valid
+ℹ️ trends.html: Checking 3 inline script(s)...
+✅ trends.html [script #1] Valid
+✅ trends.html [script #2] Valid
+✅ trends.html [script #3] Valid
+ℹ️ deals.html: Checking 2 inline script(s)...
+✅ deals.html [script #1] Valid
+✅ deals.html [script #2] Valid
+
+📊 Summary
+═══════════════════════════
+Errors: 0
+═══════════════════════════
+
+✅ All admin scripts are syntactically valid
+✅ All admin inline scripts are syntactically valid
+
+Validating Emergency Kill Switch
+═══════════════════════════
+✅ Emergency kill switch flags configured
+
+Validating Deal Data for Self-Redirects (PHASE 8)
+═══════════════════════════
+✅ No self-redirect URLs found in deal data
+
+Validating Admin Pages for Scroll Lock Bug
+═══════════════════════════
+✅ No scroll lock bugs detected in admin pages
+✅ admin.css: body/html scroll enabled correctly
+
+📊 Validation Summary
+═══════════════════════════
+Errors:   0
+Warnings: 0
+═══════════════════════════
+
+✅ Build validation passed with no issues!
+
+> tradetrends@1.0.0 test:e2e
+> playwright test --reporter=line
+
+
+Running 64 tests using 1 worker
+
+[1A[2K[1/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:16:3 › Analytics Dashboard - Error Handling › dashboard handles uninitialized analytics gracefully
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:16:3 › Analytics Dashboard - Error Handling › dashboard handles uninitialized analytics gracefully
+✅ Dashboard handled analytics state without errors
+
+[1A[2K[2/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:56:3 › Analytics Dashboard - Error Handling › dashboard displays empty state when no clicks recorded
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:56:3 › Analytics Dashboard - Error Handling › dashboard displays empty state when no clicks recorded
+✅ Dashboard rendered empty/initial state correctly
+
+[1A[2K[3/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:86:3 › Analytics Dashboard - Error Handling › dashboard escapes HTML in deal IDs
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:86:3 › Analytics Dashboard - Error Handling › dashboard escapes HTML in deal IDs
+✅ Dashboard properly escapes user data
+
+[1A[2K[4/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:104:3 › Analytics Dashboard - Error Handling › dashboard handles division by zero gracefully
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:104:3 › Analytics Dashboard - Error Handling › dashboard handles division by zero gracefully
+✅ Dashboard math calculations are safe
+
+[1A[2K[5/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:132:3 › Analytics Dashboard - Error Handling › revenue health section loads without errors
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:132:3 › Analytics Dashboard - Error Handling › revenue health section loads without errors
+✅ Revenue health section loaded correctly
+
+[1A[2K[6/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:159:3 › Analytics Dashboard - Error Handling › analytics API returns valid JSON structure
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:159:3 › Analytics Dashboard - Error Handling › analytics API returns valid JSON structure
+✅ Analytics API returns valid structure
+
+[1A[2K[7/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:195:3 › Analytics Dashboard - Error Handling › dashboard does not get stuck in loading state
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:195:3 › Analytics Dashboard - Error Handling › dashboard does not get stuck in loading state
+✅ Dashboard exited loading state properly
+
+[1A[2K[8/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:218:3 › Analytics Dashboard - Console Error Detection › no console errors on dashboard load
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:218:3 › Analytics Dashboard - Console Error Detection › no console errors on dashboard load
+✅ No critical console errors detected
+
+[1A[2K[9/64] [chromium] › tests/e2e/admin.analytics-errors.spec.js:247:3 › Analytics Dashboard - Console Error Detection › no JavaScript exceptions thrown
+[1A[2K[chromium] › tests/e2e/admin.analytics-errors.spec.js:247:3 › Analytics Dashboard - Console Error Detection › no JavaScript exceptions thrown
+✅ No JavaScript exceptions thrown
+
+[1A[2K[10/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:16:3 › Analytics State Model › cold state shows waiting message, not error
+[1A[2K[11/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:57:3 › Analytics State Model › broken state shows offline message
+[1A[2K[12/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:78:3 › Analytics State Model › active state shows analytics with test click button
+[1A[2K[13/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:123:3 › Analytics State Model › Generate Test Click button is clickable
+[1A[2K[14/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:186:3 › Revenue Health Tests › HTTP 302 shows healthy status
+[1A[2K[15/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:244:3 › Revenue Health Tests › HTML response shows redirect loop
+[1A[2K[16/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:300:3 › Trends Empty State › empty trends array shows waiting message, not error
+[1A[2K[17/64] [chromium] › tests/e2e/admin.analytics-state.spec.js:333:3 › Trends Empty State › trends fetch failure shows error
+[1A[2K[18/64] [chromium] › tests/e2e/admin.scroll.spec.js:13:7 › Admin Pages - Scroll Health › Admin deals page is scrollable
+[1A[2K[chromium] › tests/e2e/admin.scroll.spec.js:13:7 › Admin Pages - Scroll Health › Admin deals page is scrollable
+Scroll info: {
+  scrollHeight: [33m4227[39m,
+  clientHeight: [33m720[39m,
+  bodyOverflow: [32m'auto'[39m,
+  bodyOverflowY: [32m'auto'[39m,
+  htmlOverflow: [32m'auto'[39m,
+  htmlOverflowY: [32m'auto'[39m,
+  bodyHeight: [32m'720px'[39m,
+  htmlHeight: [32m'720px'[39m
+}
+
+[1A[2K⚠️ Page appears scrollable but scroll did not move - checking for CSS blockers
+
+[1A[2K✅ Overflow is not hidden - scroll capability preserved
+
+[1A[2K✅ Deals page scroll test passed
+
+[1A[2K[19/64] [chromium] › tests/e2e/admin.scroll.spec.js:80:7 › Admin Pages - Scroll Health › Admin activities page is scrollable
+[1A[2K  1) [chromium] › tests/e2e/admin.scroll.spec.js:80:7 › Admin Pages - Scroll Health › Admin activities page is scrollable 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      103 |       // Verify scroll actually moved
+      104 |       const finalScroll = await page.evaluate(() => window.scrollY);
+    > 105 |       expect(finalScroll).toBeGreaterThan(scrollInfo.initialScroll);
+          |                           ^
+      106 |     } else {
+      107 |       console.log('⚠️ Activities page content fits in viewport - scroll not needed');
+      108 |     }
+        at /workspaces/TradeTrends/tests/e2e/admin.scroll.spec.js:105:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/admin.scroll-Admin-Pages---7cf74-tivities-page-is-scrollable-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/admin.scroll-Admin-Pages---7cf74-tivities-page-is-scrollable-chromium/error-context.md
+
+
+[1A[2K[20/64] [chromium] › tests/e2e/admin.scroll.spec.js:117:7 › Admin Pages - Scroll Health › Admin deals page does not have overflow:hidden on body
+[1A[2K[chromium] › tests/e2e/admin.scroll.spec.js:117:7 › Admin Pages - Scroll Health › Admin deals page does not have overflow:hidden on body
+✅ No overflow:hidden on body/html
+
+[1A[2K[21/64] [chromium] › tests/e2e/admin.scroll.spec.js:141:7 › Admin Pages - Scroll Health › Admin activities page does not have overflow:hidden on body
+[1A[2K[chromium] › tests/e2e/admin.scroll.spec.js:141:7 › Admin Pages - Scroll Health › Admin activities page does not have overflow:hidden on body
+✅ No overflow:hidden on body/html
+
+[1A[2K[22/64] [chromium] › tests/e2e/admin.scroll.spec.js:165:7 › Admin Pages - Scroll Health › Save section does not block scrolling
+[1A[2K[chromium] › tests/e2e/admin.scroll.spec.js:165:7 › Admin Pages - Scroll Health › Save section does not block scrolling
+✅ Save section does not block scroll
+
+[1A[2K[23/64] [chromium] › tests/e2e/admin.smoke.spec.js:15:3 › Admin Pages - Smoke Tests › dashboard.html loads and exits loading state
+[1A[2K[chromium] › tests/e2e/admin.smoke.spec.js:15:3 › Admin Pages - Smoke Tests › dashboard.html loads and exits loading state
+✅ Dashboard exited loading state
+
+[1A[2K[24/64] [chromium] › tests/e2e/admin.smoke.spec.js:36:3 › Admin Pages - Smoke Tests › trends.html loads and exits loading state
+[1A[2K[chromium] › tests/e2e/admin.smoke.spec.js:36:3 › Admin Pages - Smoke Tests › trends.html loads and exits loading state
+✅ Trends page exited loading state
+
+[1A[2K[25/64] [chromium] › tests/e2e/admin.smoke.spec.js:56:3 › Admin Pages - Smoke Tests › admin pages return JSON not HTML from API endpoints
+[1A[2K[chromium] › tests/e2e/admin.smoke.spec.js:56:3 › Admin Pages - Smoke Tests › admin pages return JSON not HTML from API endpoints
+✅ Checked 2 API responses
+
+[1A[2K[26/64] [chromium] › tests/e2e/card-layout.spec.js:16:3 › Card Layout and Button Alignment › all cards in shop section have equal heights
+[1A[2K[27/64] [chromium] › tests/e2e/card-layout.spec.js:35:3 › Card Layout and Button Alignment › all cards in activities section have equal heights
+[1A[2K[28/64] [chromium] › tests/e2e/card-layout.spec.js:54:3 › Card Layout and Button Alignment › action buttons are aligned at bottom of cards
+[1A[2K[29/64] [chromium] › tests/e2e/card-layout.spec.js:75:3 › Card Layout and Button Alignment › share buttons are aligned at bottom of cards
+[1A[2K[30/64] [chromium] › tests/e2e/card-layout.spec.js:99:3 › Card Interactivity with Hover Tooltip › can click primary CTA button when hovering over card
+[1A[2K[31/64] [chromium] › tests/e2e/card-layout.spec.js:123:3 › Card Interactivity with Hover Tooltip › can click share button when hovering over card
+[1A[2K[32/64] [chromium] › tests/e2e/card-layout.spec.js:150:3 › Card Interactivity with Hover Tooltip › hover tooltip does not block mouse events
+[1A[2K  2) [chromium] › tests/e2e/card-layout.spec.js:150:3 › Card Interactivity with Hover Tooltip › hover tooltip does not block mouse events 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      170 |     
+      171 |     // Tooltip should be visible when hovering
+    > 172 |     expect(parseFloat(tooltipOpacity)).toBeGreaterThan(0);
+          |                                        ^
+      173 |     
+      174 |     // But pointer-events should be none
+      175 |     const pointerEvents = await tooltip.evaluate(el => 
+        at /workspaces/TradeTrends/tests/e2e/card-layout.spec.js:172:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/card-layout-Card-Interacti-ecc23-does-not-block-mouse-events-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/card-layout-Card-Interacti-ecc23-does-not-block-mouse-events-chromium/error-context.md
+
+
+[1A[2K[33/64] [chromium] › tests/e2e/card-layout.spec.js:184:3 › Scroll Bar Spacing › scroll bar has 0px gap from section header
+[1A[2K[34/64] [chromium] › tests/e2e/card-layout.spec.js:207:3 › Scroll Bar Spacing › cards maintain equal height in carousel
+[1A[2K[35/64] [chromium] › tests/e2e/card-layout.spec.js:228:3 › Responsive Card Layout › cards maintain equal heights on mobile viewport
+[1A[2K[36/64] [chromium] › tests/e2e/card-layout.spec.js:246:3 › Responsive Card Layout › cards maintain equal heights on tablet viewport
+[1A[2K[37/64] [chromium] › tests/e2e/home.carousels.spec.js:8:3 › Homepage Carousels › homepage loads and all carousel sections exist
+[1A[2K[38/64] [chromium] › tests/e2e/home.carousels.spec.js:25:3 › Homepage Carousels › shop carousel right arrow scrolls content
+[1A[2K[39/64] [chromium] › tests/e2e/home.carousels.spec.js:43:8 › Homepage Carousels › travel carousel navigation works - section removed from homepage
+[1A[2K[40/64] [chromium] › tests/e2e/home.carousels.spec.js:63:3 › Homepage Carousels › activities carousel navigation works
+[1A[2K[41/64] [chromium] › tests/e2e/home.carousels.spec.js:76:3 › Homepage Carousels › see more links exist and have correct URLs
+[1A[2K[42/64] [chromium] › tests/e2e/home.carousels.spec.js:88:3 › Homepage Carousels › clicking see more shop navigates to full products page
+[1A[2K[43/64] [chromium] › tests/e2e/home.carousels.spec.js:94:8 › Homepage Carousels › clicking see more travel navigates to full travel page - section removed
+[1A[2K[44/64] [chromium] › tests/e2e/home.carousels.spec.js:100:3 › Homepage Carousels › clicking see more activities navigates to full activities page
+[1A[2K[45/64] [chromium] › tests/e2e/home.carousels.spec.js:106:8 › Homepage Carousels › rentals section exists with proper elements - section removed from homepage
+[1A[2K[46/64] [chromium] › tests/e2e/home.carousels.spec.js:120:8 › Homepage Carousels › rentals search button opens external URL with location - section removed
+[1A[2K[47/64] [chromium] › tests/e2e/home.carousels.spec.js:148:8 › Homepage Carousels › rentals search without input shows hint - section removed
+[1A[2K[48/64] [chromium] › tests/e2e/home.carousels.spec.js:160:3 › Homepage Carousels › carousel cards preserve affiliate links
+[1A[2K[49/64] [chromium] › tests/e2e/home.carousels.spec.js:174:3 › Homepage Carousels › carousel cards have share buttons
+[1A[2K[50/64] [chromium] › tests/e2e/home.carousels.spec.js:183:3 › Homepage Carousels › more menu toggle works
+[1A[2K[51/64] [chromium] › tests/e2e/home.carousels.spec.js:199:3 › Homepage Carousels › header navigation uses anchor links
+[1A[2K[52/64] [chromium] › tests/e2e/revenue.click.spec.js:15:3 › Revenue Canary - /go Redirect Flow › /go endpoint returns 302 with affiliate destination
+[1A[2K[chromium] › tests/e2e/revenue.click.spec.js:15:3 › Revenue Canary - /go Redirect Flow › /go endpoint returns 302 with affiliate destination
+✅ /go redirect works: https://amzn.to/49hq7MW
+
+[1A[2K[53/64] [chromium] › tests/e2e/revenue.click.spec.js:46:3 › Revenue Canary - /go Redirect Flow › deals have direct affiliate URL href
+[1A[2K[chromium] › tests/e2e/revenue.click.spec.js:46:3 › Revenue Canary - /go Redirect Flow › deals have direct affiliate URL href
+CTA href: https://amzn.to/45NG8rv
+
+[1A[2KTrack URL: /.netlify/functions/api/click?network=amazon&id=64e2e9b3-e975-4f5e-9532-f694f2ba5b47&t=1768330054330
+
+[1A[2K✅ Deal has direct affiliate URL and background tracking
+
+[1A[2K[54/64] [chromium] › tests/e2e/revenue.click.spec.js:79:3 › Revenue Canary - /go Redirect Flow › clicking deal opens affiliate destination directly
+[1A[2K[chromium] › tests/e2e/revenue.click.spec.js:79:3 › Revenue Canary - /go Redirect Flow › clicking deal opens affiliate destination directly
+Deal link href: https://amzn.to/45NG8rv
+
+[1A[2K✅ Deal uses direct affiliate URL: https://amzn.to/45NG8rv
+
+[1A[2K[55/64] [chromium] › tests/e2e/revenue.click.spec.js:100:3 › Revenue Canary - /go Redirect Flow › redirect loop detector correctly identifies loops but allows normal clicks
+[1A[2K[chromium] › tests/e2e/revenue.click.spec.js:100:3 › Revenue Canary - /go Redirect Flow › redirect loop detector correctly identifies loops but allows normal clicks
+✅ Loop detector does not interfere with normal redirects
+
+[1A[2K[56/64] [chromium] › tests/e2e/revenue.click.spec.js:144:3 › Revenue Canary - /go Redirect Flow › background tracking endpoint exists
+[1A[2K[chromium] › tests/e2e/revenue.click.spec.js:144:3 › Revenue Canary - /go Redirect Flow › background tracking endpoint exists
+✅ Background tracking is implemented
+
+[1A[2K[57/64] [chromium] › tests/e2e/revenue.spec.js:22:3 › Revenue Protection - Affiliate Link Testing › Amazon affiliate link opens with /go or direct (D7 pattern)
+[1A[2K[chromium] › tests/e2e/revenue.spec.js:22:3 › Revenue Protection - Affiliate Link Testing › Amazon affiliate link opens with /go or direct (D7 pattern)
+Amazon button href: https://amzn.to/45NG8rv
+
+[1A[2K✅ CTA link structure validated
+
+[1A[2K[58/64] [chromium] › tests/e2e/revenue.spec.js:87:3 › Revenue Protection - Affiliate Link Testing › Travel affiliate link opens directly (no redirect loop)
+[1A[2K[chromium] › tests/e2e/revenue.spec.js:87:3 › Revenue Protection - Affiliate Link Testing › Travel affiliate link opens directly (no redirect loop)
+No travel deals found, skipping test
+
+[1A[2K[59/64] [chromium] › tests/e2e/revenue.spec.js:156:3 › Revenue Protection - Affiliate Link Testing › /go function still works for legacy/shared links
+[1A[2K[chromium] › tests/e2e/revenue.spec.js:156:3 › Revenue Protection - Affiliate Link Testing › /go function still works for legacy/shared links
+Legacy /go redirect location: /
+
+[1A[2K[60/64] [chromium] › tests/e2e/revenue.spec.js:173:3 › Revenue Protection - Affiliate Link Testing › Homepage has direct affiliate links (not /go redirects)
+[1A[2K[chromium] › tests/e2e/revenue.spec.js:173:3 › Revenue Protection - Affiliate Link Testing › Homepage has direct affiliate links (not /go redirects)
+Found 12 Amazon links, 0 Travel links
+
+[1A[2K[61/64] [chromium] › tests/e2e/revenue.spec.js:200:3 › Revenue Protection - Affiliate Link Testing › Background click tracking endpoint works
+[1A[2K[chromium] › tests/e2e/revenue.spec.js:200:3 › Revenue Protection - Affiliate Link Testing › Background click tracking endpoint works
+Click tracking endpoint returned 204
+
+[1A[2K[62/64] [chromium] › tests/e2e/revenue.spec.js:210:3 › Revenue Protection - Affiliate Link Testing › Affiliate links do NOT use /?network= pattern (old bug)
+[1A[2K[63/64] [chromium] › tests/e2e/revenue.spec.js:220:8 › Revenue Protection - Affiliate Link Testing › Analytics records clicks correctly
+[1A[2K[64/64] [chromium] › tests/e2e/revenue.spec.js:280:3 › Production Deployment Verification › Production /go function is live and working
+[1A[2K  2 failed
+    [chromium] › tests/e2e/admin.scroll.spec.js:80:7 › Admin Pages - Scroll Health › Admin activities page is scrollable 
+    [chromium] › tests/e2e/card-layout.spec.js:150:3 › Card Interactivity with Hover Tooltip › hover tooltip does not block mouse events 
+  7 skipped
+  55 passed (1.3m)

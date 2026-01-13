@@ -455,6 +455,37 @@ if (document.readyState === 'loading') {
   initShareButtons();
 }
 
+// Make entire card clickable (opens affiliate link)
+let cardClickInitialized = false;
+
+function initCardClick() {
+  if (cardClickInitialized) return;
+  cardClickInitialized = true;
+  
+  document.addEventListener('click', function(e) {
+    // Find if click was on a card
+    const card = e.target.closest('.card.item');
+    if (!card) return;
+    
+    // Don't trigger if clicking on interactive elements
+    if (e.target.closest('a, button, .share-menu, .hover-tooltip')) return;
+    
+    // Find the primary CTA link
+    const primaryLink = card.querySelector('a.link.primary');
+    if (primaryLink) {
+      // Trigger the link (this will also trigger background tracking)
+      primaryLink.click();
+    }
+  }, { passive: false });
+}
+
+// Initialize card click on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCardClick);
+} else {
+  initCardClick();
+}
+
 // In-memory cache for JSON data
 const jsonCache = new Map();
 

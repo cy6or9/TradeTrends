@@ -27,20 +27,6 @@
       "featured": true,
       "last_verified": "2026-01-08",
       "status": "published"
-    },
-    {
-      "id": "trav-003",
-      "brand": "Amazon",
-      "title": "Travel Gear Deals",
-      "tagline": "Curated travel essentials that actually get used.",
-      "cta": "Shop travel gear",
-      "image": "https://images.unsplash.com/photo-1526779259212-939e64788e3c?auto=format&fit=crop&w=1200&q=70",
-      "affiliate_url": "https://www.amazon.com/",
-      "category": "Gear",
-      "network": "travel",
-      "featured": false,
-      "last_verified": "2026-01-08",
-      "status": "published"
     }
   ]
 }

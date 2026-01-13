@@ -52,8 +52,66 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Follow redirects to get final URL
-    const finalUrl = await resolveFinalUrl(url);
+    // Security: Validate hostname against allowlist
+    const hostname = urlObj.hostname.toLowerCase().replace('www.', '');
+    const allowedHosts = [
+      'amazon.com', 'amzn.to',
+      'klook.com', 'tiqets.com', 'trip.com', 'getyourguide.com',
+      'airalo.com', 'yesim.app',
+      'booking.com', 'agoda.com', 'traveloka.com', 'kiwi.com'
+    ];
+    
+    const isAllowed = allowedHosts.some(host => 
+      hostname === host || hostname.endsWith('.' + host)
+    );
+    
+    if (!isAllowed) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          ok: false, 
+          error: 'URL hostname not in allowlist' 
+        })
+      };
+    }
+
+    // Security: Block internal/private IPs and dangerous protocols
+    if (urlObj.protocol === 'file:' || urlObj.protocol === 'ftp:') {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          ok: false, 
+          error: 'Protocol not allowed' 
+        })
+      };
+    }
+
+    // Block localhost and private IP ranges
+    const blockedPatterns = [
+      'localhost', '127.0.0.1', '0.0.0.0',
+      '10.', '172.16.', '172.17.', '172.18.', '172.19.',
+      '172.20.', '172.21.', '172.22.', '172.23.', '172.24.',
+      '172.25.', '172.26.', '172.27.', '172.28.', '172.29.',
+      '172.30.', '172.31.', '192.168.',
+      '169.254.', // Link-local
+      '.internal', '.local'
+    ];
+    
+    if (blockedPatterns.some(pattern => hostname.includes(pattern))) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          ok: false, 
+          error: 'URL targets blocked address' 
+        })
+      };
+    }
+
+    // Follow redirects to get final URL with timeout
+    const finalUrl = await resolveFinalUrl(url, 5, 5000);
     const finalUrlObj = new URL(finalUrl);
     const hostname = finalUrlObj.hostname.replace('www.', '');
     
@@ -93,22 +151,34 @@ exports.handler = async (event, context) => {
 };
 
 /**
- * Follow HTTP redirects to get final URL
+ * Follow HTTP redirects to get final URL with timeout
  */
-async function resolveFinalUrl(url, maxRedirects = 5) {
+async function resolveFinalUrl(url, maxRedirects = 5, timeoutMs = 5000) {
   let currentUrl = url;
   let redirectCount = 0;
+  const startTime = Date.now();
   
   while (redirectCount < maxRedirects) {
+    // Enforce total timeout
+    if (Date.now() - startTime > timeoutMs) {
+      throw new Error('Resolve timeout exceeded');
+    }
+    
     try {
       // Use HEAD request to avoid downloading content
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      
       const response = await fetch(currentUrl, {
         method: 'HEAD',
         redirect: 'manual',
+        signal: controller.signal,
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; TradeTrendsBot/1.0)'
         }
       });
+      
+      clearTimeout(timeoutId);
       
       // Check for redirect status codes
       if (response.status >= 300 && response.status < 400) {
