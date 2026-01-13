@@ -352,15 +352,14 @@
       } catch (err) {
         console.error('Failed to load trends:', err);
         
-        // Provide detailed error for debugging
-        const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 
+        // Determine if this is a real error or just empty data
+        const errorType = err.name === 'SyntaxError' ? 'Invalid JSON (likely HTML error page)' : 
                          err.name === 'TypeError' ? 'Network error' : 'API error';
         
-        // ⚠️ CRITICAL: Do not place raw HTML outside the template literal below
-        // A single stray </div> here will crash the entire Trends page with "Unexpected token '<'"
+        // Only show error if fetch actually failed (not just empty results)
         content.innerHTML = `
           <div class="error" data-testid="admin-error">
-            <strong>❌ Failed to load trends</strong><br>
+            <strong>🔴 Trends API Offline</strong><br>
             <div style="margin-top: 10px; font-size: 14px;">
               <strong>Error Type:</strong> ${errorType}<br>
               <strong>Details:</strong> ${escapeHtml(err.message)}
@@ -380,10 +379,14 @@
     function renderTrends(data) {
       const content = document.getElementById('content');
       
+      // Check if trends API returned empty items array (not a failure)
       if (!data.items || data.items.length === 0) {
         content.innerHTML = `
-          <div class="notice" data-testid="trends-ready">
-            No trends data available. Click "Refresh Trends" to fetch data.
+          <div class="notice" data-testid="trends-ready" style="background: rgba(255,200,0,0.1); border-left: 4px solid #ffc107; padding: 20px;">
+            <strong>📊 No trends available yet</strong><br>
+            <div style="margin-top: 10px;">
+              Click "Refresh Trends" to fetch the latest market data.
+            </div>
           </div>
         `;
         return;
@@ -397,13 +400,13 @@
         <div class="trends-grid" data-testid="trends-ready">
           <div class="trend-column">
             <h2 class="column-title">🛒 Amazon Trends</h2>
-            ${amazon.length > 0 ? amazon.map(renderTrendItem).join('') : '<div class="notice">No Amazon trends available</div>'}
+            ${amazon.length > 0 ? amazon.map(renderTrendItem).join('') : '<div class="notice">No Amazon trends available yet</div>'}
             ${renderSources(data.sources.filter(s => s.name.includes('Amazon')))}
           </div>
           
           <div class="trend-column">
             <h2 class="column-title">✈️ Travel Trends</h2>
-            ${travel.length > 0 ? travel.map(renderTrendItem).join('') : '<div class="notice">No travel trends available</div>'}
+            ${travel.length > 0 ? travel.map(renderTrendItem).join('') : '<div class="notice">No travel trends available yet</div>'}
             ${renderSources(data.sources.filter(s => !s.name.includes('Amazon')))}
           </div>
         </div>

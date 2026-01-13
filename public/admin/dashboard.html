@@ -346,12 +346,12 @@
       } catch (err) {
         console.error('Failed to load analytics:', err);
         
-        // Provide detailed error for debugging
+        // This is a real broken state
         const errorType = err.name === 'SyntaxError' ? 'Invalid JSON response' : 'Network or API error';
         
         content.innerHTML = `
           <div class="error" data-testid="admin-error">
-            <strong>❌ Failed to load analytics</strong><br>
+            <strong>🔴 Analytics Offline</strong><br>
             <div style="margin-top: 10px; font-size: 14px;">
               <strong>Error Type:</strong> ${errorType}<br>
               <strong>Details:</strong> ${err.message}
@@ -360,7 +360,7 @@
               <strong>Troubleshooting:</strong><br>
               • Check browser console for details<br>
               • Verify /api/analytics endpoint is accessible<br>
-              • Ensure analytics are initialized<br>
+              • Ensure backend functions are deployed<br>
               • Try refreshing the page
             </div>
           </div>
@@ -389,49 +389,37 @@
       data.topDeals = Array.isArray(data.topDeals) ? data.topDeals : [];
       data.byDay = Array.isArray(data.byDay) ? data.byDay : [];
       
-      // Self-diagnosis: Check initialization
-      if (data.initialized === false) {
-        content.innerHTML = `
-          <div class="notice" style="background: rgba(255,200,0,0.1); border-left: 4px solid #fc0; padding: 20px; margin-bottom: 20px;">
-            <strong>⚠️ Analytics Initializing</strong><br>
-            <div style="margin-top: 10px;">
-              Analytics system is initializing. Click activity on affiliate links is required to populate data.
-            </div>
-            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
-              Try clicking a "View on Amazon" or "View Deal" button on the main site to generate test data.
-            </div>
-          </div>
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-label">Total Clicks (7d)</div>
-              <div class="stat-value">0</div>
-              <div class="stat-sub">Waiting for activity...</div>
-            </div>
-          </div>
-        `;
-        return;
+      // Determine analytics state
+      let analyticsState = 'active';
+      let fetchFailed = false;
+      
+      // Check if this is a fetch failure (would have been caught in catch block)
+      // So if we're here, fetch succeeded
+      
+      if (data.totalClicks === 0) {
+        analyticsState = 'cold';
       }
       
-      // Self-diagnosis: Check if no clicks yet
-      if (data.totalClicks === 0) {
+      // Show cold-start banner
+      if (analyticsState === 'cold') {
         content.innerHTML = `
-          <div class="notice" style="background: rgba(0,255,255,0.05); border-left: 4px solid #3cf; padding: 20px; margin-bottom: 20px;">
-            <strong>📊 No clicks recorded yet</strong><br>
+          <div class="notice" style="background: rgba(255,200,0,0.1); border-left: 4px solid #ffc107; padding: 20px; margin-bottom: 20px;">
+            <strong>🟡 Analytics is ready — no clicks recorded yet</strong><br>
             <div style="margin-top: 10px;">
-              Analytics are initialized and ready. Click on affiliate links to see data appear here.
+              Use "Generate Test Click" to verify tracking.
             </div>
-            <div style="margin-top: 10px; font-size: 13px; opacity: 0.8;">
-              <strong>To generate test data:</strong><br>
-              1. Go to the homepage<br>
-              2. Click any "View on Amazon" or "View Deal" button<br>
-              3. Return here to see updated statistics
-            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            <button id="generateTestClick" class="admin-btn success" style="font-size: 14px; padding: 10px 18px;">
+              ⚡ Generate Test Click
+            </button>
+            <span id="testClickStatus" style="margin-left: 15px; font-size: 14px; color: rgba(255,255,255,0.7);"></span>
           </div>
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-label">Total Clicks (7d)</div>
               <div class="stat-value">0</div>
-              <div class="stat-sub">System ready</div>
+              <div class="stat-sub">Waiting for first clicks</div>
             </div>
             <div class="stat-card">
               <div class="stat-label">Amazon Clicks</div>
@@ -445,6 +433,14 @@
             </div>
           </div>
         `;
+        
+        // Bind test click button
+        setTimeout(() => {
+          const testBtn = document.getElementById('generateTestClick');
+          if (testBtn) {
+            testBtn.addEventListener('click', generateTestClick);
+          }
+        }, 100);
         return;
       }
       
@@ -459,6 +455,12 @@
       
       content.innerHTML = `
         <div data-testid="dashboard-ready">
+        <div style="margin-bottom: 20px;">
+          <button id="generateTestClick" class="admin-btn success" style="font-size: 14px; padding: 10px 18px;">
+            ⚡ Generate Test Click
+          </button>
+          <span id="testClickStatus" style="margin-left: 15px; font-size: 14px; color: rgba(255,255,255,0.7);"></span>
+        </div>
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Total Clicks (7d)</div>
@@ -533,6 +535,14 @@
         </div>
         </div>
       `;
+      
+      // Bind test click button for active state
+      setTimeout(() => {
+        const testBtn = document.getElementById('generateTestClick');
+        if (testBtn) {
+          testBtn.addEventListener('click', generateTestClick);
+        }
+      }, 100);
     }
 
     function escapeHtml(str) {
@@ -574,33 +584,112 @@
         const status = response.status;
         const location = response.headers.get('Location') || '';
         
-        if (status === 302) {
-          const isSelfRedirect = location.includes('tradetrend.netlify.app') || 
-                                 location.includes('localhost') ||
-                                 location.startsWith('/?network=');
-          const isExternal = location.includes('amazon') || location.includes('amzn.to') ||
-                            location.includes('booking') || location.includes('expedia');
+        // Status 0 with redirect:manual is normal (browser intercepted redirect before following it)
+        // This is the expected behavior and indicates the redirect is working
+        if (status === 0) {
+          healthEl.innerHTML = '🟢 Healthy';
+          healthEl.style.color = '#4ade80';
+        } else if (status === 302) {
+          // Check redirect destination
+          const isSelfRedirect = location && (
+            location.includes('tradetrend.netlify.app') || 
+            location.includes('localhost') ||
+            location.startsWith('/?network=') ||
+            location.startsWith('/go')
+          );
+          const isExternal = location && (
+            location.includes('amazon') || 
+            location.includes('amzn.to') ||
+            location.includes('booking') || 
+            location.includes('expedia') ||
+            location.includes('travelpayouts')
+          );
           
           if (isSelfRedirect) {
-            healthEl.innerHTML = '🔴 FAIL: Self-redirect';
+            // Redirecting to own domain = loop
+            healthEl.innerHTML = '🔴 Redirect loop';
             healthEl.style.color = '#ff5050';
           } else if (isExternal) {
-            healthEl.innerHTML = '🟢 PASS: Working';
+            // Redirecting to affiliate network = healthy
+            healthEl.innerHTML = '🟢 Healthy';
             healthEl.style.color = '#4ade80';
+          } else if (location) {
+            // Unknown destination
+            healthEl.innerHTML = '🟡 Unknown destination';
+            healthEl.style.color = '#ffa500';
           } else {
-            healthEl.innerHTML = '🟡 WARN: Unknown destination';
+            // No location header with 302 is unusual
+            healthEl.innerHTML = '🟡 No destination';
             healthEl.style.color = '#ffa500';
           }
         } else if (status === 200) {
-          healthEl.innerHTML = '🟡 WARN: Returns HTML';
-          healthEl.style.color = '#ffa500';
+          // HTML page returned instead of redirect = error page or loop prevention
+          healthEl.innerHTML = '🔴 Redirect loop';
+          healthEl.style.color = '#ff5050';
         } else {
-          healthEl.innerHTML = `🔴 FAIL: HTTP ${status}`;
+          // Other status = broken
+          healthEl.innerHTML = `🔴 Broken (HTTP ${status})`;
           healthEl.style.color = '#ff5050';
         }
       } catch (err) {
-        healthEl.innerHTML = `🔴 ERROR: ${err.message}`;
-        healthEl.style.color = '#ff5050';
+        // Never tested or network error
+        if (err.message.includes('Failed to fetch')) {
+          healthEl.innerHTML = '🔴 Network error';
+          healthEl.style.color = '#ff5050';
+        } else {
+          healthEl.innerHTML = '🟡 Not tested';
+          healthEl.style.color = '#ffa500';
+        }
+      }
+    }
+    
+    // Generate Test Click - triggers analytics without opening redirect
+    async function generateTestClick() {
+      const statusEl = document.getElementById('testClickStatus');
+      const btn = document.getElementById('generateTestClick');
+      
+      if (btn) btn.disabled = true;
+      statusEl.innerHTML = '⏳ Generating...';
+      statusEl.style.color = '#ffa500';
+      
+      try {
+        // Get first published deal
+        const dealsResponse = await fetch('/data/amazon.json');
+        const dealsData = await dealsResponse.json();
+        const publishedDeals = (dealsData.items || []).filter(d => d.status === 'published' || !d.status);
+        
+        if (publishedDeals.length === 0) {
+          throw new Error('No published deals found');
+        }
+        
+        const testDealId = publishedDeals[0].id;
+        
+        // Call /go with redirect: manual to trigger tracking without opening Amazon
+        const response = await fetch(`/go?network=amazon&id=${testDealId}`, {
+          method: 'GET',
+          redirect: 'manual'
+        });
+        
+        if (response.status === 302 || response.status === 0) {
+          statusEl.innerHTML = '✅ Test click generated!';
+          statusEl.style.color = '#4ade80';
+          
+          // Refresh analytics after 2 seconds
+          setTimeout(() => {
+            statusEl.innerHTML = '🔄 Refreshing...';
+            loadAnalytics();
+            setTimeout(() => {
+              statusEl.innerHTML = '';
+            }, 1000);
+          }, 2000);
+        } else {
+          throw new Error(`Unexpected status: ${response.status}`);
+        }
+      } catch (err) {
+        statusEl.innerHTML = `❌ Failed: ${err.message}`;
+        statusEl.style.color = '#ff5050';
+      } finally {
+        if (btn) btn.disabled = false;
       }
     }
     

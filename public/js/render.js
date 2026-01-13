@@ -124,6 +124,17 @@ function buildCard(item, kind){
         </div>
       </div>
     </div>
+    <div class="hover-tooltip">
+      <h4 class="hover-tooltip-title">${escapeHtml(title)}</h4>
+      <img class="hover-tooltip-image" src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy">
+      <div class="hover-tooltip-description">${escapeHtml(item.tagline || "")}</div>
+      <div class="hover-tooltip-meta">
+        ${metaA ? `<div class="hover-tooltip-meta-item"><span class="hover-tooltip-meta-label">Location/Category:</span><span>${escapeHtml(metaA)}</span></div>` : ""}
+        ${metaB ? `<div class="hover-tooltip-meta-item"><span class="hover-tooltip-meta-label">Price:</span><span>${escapeHtml(metaB)}</span></div>` : ""}
+        ${verified ? `<div class="hover-tooltip-meta-item"><span class="hover-tooltip-meta-label">Status:</span><span>${verified}</span></div>` : ""}
+        ${item.description ? `<div class="hover-tooltip-meta-item" style="flex-direction: column; align-items: flex-start; gap: 4px;"><span class="hover-tooltip-meta-label">Full Details:</span><span style="font-size: 12px; line-height: 1.5;">${escapeHtml(item.description)}</span></div>` : ""}
+      </div>
+    </div>
   </article>`;
 }
 
@@ -525,11 +536,87 @@ function initCarousel(name, containerSel) {
 
   container.addEventListener('scroll', updateButtonStates, { passive: true });
 
+  // Enable horizontal scrolling with mouse wheel
+  container.addEventListener('wheel', (e) => {
+    // Only handle horizontal scroll if there's horizontal overflow
+    if (container.scrollWidth > container.clientWidth) {
+      e.preventDefault();
+      // Use deltaY (vertical wheel) to scroll horizontally
+      container.scrollBy({
+        left: e.deltaY,
+        behavior: 'auto' // instant for responsive wheel feeling
+      });
+      updateButtonStates();
+    }
+  }, { passive: false }); // passive: false needed for preventDefault
+
   // Initial button state
   setTimeout(updateButtonStates, 100);
 }
 
+// Equalize card heights within each grid
+function equalizeCardHeights() {
+  const grids = document.querySelectorAll('.grid');
+  
+  grids.forEach(grid => {
+    const items = grid.querySelectorAll('.item');
+    if (items.length === 0) return;
+    
+    // Reset heights first
+    items.forEach(item => {
+      const card = item.querySelector('.card');
+      if (card) card.style.height = 'auto';
+    });
+    
+    // Group items by row based on their offsetTop
+    const rows = new Map();
+    items.forEach(item => {
+      const top = item.offsetTop;
+      if (!rows.has(top)) {
+        rows.set(top, []);
+      }
+      rows.get(top).push(item);
+    });
+    
+    // Equalize heights within each row
+    rows.forEach(rowItems => {
+      let maxHeight = 0;
+      
+      // Find max height in this row
+      rowItems.forEach(item => {
+        const card = item.querySelector('.card');
+        if (card) {
+          const height = card.offsetHeight;
+          if (height > maxHeight) maxHeight = height;
+        }
+      });
+      
+      // Apply max height to all cards in this row
+      rowItems.forEach(item => {
+        const card = item.querySelector('.card');
+        if (card) {
+          card.style.height = maxHeight + 'px';
+        }
+      });
+    });
+  });
+}
+
+// Run on load and resize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(equalizeCardHeights, 100);
+  });
+} else {
+  setTimeout(equalizeCardHeights, 100);
+}
+
+window.addEventListener('resize', () => {
+  clearTimeout(window.resizeTimer);
+  window.resizeTimer = setTimeout(equalizeCardHeights, 250);
+});
+
 // Note: Direct affiliate navigation is now the default behavior
 // The /go endpoint is kept for legacy/shared links only
 
-window.TT = { initSection, initCarouselSection, initCarousel };
+window.TT = { initSection, initCarouselSection, initCarousel, equalizeCardHeights };
