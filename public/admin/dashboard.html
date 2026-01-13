@@ -371,6 +371,24 @@
     function renderAnalytics(data) {
       const content = document.getElementById('content');
       
+      // Validate data structure
+      if (!data || typeof data !== 'object') {
+        content.innerHTML = `
+          <div class="error">
+            <strong>❌ Invalid analytics data</strong><br>
+            <div style="margin-top: 10px;">Received invalid data structure from API.</div>
+          </div>
+        `;
+        console.error('Invalid analytics data:', data);
+        return;
+      }
+      
+      // Ensure required properties exist with safe defaults
+      data.totalClicks = data.totalClicks || 0;
+      data.byNetwork = data.byNetwork || {};
+      data.topDeals = Array.isArray(data.topDeals) ? data.topDeals : [];
+      data.byDay = Array.isArray(data.byDay) ? data.byDay : [];
+      
       // Self-diagnosis: Check initialization
       if (data.initialized === false) {
         content.innerHTML = `
@@ -483,13 +501,13 @@
               </tr>
             </thead>
             <tbody>
-              ${data.topDeals.map(deal => `
+              ${(Array.isArray(data.topDeals) && data.topDeals.length > 0) ? data.topDeals.map(deal => `
                 <tr>
-                  <td>${escapeHtml(deal.id)}</td>
-                  <td>${deal.clicks}</td>
-                  <td>${Math.round(deal.clicks / data.totalClicks * 100)}%</td>
+                  <td>${escapeHtml(deal.id || 'Unknown')}</td>
+                  <td>${deal.clicks || 0}</td>
+                  <td>${data.totalClicks > 0 ? Math.round((deal.clicks || 0) / data.totalClicks * 100) : 0}%</td>
                 </tr>
-              `).join('')}
+              `).join('') : '<tr><td colspan="3" style="text-align:center;opacity:0.6;">No data yet</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -504,12 +522,12 @@
               </tr>
             </thead>
             <tbody>
-              ${data.byDay.map(day => `
+              ${(Array.isArray(data.byDay) && data.byDay.length > 0) ? data.byDay.map(day => `
                 <tr>
-                  <td>${day.date}</td>
-                  <td>${day.clicks}</td>
+                  <td>${escapeHtml(day.date || 'Unknown')}</td>
+                  <td>${day.clicks || 0}</td>
                 </tr>
-              `).join('')}
+              `).join('') : '<tr><td colspan="2" style="text-align:center;opacity:0.6;">No data yet</td></tr>'}
             </tbody>
           </table>
         </div>

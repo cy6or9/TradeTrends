@@ -7,12 +7,15 @@
     "dev:offline": "netlify dev --offline",
     "prebuild": "node scripts/generate-sitemap.js",
     "build": "node scripts/validate.js",
+    "predeploy": "node scripts/validate-deployment.js",
     "test": "npm run validate && npm run test:e2e",
     "test:e2e": "playwright test --reporter=line",
+    "test:analytics": "playwright test tests/e2e/admin.analytics-errors.spec.js --reporter=line",
     "test:fast": "playwright test --reporter=dot",
     "test:debug": "DEBUG=pw:api playwright test --reporter=line",
     "test:production": "node scripts/check-production.js",
-    "validate": "node scripts/validate.js"
+    "validate": "node scripts/validate.js",
+    "validate:deploy": "node scripts/validate-deployment.js"
   },
   "keywords": [
     "affiliate",
