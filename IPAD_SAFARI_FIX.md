@@ -13,7 +13,7 @@ Current CTA anchors use `href="/go?network=...&id=..."` which redirects through 
 1. Opens new tab with intermediary redirect URL
 2. Redirect chain often hangs or fails silently
 3. Error handler on anchor tags doesn't fire (anchors don't emit 'error' events for navigation failures)
-4. User sees blank white screen, deal URL never loads
+4. Usert sees blank white screen, deal URL never loads
 5. Revenue lost - user cannot reach affiliate partner
 
 ### Impact

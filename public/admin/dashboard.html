@@ -38,6 +38,13 @@
       z-index: 1000;
     }
 
+    .admin-left, .admin-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
     .logo {
       font-size: 18px;
       font-weight: 600;
@@ -45,7 +52,9 @@
     }
 
     .admin-btn {
-      margin-left: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 8px 14px;
       border-radius: 8px;
       background: rgba(0,255,255,0.12);
@@ -66,10 +75,49 @@
     .admin-btn.danger {
       border-color: rgba(255,80,80,.5);
       color: #ff9b9b;
+      background: rgba(255,80,80,0.12);
     }
 
     .admin-btn.danger:hover {
       background: rgba(255,80,80,.2);
+    }
+
+    .edit-dropdown-btn {
+      position: relative;
+    }
+
+    .edit-dropdown-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .edit-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: linear-gradient(180deg, rgba(16,24,38,.98), rgba(15,23,36,.95));
+      border: 1px solid rgba(0,255,255,0.3);
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+      min-width: 200px;
+      padding: 8px;
+    }
+
+    .edit-option {
+      display: block;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #9ff;
+      transition: background 0.2s;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .edit-option:hover {
+      background: rgba(0,255,255,.15);
+      color: white;
     }
 
     .container {
@@ -190,15 +238,24 @@
 <body>
   <header class="admin-header">
     <div class="admin-left">
-      <div class="logo">TradeTrends Admin</div>
+      <a href="/" class="logo" style="text-decoration: none; color: #3cf;">TradeTrends Admin</a>
     </div>
     <div class="admin-right">
       <a href="/" class="admin-btn">View Site</a>
-      <a href="/admin/dashboard.html" class="admin-btn">Dashboard</a>
+      <a href="/admin/dashboard.html" class="admin-btn">Analytics</a>
       <a href="/admin/trends.html" class="admin-btn">Trends</a>
-      <a href="/admin/deals.html" class="admin-btn" style="background: rgba(0,210,255,0.2); border-color: #00d2ff;">✏️ Edit Deals</a>
-      <a href="/admin/activities.html" class="admin-btn" style="background: rgba(138,43,226,0.2); border-color: #8a2be2;">🎭 Edit Activities</a>
+      <button class="admin-btn edit-dropdown-btn" id="editMenuBtn" aria-label="Edit menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+        </svg>
+        Edit
+      </button>
       <button id="adminLogout" class="admin-btn danger">Logout</button>
+    </div>
+    <div class="edit-dropdown" id="editMenu" style="display:none;">
+      <a href="/admin/deals.html" class="edit-option">Edit Deals</a>
+      <a href="/admin/activities.html" class="edit-option">Edit Activities</a>
     </div>
   </header>
 
@@ -666,6 +723,29 @@
       loadAnalytics();
       loadRevenueHealth();
     }, 1000);
+  </script>
+  <script>
+    // Edit dropdown toggle
+    const editMenuBtn = document.getElementById('editMenuBtn');
+    const editMenu = document.getElementById('editMenu');
+
+    if (editMenuBtn && editMenu) {
+      editMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = editMenu.style.display === 'block';
+        editMenu.style.display = isOpen ? 'none' : 'block';
+        editMenuBtn.setAttribute('aria-expanded', !isOpen);
+      });
+
+      document.addEventListener('click', () => {
+        editMenu.style.display = 'none';
+        editMenuBtn.setAttribute('aria-expanded', 'false');
+      });
+
+      editMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
   </script>
 </body>
 </html>

@@ -11,26 +11,26 @@
         document.head.appendChild(script);
     })();
   </script>
-  <title id="pageTitle">All Finds — TradeTrends Deals</title>
-  <meta name="description" content="Amazon-focused finds and deals, curated for value and usefulness." />
+  <title>Flight Deals — TradeTrends Deals</title>
+  <meta name="description" content="Flight deals and booking offers, curated for quick comparisons." />
   <meta name="theme-color" content="#0b0f14" />
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://tradetrend.netlify.app/amazon.html" />
-  <meta property="og:title" content="Amazon Finds — Top Deals & Products" />
-  <meta property="og:description" content="Curated Amazon products that actually convert. From pet supplies to home essentials." />
+  <meta property="og:url" content="https://tradetrend.netlify.app/flights.html" />
+  <meta property="og:title" content="Flight Deals — Hotels, Flights & Travel Deals" />
+  <meta property="og:description" content="Curated flight deals and booking offers. Hotels, flights, and travel gear worth bookmarking." />
   <meta property="og:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://tradetrend.netlify.app/amazon.html" />
-  <meta name="twitter:title" content="Amazon Finds — Top Deals & Products" />
-  <meta name="twitter:description" content="Curated Amazon products that actually convert. From pet supplies to home essentials." />
+  <meta name="twitter:url" content="https://tradetrend.netlify.app/flights.html" />
+  <meta name="twitter:title" content="Flight Deals — Hotels, Flights & Travel Deals" />
+  <meta name="twitter:description" content="Curated flight deals and booking offers. Hotels, flights, and travel gear worth bookmarking." />
   <meta name="twitter:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
   
   <!-- Canonical -->
-  <link rel="canonical" href="https://tradetrend.netlify.app/amazon.html" />
+  <link rel="canonical" href="https://tradetrend.netlify.app/flights.html" />
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -57,7 +57,9 @@
       </a>
       <nav class="navlinks" aria-label="Primary">
         <a class="pill" href="/#shop">Shop</a>
+        <a class="pill" href="/#travel">Travel</a>
         <a class="pill" href="/#activities">Activities</a>
+        <a class="pill" href="/#rentals">Rentals</a>
         <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -69,6 +71,7 @@
       </nav>
       <div class="more-menu" id="moreMenu" style="display:none;">
         <a href="/amazon.html">All Products</a>
+        <a href="/flights.html">All Flights</a>
         <a href="/activities.html">All Activities</a>
         <a id="adminLink" href="/admin/" style="display:none;">Admin</a>
       </div>
@@ -79,51 +82,40 @@
 <main class="container">
   <section class="hero">
     <div class="card heroMain">
-      <div class="kicker"><span class="dot" aria-hidden="true"></span> Amazon-only</div>
-      <h1 class="h1" id="pageHeading">All Finds</h1>
+      <div class="kicker"><span class="dot" aria-hidden="true"></span> Flights-only</div>
+      <h1 class="h1">Flight deals</h1>
+      <p class="sub">Booking, bundles, and travel gear—built for Pinterest clicks and fast decisions.</p>
+      <div class="heroCtas">
+        <a class="btn" href="/#travel">Back to hub</a>
+        <a class="btn" id="adminDashLink" href="/admin/" style="display:none;">Admin dashboard</a>
+      </div>
     </div>
   </section>
 
   <section class="section">
     <div class="sectionHeader">
       <div>
-        <h2>Shop</h2>
-        <p>Search and filter to match your pin.</p>
+        <h2>Browse</h2>
+        <p>Search and filter to match your flight deals.</p>
       </div>
       <div class="filters">
-        <input class="input" id="amzSearch" placeholder="Search Amazon finds…" inputmode="search" />
-        <select id="amzCategory" aria-label="Amazon categories"></select>
+        <input class="input" id="travSearch" placeholder="Search flight deals…" inputmode="search" />
+        <select id="travCategory" aria-label="Flight categories"></select>
       </div>
     </div>
-    <div class="grid" id="amzGrid" aria-live="polite"></div>
+    <div class="grid" id="travGrid" aria-live="polite"></div>
   </section>
 </main>
 
 <script src="/js/render.js?v=2"></script>
 <script>
   TT.initSection({
-    container: "#amzGrid",
-    search: "#amzSearch",
-    category: "#amzCategory",
-    json: "/data/amazon.json",
-    kind: "amazon"
+    container: "#travGrid",
+    search: "#travSearch",
+    category: "#travCategory",
+    json: "/data/travel.json",
+    kind: "travel"
   });
-  
-  // Update page title and heading based on category
-  const categorySelect = document.getElementById('amzCategory');
-  const pageTitle = document.getElementById('pageTitle');
-  const pageHeading = document.getElementById('pageHeading');
-  
-  function updatePageTitle() {
-    const category = categorySelect.value;
-    const displayText = category || 'All Finds';
-    if (pageTitle) pageTitle.textContent = `${displayText} — TradeTrends Deals`;
-    if (pageHeading) pageHeading.textContent = displayText;
-  }
-  
-  if (categorySelect) {
-    categorySelect.addEventListener('change', updatePageTitle);
-  }
 </script>
 
 <footer class="footer">
@@ -131,7 +123,7 @@
     <div class="notice">
       <b>Affiliate disclosure:</b> Some links on this site are affiliate links. If you click and purchase, we may earn a commission at no extra cost to you.
       <div style="height:8px"></div>
-      <span class="small">Tip: For best results on Pinterest, link your pins to a relevant section (Amazon or Travel) or to the dedicated category page.</span>
+      <span class="small">Tip: For best results on Pinterest, link your pins to a relevant section (Shop or Flights) or to the dedicated category page.</span>
     </div>
     <div style="height:14px"></div>
     <div class="small">© <span id="y"></span> TradeTrends Deals • Built for speed on Netlify</div>

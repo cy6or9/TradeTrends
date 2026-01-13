@@ -17,20 +17,20 @@
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://tradetrend.netlify.app/amazon.html" />
+  <meta property="og:url" content="https://tradetrend.netlify.app/products.html" />
   <meta property="og:title" content="Amazon Finds — Top Deals & Products" />
   <meta property="og:description" content="Curated Amazon products that actually convert. From pet supplies to home essentials." />
   <meta property="og:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://tradetrend.netlify.app/amazon.html" />
+  <meta name="twitter:url" content="https://tradetrend.netlify.app/products.html" />
   <meta name="twitter:title" content="Amazon Finds — Top Deals & Products" />
   <meta name="twitter:description" content="Curated Amazon products that actually convert. From pet supplies to home essentials." />
   <meta name="twitter:image" content="https://tradetrend.netlify.app/assets/img_0358.webp" />
   
   <!-- Canonical -->
-  <link rel="canonical" href="https://tradetrend.netlify.app/amazon.html" />
+  <link rel="canonical" href="https://tradetrend.netlify.app/products.html" />
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
@@ -68,7 +68,7 @@
         </button>
       </nav>
       <div class="more-menu" id="moreMenu" style="display:none;">
-        <a href="/amazon.html">All Products</a>
+        <a href="/products.html">All Products</a>
         <a href="/activities.html">All Activities</a>
         <a id="adminLink" href="/admin/" style="display:none;">Admin</a>
       </div>
@@ -77,24 +77,17 @@
 </header>
 
 <main class="container">
-  <section class="hero">
-    <div class="card heroMain">
-      <div class="kicker"><span class="dot" aria-hidden="true"></span> Amazon-only</div>
-      <h1 class="h1" id="pageHeading">All Finds</h1>
+  <section class="hero" style="padding-top: 4px; padding-bottom: 4px;">
+    <div class="card heroMain" style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 6px 24px;">
+      <h1 class="h1" id="pageHeading" style="margin: 0; flex-shrink: 0;">All Finds</h1>
+      <div class="filters" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <input class="input" id="amzSearch" placeholder="Search finds" inputmode="search" style="min-width: 200px;" />
+        <select id="amzCategory" aria-label="Amazon categories" style="min-width: 180px;"></select>
+      </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="sectionHeader">
-      <div>
-        <h2>Shop</h2>
-        <p>Search and filter to match your pin.</p>
-      </div>
-      <div class="filters">
-        <input class="input" id="amzSearch" placeholder="Search Amazon finds…" inputmode="search" />
-        <select id="amzCategory" aria-label="Amazon categories"></select>
-      </div>
-    </div>
+  <section class="section" style="padding-top: 4px;">
     <div class="grid" id="amzGrid" aria-live="polite"></div>
   </section>
 </main>
@@ -143,7 +136,6 @@
   // Check if user is admin and show admin links
   function checkAdminAccess() {
     const adminLink = document.getElementById('adminLink');
-    const adminDashLink = document.getElementById('adminDashLink');
     
     // Check if in dev mode
     const hostname = window.location.hostname;
@@ -156,7 +148,6 @@
     // Show admin links in dev mode OR for logged-in admin users
     if (isDevMode) {
       if (adminLink) adminLink.style.display = 'inline-flex';
-      if (adminDashLink) adminDashLink.style.display = 'inline-flex';
       return;
     }
     
@@ -166,13 +157,11 @@
         const roles = user.app_metadata?.roles || [];
         if (roles.includes('admin')) {
           if (adminLink) adminLink.style.display = 'inline-flex';
-          if (adminDashLink) adminDashLink.style.display = 'inline-flex';
           return;
         }
       }
     }
     if (adminLink) adminLink.style.display = 'none';
-    if (adminDashLink) adminDashLink.style.display = 'none';
   }
   
   // Initialize Netlify Identity
@@ -181,9 +170,7 @@
     netlifyIdentity.on('login', checkAdminAccess);
     netlifyIdentity.on('logout', () => {
       const adminLink = document.getElementById('adminLink');
-      const adminDashLink = document.getElementById('adminDashLink');
       if (adminLink) adminLink.style.display = 'none';
-      if (adminDashLink) adminDashLink.style.display = 'none';
     });
     netlifyIdentity.init();
   }

@@ -37,16 +37,30 @@
 </head>
 <body>
 
-<header class="primary">
+<header class="header">
   <div class="container">
-    <div class="logoRow">
-      <h1 class="logo"><a href="/">TradeTrends</a></h1>
-      <nav class="navLinks">
-        <a href="/">Home</a>
-        <a href="/amazon.html">Amazon</a>
-        <a href="/travel.html">Travel</a>
-        <a href="/activities.html" class="active">Activities</a>
+    <div class="nav">
+      <a class="brand" href="/">
+        <span class="logo" aria-hidden="true"></span>
+        <span>TradeTrends Deals</span>
+      </a>
+      <nav class="navlinks" aria-label="Primary">
+        <a class="pill" href="/#shop">Shop</a>
+        <a class="pill" href="/#activities">Activities</a>
+        <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          More
+        </button>
       </nav>
+      <div class="more-menu" id="moreMenu" style="display:none;">
+        <a href="/products.html">All Products</a>
+        <a href="/activities.html">All Activities</a>
+        <a id="adminLink" href="/admin/" style="display:none;">Admin</a>
+      </div>
     </div>
   </div>
 </header>
@@ -101,8 +115,7 @@
     <p>&copy; 2026 TradeTrends. Affiliate links help support this site.</p>
     <div style="margin-top: 12px;">
       <a href="/" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Home</a>
-      <a href="/amazon.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Amazon</a>
-      <a href="/travel.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Travel</a>
+      <a href="/products.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Amazon</a>
       <a href="/activities.html" style="color: rgba(255,255,255,0.7); margin: 0 8px;">Activities</a>
     </div>
   </div>
@@ -129,17 +142,73 @@ const observer = new MutationObserver(() => {
   const totalCards = grid ? grid.querySelectorAll('.card').length : 0;
   
   if (grid && emptyState) {
-    if (totalCards === 0 || visibleCards === totalCards) {
-      emptyState.style.display = 'block';
-    } else {
-      emptyState.style.display = 'none';
-    }
+    emptyState.style.display = (totalCards > 0 && visibleCards === totalCards) ? 'block' : 'none';
   }
 });
 
-const gridEl = document.getElementById('activitiesGrid');
-if (gridEl) {
-  observer.observe(gridEl, { childList: true, subtree: true, attributes: true });
+if (document.getElementById('activitiesGrid')) {
+  observer.observe(document.getElementById('activitiesGrid'), { childList: true, subtree: true, attributes: true });
+}
+
+// Check if user is admin and show admin links
+function checkAdminAccess() {
+  const adminLink = document.getElementById('adminLink');
+  
+  // Check if in dev mode
+  const hostname = window.location.hostname;
+  const isDevMode = hostname === 'localhost' || 
+                    hostname.includes('127.0.0.1') ||
+                    hostname.includes('app.github.dev') ||
+                    hostname.includes('gitpod.io') ||
+                    hostname.includes('codespaces');
+  
+  // Show admin link in dev mode OR for logged-in admin users
+  if (isDevMode) {
+    if (adminLink) adminLink.style.display = 'block';
+    return;
+  }
+  
+  if (window.netlifyIdentity) {
+    const user = netlifyIdentity.currentUser();
+    if (user) {
+      const roles = user.app_metadata?.roles || [];
+      if (roles.includes('admin')) {
+        if (adminLink) adminLink.style.display = 'block';
+        return;
+      }
+    }
+  }
+  if (adminLink) adminLink.style.display = 'none';
+}
+
+// Initialize Netlify Identity
+if (window.netlifyIdentity) {
+  netlifyIdentity.on('init', checkAdminAccess);
+  netlifyIdentity.on('login', checkAdminAccess);
+  netlifyIdentity.on('logout', checkAdminAccess);
+  netlifyIdentity.init();
+}
+
+// More menu toggle
+const moreMenuBtn = document.getElementById('moreMenuBtn');
+const moreMenu = document.getElementById('moreMenu');
+
+if (moreMenuBtn && moreMenu) {
+  moreMenuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = moreMenu.style.display === 'block';
+    moreMenu.style.display = isOpen ? 'none' : 'block';
+    moreMenuBtn.setAttribute('aria-expanded', !isOpen);
+  });
+
+  document.addEventListener('click', () => {
+    moreMenu.style.display = 'none';
+    moreMenuBtn.setAttribute('aria-expanded', 'false');
+  });
+
+  moreMenu.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 }
 </script>
 

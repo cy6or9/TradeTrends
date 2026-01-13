@@ -1,6 +1,9 @@
 # Netlify Redirects - Order matters! More specific rules first.
 # The "!" flag forces the redirect even if the file exists.
 
+# Legacy URL redirect
+/amazon.html  /products.html  301!
+
 # Affiliate click tracking - MUST be above catch-all
 /go  /.netlify/functions/go  200!
 /go/*  /.netlify/functions/go  200!

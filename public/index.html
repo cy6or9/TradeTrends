@@ -56,85 +56,119 @@
         <span>TradeTrends Deals</span>
       </a>
       <nav class="navlinks" aria-label="Primary">
-        <a class="pill" href="/#amazon">Amazon</a>
-        <a class="pill" href="/#travel">Travel</a>
+        <a class="pill" href="/#shop">Shop</a>
         <a class="pill" href="/#activities">Activities</a>
-        <a class="pill" href="/amazon.html">Amazon page</a>
-        <a class="pill" href="/travel.html">Travel page</a>
-        <a class="pill" href="/activities.html">Activities page</a>
-        <a class="pill" id="adminLink" href="/admin/" style="display:none;">Admin</a>
+        <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          More
+        </button>
       </nav>
+      <div class="more-menu" id="moreMenu" style="display:none;">
+        <a href="/products.html">All Products</a>
+        <a href="/activities.html">All Activities</a>
+        <a id="adminLink" href="/admin/" style="display:none;">Admin</a>
+      </div>
     </div>
   </div>
 </header>
 
 <main class="container">
-  <section class="section" id="amazon">
+  <section class="section" id="shop" data-testid="section-shop">
     <div class="sectionHeader">
       <div>
-        <h2>Amazon finds</h2>
+        <h2>Shop</h2>
         <p>Curated products with a quick reason to buy.</p>
       </div>
-      <div class="filters">
-        <input class="input" id="amzSearch" placeholder="Search Amazon finds…" inputmode="search" />
-        <select id="amzCategory" aria-label="Amazon categories"></select>
+      <div class="carousel-controls">
+        <button class="carousel-btn carousel-prev" data-carousel="shop" aria-label="Previous products">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="carousel-btn carousel-next" data-carousel="shop" aria-label="Next products">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
-    <div class="grid" id="amzGrid" aria-live="polite"></div>
-  </section>
-
-  <section class="section" id="travel">
-    <div class="sectionHeader">
-      <div>
-        <h2>Travel promos</h2>
-        <p>Hotels, bundles, and travel gear worth bookmarking.</p>
-      </div>
-      <div class="filters">
-        <input class="input" id="travSearch" placeholder="Search travel promos…" inputmode="search" />
-        <select id="travCategory" aria-label="Travel categories"></select>
-      </div>
+    <div class="carousel-row" id="amzGrid" data-testid="carousel-shop" aria-live="polite"></div>
+    <div class="see-more-wrapper">
+      <a href="/products.html" class="see-more" data-testid="see-more-shop">See more products →</a>
     </div>
-    <div class="grid" id="travGrid" aria-live="polite"></div>
   </section>
 
-  <section class="section" id="activities">
+  <section class="section" id="activities" data-testid="section-activities">
     <div class="sectionHeader">
       <div>
         <h2>Popular Activities</h2>
         <p>Top-rated tours, attractions & experiences worldwide.</p>
       </div>
-      <div class="filters">
-        <input class="input" id="actSearch" placeholder="Search by city…" inputmode="search" />
-        <select id="actCategory" aria-label="Activity categories"></select>
+      <div class="carousel-controls">
+        <button class="carousel-btn carousel-prev" data-carousel="activities" aria-label="Previous activities">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="carousel-btn carousel-next" data-carousel="activities" aria-label="Next activities">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
-    <div class="grid" id="actGrid" aria-live="polite"></div>
+    <div class="carousel-row" id="actGrid" data-testid="carousel-activities" aria-live="polite"></div>
+    <div class="see-more-wrapper">
+      <a href="/activities.html" class="see-more" data-testid="see-more-activities">See more activities →</a>
+    </div>
   </section>
 </main>
 
-<script src="/js/render.js?v=2"></script>
+<script src="/js/render.js?v=3"></script>
 <script>
-  TT.initSection({
+  // Initialize carousel sections (homepage shows first 12 items)
+  TT.initCarouselSection({
     container: "#amzGrid",
-    search: "#amzSearch",
-    category: "#amzCategory",
     json: "/data/amazon.json",
-    kind: "amazon"
+    kind: "amazon",
+    maxItems: 12
   });
-  TT.initSection({
-    container: "#travGrid",
-    search: "#travSearch",
-    category: "#travCategory",
-    json: "/data/travel.json",
-    kind: "travel"
-  });
-  TT.initSection({
+  TT.initCarouselSection({
     container: "#actGrid",
-    search: "#actSearch",
-    category: "#actCategory",
     json: "/data/activities.json",
-    kind: "activities"
+    kind: "activities",
+    maxItems: 12
   });
+
+  // Initialize carousel controls
+  TT.initCarousel('shop', '#amzGrid');
+  TT.initCarousel('activities', '#actGrid');
+
+  // More menu toggle
+  const moreMenuBtn = document.getElementById('moreMenuBtn');
+  const moreMenu = document.getElementById('moreMenu');
+  
+  if (moreMenuBtn && moreMenu) {
+    moreMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = moreMenu.style.display === 'block';
+      moreMenu.style.display = isOpen ? 'none' : 'block';
+      moreMenuBtn.setAttribute('aria-expanded', !isOpen);
+    });
+
+    document.addEventListener('click', () => {
+      moreMenu.style.display = 'none';
+      moreMenuBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    moreMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
 </script>
 
 <footer class="footer">

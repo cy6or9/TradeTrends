@@ -79,6 +79,8 @@ a{ color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  position: relative;
+  overflow: visible;
 }
 .heroMain{ padding: 22px; }
 .kicker{
@@ -163,7 +165,7 @@ a{ color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   background: rgba(255,255,255,.04);
 }
-.itemCta{ margin-top: 12px; display:flex; gap:10px; }
+.itemCta{ margin-top: 12px; display:flex; gap:10px; flex-wrap: wrap; }
 .link{
   display:inline-flex; align-items:center; justify-content:center;
   padding: 10px 12px;
@@ -178,6 +180,358 @@ a{ color: inherit; text-decoration: none; }
   background: linear-gradient(180deg, rgba(21,197,255,.14), rgba(21,197,255,.06));
 }
 .small{ font-size: 12px; color: var(--muted); }
+
+/* Share button styling */
+.share-btn{
+  display:inline-flex; 
+  align-items:center; 
+  justify-content:center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  font-weight: 650;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.share-btn:hover{
+  border-color: rgba(0,224,184,.35);
+  background: linear-gradient(180deg, rgba(0,224,184,.14), rgba(0,224,184,.06));
+  transform: translateY(-1px);
+}
+.share-btn svg{
+  width: 16px;
+  height: 16px;
+}
+
+/* Share menu styling */
+.share-menu{
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: linear-gradient(180deg, rgba(16,24,38,.98), rgba(15,23,36,.95));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  animation: shareMenuSlideDown 0.2s ease-out;
+}
+
+@keyframes shareMenuSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.share-menu-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.share-close{
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.share-close:hover{
+  background: rgba(255,255,255,.1);
+  color: var(--text);
+}
+
+.share-options{
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+}
+
+.share-option{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.02);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.share-option:hover{
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.2);
+  transform: translateX(4px);
+}
+
+.share-option svg{
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.share-option.facebook:hover{
+  border-color: rgba(24,119,242,.5);
+  background: linear-gradient(90deg, rgba(24,119,242,.1), rgba(24,119,242,.05));
+}
+.share-option.twitter:hover{
+  border-color: rgba(29,155,240,.5);
+  background: linear-gradient(90deg, rgba(29,155,240,.1), rgba(29,155,240,.05));
+}
+.share-option.messenger:hover{
+  border-color: rgba(0,132,255,.5);
+  background: linear-gradient(90deg, rgba(0,132,255,.1), rgba(0,132,255,.05));
+}
+.share-option.pinterest:hover{
+  border-color: rgba(230,0,35,.5);
+  background: linear-gradient(90deg, rgba(230,0,35,.1), rgba(230,0,35,.05));
+}
+.share-option.whatsapp:hover{
+  border-color: rgba(37,211,102,.5);
+  background: linear-gradient(90deg, rgba(37,211,102,.1), rgba(37,211,102,.05));
+}
+.share-option.copy-link:hover{
+  border-color: rgba(21,197,255,.5);
+  background: linear-gradient(90deg, rgba(21,197,255,.1), rgba(21,197,255,.05));
+}
+
+.share-option.copied{
+  border-color: rgba(0,224,184,.5);
+  background: linear-gradient(90deg, rgba(0,224,184,.15), rgba(0,224,184,.08));
+  color: var(--accent2);
+}
+
+/* Ensure share menu doesn't overflow card on mobile */
+@media (max-width: 620px){
+  .share-menu{
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    margin-bottom: 0;
+  }
+}
+
+/* More menu (hamburger dropdown) */
+.hamburger {
+  cursor: pointer;
+  position: relative;
+}
+.hamburger svg {
+  width: 18px;
+  height: 18px;
+}
+.more-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: linear-gradient(180deg, rgba(16,24,38,.98), rgba(15,23,36,.95));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.5);
+  z-index: 1000;
+  backdrop-filter: blur(12px);
+  min-width: 180px;
+  padding: 8px;
+}
+.more-menu a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--text);
+  transition: background 0.2s;
+}
+.more-menu a:hover {
+  background: rgba(255,255,255,.08);
+}
+
+/* Carousel layout */
+.carousel-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.carousel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(16,24,38,.8);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.carousel-btn:hover:not(:disabled) {
+  border-color: rgba(21,197,255,.35);
+  background: linear-gradient(180deg, rgba(21,197,255,.14), rgba(21,197,255,.06));
+  transform: translateY(-1px);
+}
+.carousel-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.carousel-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.carousel-row {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  gap: 14px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.carousel-row::-webkit-scrollbar {
+  height: 8px;
+}
+.carousel-row::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.05);
+  border-radius: 4px;
+}
+.carousel-row::-webkit-scrollbar-thumb {
+  background: rgba(21,197,255,.3);
+  border-radius: 4px;
+}
+.carousel-row::-webkit-scrollbar-thumb:hover {
+  background: rgba(21,197,255,.5);
+}
+
+.carousel-row .item {
+  flex: 0 0 auto;
+  width: clamp(260px, 28vw, 340px);
+  scroll-snap-align: start;
+  grid-column: auto;
+}
+
+@media (max-width: 980px) {
+  .carousel-row .item {
+    width: clamp(240px, 45vw, 320px);
+  }
+}
+
+@media (max-width: 620px) {
+  .carousel-row .item {
+    width: clamp(220px, 75vw, 280px);
+  }
+  .carousel-controls {
+    display: none;
+  }
+}
+
+.see-more-wrapper {
+  text-align: right;
+  padding: 8px 0 16px;
+}
+.see-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.85;
+  transition: all 0.2s;
+}
+.see-more:hover {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+/* Rentals search section */
+.rentals-search-card {
+  background: linear-gradient(180deg, rgba(16,24,38,.85), rgba(15,23,36,.75));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.rentals-input {
+  width: 100%;
+  margin-bottom: 14px;
+}
+.rentals-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rentals-btn {
+  flex: 1;
+  min-width: 140px;
+}
+.rentals-btn-secondary {
+  flex: 1;
+  min-width: 140px;
+  border-color: rgba(0,224,184,.35);
+  background: linear-gradient(180deg, rgba(0,224,184,.14), rgba(0,224,184,.06));
+}
+.rentals-btn-secondary:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0,224,184,.45);
+}
+.rentals-btn-secondary svg {
+  width: 16px;
+  height: 16px;
+}
+.rentals-hint {
+  margin-top: 12px;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(0,0,0,.2);
+}
+.rentals-powered {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.rentals-powered a {
+  color: var(--accent);
+  text-decoration: underline;
+  opacity: 0.8;
+}
+.rentals-powered a:hover {
+  opacity: 1;
+}
 
 .footer{
   border-top: 1px solid var(--border);

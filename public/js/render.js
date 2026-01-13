@@ -51,8 +51,21 @@ function buildCard(item, kind){
   // Background tracking endpoint (returns 204, no redirect)
   const trackUrl = `/.netlify/functions/api/click?network=${encodeURIComponent(network)}&id=${encodeURIComponent(id)}&t=${Date.now()}`;
 
+  // Social sharing - using affiliate URL to ensure credit
+  const shareUrl = encodeURIComponent(directUrl);
+  const shareTitle = encodeURIComponent(title);
+  const shareText = encodeURIComponent(item.tagline || title);
+  
+  // Social media share URLs
+  const facebookShare = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`;
+  const twitterShare = `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`;
+  const messengerShare = `fb-messenger://share/?link=${shareUrl}`;
+  const pinterestShare = `https://pinterest.com/pin/create/button/?url=${shareUrl}&media=${encodeURIComponent(img)}&description=${shareText}`;
+  // Note: Instagram doesn't support web-based URL sharing, so we'll provide a copy link feature
+  const whatsappShare = `https://wa.me/?text=${shareTitle}%20${shareUrl}`;
+
   return `
-  <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}" data-city="${escapeHtml(item.city || "")}">
+  <article class="card item" data-kind="${escapeHtml(kind)}" data-category="${escapeHtml(item.category || "")}" data-title="${escapeHtml(title)}" data-city="${escapeHtml(item.city || "")}" data-share-url="${escapeHtml(directUrl)}" data-share-title="${escapeHtml(title)}" data-share-image="${escapeHtml(img)}">
     <div class="itemMedia">
       <img loading="lazy" decoding="async" src="${escapeHtml(img)}" alt="${escapeHtml(title)}">
     </div>
@@ -67,6 +80,48 @@ function buildCard(item, kind){
       </div>
       <div class="itemCta">
         <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <button class="share-btn" data-card-id="${escapeHtml(id)}" aria-label="Share this deal" title="Share this deal">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          Share
+        </button>
+      </div>
+      <div class="share-menu" id="share-menu-${escapeHtml(id)}" style="display:none;">
+        <div class="share-menu-header">
+          <span>Share this deal</span>
+          <button class="share-close" data-close-id="${escapeHtml(id)}" aria-label="Close share menu">×</button>
+        </div>
+        <div class="share-options">
+          <a href="${facebookShare}" target="_blank" rel="noopener" class="share-option facebook" data-platform="facebook">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Facebook
+          </a>
+          <a href="${twitterShare}" target="_blank" rel="noopener" class="share-option twitter" data-platform="twitter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            X (Twitter)
+          </a>
+          <a href="${messengerShare}" target="_blank" rel="noopener" class="share-option messenger" data-platform="messenger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.486 2 2 6.262 2 11.5c0 2.847 1.277 5.44 3.355 7.25l-.681 2.75 2.883-.841A10.3 10.3 0 0012 21.5c5.514 0 10-4.262 10-9.5S17.514 2 12 2zm.836 12.813l-2.54-2.706-4.945 2.706 5.44-5.775 2.603 2.706 4.88-2.706-5.438 5.775z"/></svg>
+            Messenger
+          </a>
+          <a href="${pinterestShare}" target="_blank" rel="noopener" class="share-option pinterest" data-platform="pinterest">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg>
+            Pinterest
+          </a>
+          <a href="${whatsappShare}" target="_blank" rel="noopener" class="share-option whatsapp" data-platform="whatsapp">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            WhatsApp
+          </a>
+          <button class="share-option copy-link" data-copy-url="${escapeHtml(directUrl)}" data-platform="copy">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            Copy Link
+          </button>
+        </div>
       </div>
     </div>
   </article>`;
@@ -241,7 +296,240 @@ if (document.readyState === 'loading') {
   initClickTracking();
 }
 
+// Social sharing functionality
+let shareInitialized = false;
+
+function initShareButtons() {
+  if (shareInitialized) return;
+  shareInitialized = true;
+  
+  // Handle share button clicks
+  document.addEventListener('click', function(e) {
+    // Open share menu
+    const shareBtn = e.target.closest('.share-btn');
+    if (shareBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const cardId = shareBtn.getAttribute('data-card-id');
+      const shareMenu = document.getElementById(`share-menu-${cardId}`);
+      
+      // Close all other share menus
+      document.querySelectorAll('.share-menu').forEach(menu => {
+        if (menu.id !== `share-menu-${cardId}`) {
+          menu.style.display = 'none';
+        }
+      });
+      
+      // Toggle current menu
+      if (shareMenu) {
+        shareMenu.style.display = shareMenu.style.display === 'none' ? 'block' : 'none';
+      }
+      return;
+    }
+    
+    // Close share menu
+    const closeBtn = e.target.closest('.share-close');
+    if (closeBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const closeId = closeBtn.getAttribute('data-close-id');
+      const shareMenu = document.getElementById(`share-menu-${closeId}`);
+      if (shareMenu) {
+        shareMenu.style.display = 'none';
+      }
+      return;
+    }
+    
+    // Copy link functionality
+    const copyBtn = e.target.closest('.copy-link');
+    if (copyBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const url = copyBtn.getAttribute('data-copy-url');
+      
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          const originalText = copyBtn.innerHTML;
+          copyBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Copied!
+          `;
+          copyBtn.classList.add('copied');
+          
+          setTimeout(() => {
+            copyBtn.innerHTML = originalText;
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          fallbackCopyText(url, copyBtn);
+        });
+      } else {
+        fallbackCopyText(url, copyBtn);
+      }
+      return;
+    }
+    
+    // Close share menus when clicking outside
+    if (!e.target.closest('.share-menu') && !e.target.closest('.share-btn')) {
+      document.querySelectorAll('.share-menu').forEach(menu => {
+        menu.style.display = 'none';
+      });
+    }
+  });
+  
+  // Track share events
+  document.addEventListener('click', function(e) {
+    const shareOption = e.target.closest('.share-option[data-platform]');
+    if (shareOption) {
+      const platform = shareOption.getAttribute('data-platform');
+      const card = shareOption.closest('.item');
+      if (card) {
+        const title = card.getAttribute('data-title');
+        const kind = card.getAttribute('data-kind');
+        
+        // Track share event (analytics)
+        try {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'share', {
+              method: platform,
+              content_type: kind,
+              item_id: title
+            });
+          }
+        } catch (err) {
+          console.debug('Analytics tracking failed:', err);
+        }
+      }
+    }
+  });
+}
+
+// Fallback copy method for older browsers
+function fallbackCopyText(text, button) {
+  const textArea = document.createElement('textarea');
+  textArea.value = text;
+  textArea.style.position = 'fixed';
+  textArea.style.left = '-999999px';
+  textArea.style.top = '-999999px';
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  
+  try {
+    document.execCommand('copy');
+    const originalText = button.innerHTML;
+    button.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Copied!
+    `;
+    button.classList.add('copied');
+    
+    setTimeout(() => {
+      button.innerHTML = originalText;
+      button.classList.remove('copied');
+    }, 2000);
+  } catch (err) {
+    console.error('Fallback copy failed:', err);
+    alert('Please manually copy this link: ' + text);
+  } finally {
+    document.body.removeChild(textArea);
+  }
+}
+
+// Initialize share buttons on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initShareButtons);
+} else {
+  initShareButtons();
+}
+
+// In-memory cache for JSON data
+const jsonCache = new Map();
+
+/**
+ * Init carousel section (homepage variant - limited items)
+ * @param {Object} opts - container, json, kind, maxItems
+ */
+async function initCarouselSection(opts) {
+  const container = qs(opts.container);
+  if (!container) return;
+
+  try {
+    // Check cache first
+    let items;
+    if (jsonCache.has(opts.json)) {
+      items = jsonCache.get(opts.json);
+    } else {
+      items = await loadJson(opts.json);
+      jsonCache.set(opts.json, items);
+    }
+
+    // Sort by: priority (desc), featured (desc), then title (asc)
+    items.sort((a, b) => {
+      const priorityA = a.priority ?? 0;
+      const priorityB = b.priority ?? 0;
+      if (priorityA !== priorityB) return priorityB - priorityA;
+
+      const featuredDiff = (b.featured === true) - (a.featured === true);
+      if (featuredDiff !== 0) return featuredDiff;
+
+      return String(a.title || "").localeCompare(String(b.title || ""));
+    });
+
+    // Limit items for homepage carousel
+    const maxItems = opts.maxItems || 12;
+    const limitedItems = items.slice(0, maxItems);
+
+    renderList(container, limitedItems, opts.kind);
+  } catch (err) {
+    container.innerHTML = `<div class="notice">Could not load deals right now. Please refresh. <span class="small">${escapeHtml(err.message)}</span></div>`;
+    console.error(err);
+  }
+}
+
+/**
+ * Initialize carousel controls
+ * @param {string} name - carousel identifier (shop, travel, activities)
+ * @param {string} containerSel - carousel container selector
+ */
+function initCarousel(name, containerSel) {
+  const container = qs(containerSel);
+  if (!container) return;
+
+  const prevBtn = qs(`.carousel-prev[data-carousel="${name}"]`);
+  const nextBtn = qs(`.carousel-next[data-carousel="${name}"]`);
+
+  if (!prevBtn || !nextBtn) return;
+
+  function updateButtonStates() {
+    const scrollLeft = container.scrollLeft;
+    const scrollWidth = container.scrollWidth;
+    const clientWidth = container.clientWidth;
+
+    prevBtn.disabled = scrollLeft <= 0;
+    nextBtn.disabled = scrollLeft + clientWidth >= scrollWidth - 1;
+  }
+
+  prevBtn.addEventListener('click', () => {
+    const scrollAmount = container.clientWidth * 0.9;
+    container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    setTimeout(updateButtonStates, 300);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    const scrollAmount = container.clientWidth * 0.9;
+    container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    setTimeout(updateButtonStates, 300);
+  });
+
+  container.addEventListener('scroll', updateButtonStates, { passive: true });
+
+  // Initial button state
+  setTimeout(updateButtonStates, 100);
+}
+
 // Note: Direct affiliate navigation is now the default behavior
 // The /go endpoint is kept for legacy/shared links only
 
-window.TT = { initSection };
+window.TT = { initSection, initCarouselSection, initCarousel };

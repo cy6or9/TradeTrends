@@ -56,12 +56,25 @@
         <span>TradeTrends Deals</span>
       </a>
       <nav class="navlinks" aria-label="Primary">
-        <a class="pill" href="/#amazon">Amazon</a>
+        <a class="pill" href="/#shop">Shop</a>
         <a class="pill" href="/#travel">Travel</a>
-        <a class="pill" href="/amazon.html">Amazon page</a>
-        <a class="pill" href="/travel.html">Travel page</a>
-        <a class="pill" id="adminLink" href="/admin/" style="display:none;">Admin</a>
+        <a class="pill" href="/#activities">Activities</a>
+        <a class="pill" href="/#rentals">Rentals</a>
+        <button class="pill hamburger" id="moreMenuBtn" aria-label="More options" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          More
+        </button>
       </nav>
+      <div class="more-menu" id="moreMenu" style="display:none;">
+        <a href="/amazon.html">All Products</a>
+        <a href="/flights.html">All Flights</a>
+        <a href="/activities.html">All Activities</a>
+        <a id="adminLink" href="/admin/" style="display:none;">Admin</a>
+      </div>
     </div>
   </div>
 </header>
@@ -165,6 +178,28 @@
       if (adminDashLink) adminDashLink.style.display = 'none';
     });
     netlifyIdentity.init();
+  }
+  
+  // More menu toggle
+  const moreMenuBtn = document.getElementById('moreMenuBtn');
+  const moreMenu = document.getElementById('moreMenu');
+  
+  if (moreMenuBtn && moreMenu) {
+    moreMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = moreMenu.style.display === 'block';
+      moreMenu.style.display = isOpen ? 'none' : 'block';
+      moreMenuBtn.setAttribute('aria-expanded', !isOpen);
+    });
+
+    document.addEventListener('click', () => {
+      moreMenu.style.display = 'none';
+      moreMenuBtn.setAttribute('aria-expanded', 'false');
+    });
+
+    moreMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
   }
 </script>
 </body>
