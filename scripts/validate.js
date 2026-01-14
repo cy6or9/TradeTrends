@@ -752,7 +752,24 @@ if (scrollLockFound) {
   error('Fix required: Ensure html, body { overflow-y: auto; height: 100%; }');
 }
 
-// 18. Summary
+// 18. Validate Share Functionality
+section('Validating Share Button Functionality');
+try {
+  const { execSync } = require('child_process');
+  const shareTestPath = path.join(__dirname, 'test-share-functionality.js');
+  
+  if (fs.existsSync(shareTestPath)) {
+    execSync(`node "${shareTestPath}"`, { stdio: 'inherit' });
+    success('Share functionality tests passed');
+  } else {
+    warning('Share functionality test script not found');
+  }
+} catch (err) {
+  error('Share functionality tests failed');
+  errors++;
+}
+
+// 19. Summary
 console.log('\n📊 Validation Summary');
 console.log('═══════════════════════════');
 console.log(`Errors:   ${errors}`);

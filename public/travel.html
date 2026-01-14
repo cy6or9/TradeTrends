@@ -8,6 +8,7 @@
         var script = document.createElement("script");
         script.async = 1;
         script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
+        script.onerror = function() { console.log('[Analytics] Third-party script blocked or unavailable'); };
         document.head.appendChild(script);
     })();
   </script>
@@ -35,6 +36,17 @@
   <link rel="stylesheet" href="/css/styles.css" />
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <script>
+    // Suppress external resource loading errors from third-party scripts
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT')) {
+        const src = e.target.src || '';
+        if (src.includes('ibspot.com') || src.includes('bbystatic.com') || src.includes('emrldtp.cc')) {
+          e.preventDefault();
+          return false;
+        }
+      }
+    }, true);
+    
     // Safety net: Forward broken /?network=...&id=... links to /go redirect
     (function(){
       const params = new URLSearchParams(window.location.search);

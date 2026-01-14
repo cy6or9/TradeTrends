@@ -3,11 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    // Suppress external resource loading errors from third-party scripts (must load first)
+    window.addEventListener('error', function(e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.tagName === 'SCRIPT')) {
+        const src = e.target.src || '';
+        if (src.includes('identity.netlify.com') || src.includes('emrldtp.cc')) {
+          e.preventDefault();
+          return false;
+        }
+      }
+    }, true);
+  </script>
   <script data-noptimize="1" data-cfasync="false" data-wpfc-render="false">
     (function () {
         var script = document.createElement("script");
         script.async = 1;
         script.src = 'https://emrldtp.cc/NDg3NDU2.js?t=487456';
+        script.onerror = function() { console.log('[Analytics] Third-party script blocked or unavailable'); };
         document.head.appendChild(script);
     })();
   </script>
