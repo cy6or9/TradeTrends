@@ -44,7 +44,9 @@ function buildCard(item, kind){
   
   // DIRECT NAVIGATION: Open affiliate URL directly (no /go redirect)
   // Background tracking via sendBeacon (non-blocking)
-  const directUrl = item.affiliate_url || "#";
+  // For activities, link to detail page instead of affiliate URL
+  const directUrl = isActivities ? `/activity/${item.id}.html?id=${item.id}` : (item.affiliate_url || "#");
+  const affiliateUrl = item.affiliate_url || "#";
   const network = isActivities ? "activities" : (isTravel ? "travel" : "amazon");
   const id = item.id || item.title || "";
   
@@ -79,7 +81,7 @@ function buildCard(item, kind){
         ${verified ? `<span class="small">${verified}</span>` : ""}
       </div>
       <div class="itemCta">
-        <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" target="_blank" rel="nofollow sponsored noopener">${escapeHtml(ctaText)}</a>
+        <a class="link primary" href="${escapeHtml(directUrl)}" data-track-url="${escapeHtml(trackUrl)}" ${isActivities ? '' : 'target="_blank" rel="nofollow sponsored noopener"'}>${escapeHtml(ctaText)}</a>
         <button class="share-btn" data-card-id="${escapeHtml(id)}" aria-label="Share this deal" title="Share this deal">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="18" cy="5" r="3"></circle>

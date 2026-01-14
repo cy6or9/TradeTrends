@@ -42,12 +42,27 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Use Netlify Blobs for persistent storage
-    const storage = await createStorage();
+    console.log('[save-deals] Attempting to save amazon:', data.amazon.items?.length, 'travel:', data.travel.items?.length);
+
+    // In local dev: write directly to public/data files
+    // In production: use Netlify Blobs
+    const isLocalDev = !process.env.NETLIFY || process.env.CONTEXT === 'dev';
     
-    // Save to blobs
-    await storage.set('deals-amazon', data.amazon);
-    await storage.set('deals-travel', data.travel);
+    if (isLocalDev) {
+      const fs = require('fs');
+      const path = require('path');
+      const publicDir = path.join(process.cwd(), 'public', 'data');
+      
+      fs.writeFileSync(path.join(publicDir, 'amazon.json'), JSON.stringify(data.amazon, null, 2));
+      fs.writeFileSync(path.join(publicDir, 'travel.json'), JSON.stringify(data.travel, null, 2));
+      console.log('[save-deals] ✅ Saved to public files: amazon.json, travel.json');
+    } else {
+      // Production: use blob storage
+      const storage = await createStorage();
+      await storage.set('deals-amazon', data.amazon);
+      await storage.set('deals-travel', data.travel);
+      console.log('[save-deals] ✅ Saved to blob storage');
+    }
 
     return {
       statusCode: 200,
@@ -59,7 +74,7 @@ exports.handler = async (event, context) => {
       })
     };
   } catch (error) {
-    console.error('Save error:', error);
+    console.error('[save-deals] Error:', error);
     return {
       statusCode: 500,
       headers,

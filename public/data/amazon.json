@@ -1,21 +1,6 @@
 {
   "items": [
     {
-      "id": "5a03c996-0bec-4762-a409-469bb055c8eb",
-      "status": "published",
-      "priority": 0,
-      "evergreen": true,
-      "featured": false,
-      "network": "amazon",
-      "tagline": "Your Xbox. Your PC. In your hands anywhere.",
-      "last_verified": "2026-01-13",
-      "title": "ASUS ROG Xbox Ally – 7” 1080p 120Hz Touchscreen Gaming Handheld, 3-month Xbox Game Pass Premium included, AMD Ryzen Z2 A, 16GB RAM, 512GB SSD, White",
-      "image": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/b5510b6d-389a-460f-8999-6457bfd9c2b6.jpg;maxHeight=1080;maxWidth=900?format=webp",
-      "affiliate_url": "https://amzn.to/3NkG0tg",
-      "price_hint": "$500 - $1200",
-      "category": "Tech"
-    },
-    {
       "priority": 0,
       "evergreen": true,
       "featured": false,
@@ -29,6 +14,66 @@
       "price_hint": "$10 - $16",
       "category": "Herb Accessories",
       "status": "published"
+    },
+    {
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Be Ready Anywhere — 80 Essential First-Aid Supplies in One Compact Kit.",
+      "last_verified": "2026-01-11",
+      "title": "BAND-AID Brand Travel Ready Portable Emergency First Aid Kit for Minor Wound Care, Perfect for Home, Car, Travel, Camping Essentials & Outdoor Emergency Kit, 80 Pieces",
+      "id": "bb78ba96-75bf-41a7-a008-dcac988fe6fd",
+      "image": "https://i5.walmartimages.com/asr/7a06dfd5-8e69-4f5b-959f-aa3273ccf9a8.e299554b4616a15c6bd1b0cea6bcf618.jpeg?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF",
+      "affiliate_url": "https://amzn.to/3N7oFUN",
+      "price_hint": "$8 - $12",
+      "category": "Health & Safety",
+      "status": "published"
+    },
+    {
+      "id": "ed4f3236-b060-4921-80f7-be1c8b4ed113",
+      "status": "published",
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Authoritative Certification, Affordable, Highly efficient, Easy to install",
+      "last_verified": "2026-01-14",
+      "title": "Water Filter Replacement for WRS325SDHZ, WRS325SDHZ08, Whirlpool WRS571CIHZ04, WRS325FDAM04, WRS588FIHZ04, WRS321SDHZ08, WRS555SIHZ06, WRS325FDAW04, WRS315SDHZ08, 3PACK",
+      "image": "https://i5.walmartimages.com/seo/WATEN-H2O-EDR1RXD1-water-filter-replacement-Compatible-W10295370A-Everydrop-Filter-1-Whirlpool-EDR1RXD1-WHR1RXD1-KAD1RXD1-P4RFKB2-P8RFWB2L-46-9930-46_d9c98b68-407f-4eee-aabb-c4e7097c7e82.5e4a59f64672471e25403e073c1be3cd.jpeg?odnHeight=160&odnWidth=160&odnBg=FFFFFF",
+      "affiliate_url": "https://amzn.to/458Kaup",
+      "price_hint": "$30 - $45",
+      "category": "Repair & Replacement"
+    },
+    {
+      "id": "134f4364-23b8-4e6b-be43-062669f298c2",
+      "status": "published",
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Whirlpool Refrigerator replacement bulbs",
+      "last_verified": "2026-01-14",
+      "title": "WISINY W10515058 and W10515057 Refrigerator LED Light 2PCS with Cover Compatible for Whirlpool Refrigerator LED Light Replaces WRS325FDAM04 WRS325FDAM02 WRS325FDAM01",
+      "image": "https://i5.walmartimages.com/seo/LED-Light-In-Fridge-Replaces-For-Whirlpool-WRS325FDAW04-WRS325FDAW02-WRS325FDAM04-WRS322FNAM01_10d78572-0810-4e88-ba4f-0596dfe3ef8a.e09fbcd3d92f5d1c0255b02ebb7f4efc.jpeg?odnHeight=768&odnWidth=768&odnBg=FFFFFF",
+      "affiliate_url": "https://amzn.to/4jGiGCu",
+      "price_hint": "$33 - $45",
+      "category": "Repair & Replacement"
+    },
+    {
+      "id": "5a03c996-0bec-4762-a409-469bb055c8eb",
+      "status": "published",
+      "priority": 0,
+      "evergreen": true,
+      "featured": false,
+      "network": "amazon",
+      "tagline": "Your Xbox. Your PC. In your hands anywhere.",
+      "last_verified": "2026-01-13",
+      "title": "ASUS ROG Xbox Ally – 7” 1080p 120Hz Touchscreen Gaming Handheld, 3-month Xbox Game Pass Premium included, AMD Ryzen Z2 A, 16GB RAM, 512GB SSD, White",
+      "image": "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/b5510b6d-389a-460f-8999-6457bfd9c2b6.jpg;maxHeight=1080;maxWidth=900?format=webp",
+      "affiliate_url": "https://amzn.to/3NkG0tg",
+      "price_hint": "$500 - $1200",
+      "category": "Tech"
     },
     {
       "id": "ab544446-e2d5-493e-9451-85b54e0bb8b4",
@@ -58,21 +103,6 @@
       "affiliate_url": "https://amzn.to/4qLqQMb",
       "price_hint": "$250 - $350",
       "category": "Outdoor Gear",
-      "status": "published"
-    },
-    {
-      "priority": 0,
-      "evergreen": true,
-      "featured": false,
-      "network": "amazon",
-      "tagline": "Be Ready Anywhere — 80 Essential First-Aid Supplies in One Compact Kit.",
-      "last_verified": "2026-01-11",
-      "title": "BAND-AID Brand Travel Ready Portable Emergency First Aid Kit for Minor Wound Care, Perfect for Home, Car, Travel, Camping Essentials & Outdoor Emergency Kit, 80 Pieces",
-      "id": "bb78ba96-75bf-41a7-a008-dcac988fe6fd",
-      "image": "https://i5.walmartimages.com/asr/7a06dfd5-8e69-4f5b-959f-aa3273ccf9a8.e299554b4616a15c6bd1b0cea6bcf618.jpeg?odnHeight=2000&odnWidth=2000&odnBg=FFFFFF",
-      "affiliate_url": "https://amzn.to/3N7oFUN",
-      "price_hint": "$8 - $12",
-      "category": "Health & Safety",
       "status": "published"
     },
     {

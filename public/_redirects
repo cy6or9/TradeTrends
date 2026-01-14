@@ -15,6 +15,9 @@
 /travelguide           /travelguide.html        200
 /travelguide/*         /travelguide/city.html   200
 
+# Activity detail pages
+/activity/*            /activity/activity-template.html  200
+
 # Admin routes - protect from SPA rewrite
 /admin/*  /admin/:splat  200
 /admin  /admin/  301

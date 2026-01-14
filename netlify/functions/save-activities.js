@@ -42,22 +42,39 @@ exports.handler = async (event) => {
       };
     }
 
-    // Use Netlify Blobs for persistent storage
-    const storage = await createStorage();
-    await storage.set('deals-activities', data);
+    console.log('[save-activities] Attempting to save', data.items.length, 'activities');
+
+    // In local dev: write directly to public/data/activities.json
+    // In production: use Netlify Blobs
+    const isLocalDev = !process.env.NETLIFY || process.env.CONTEXT === 'dev';
+    
+    if (isLocalDev) {
+      const fs = require('fs');
+      const path = require('path');
+      const publicDir = path.join(process.cwd(), 'public', 'data');
+      const filePath = path.join(publicDir, 'activities.json');
+      
+      fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+      console.log('[save-activities] ✅ Saved to public file:', filePath);
+    } else {
+      // Production: use blob storage
+      const storage = await createStorage();
+      await storage.set('deals-activities', data);
+      console.log('[save-activities] ✅ Saved to blob storage');
+    }
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Activities saved to blob storage',
+        message: 'Activities saved',
         count: data.items.length,
         timestamp: new Date().toISOString()
       })
     };
   } catch (error) {
-    console.error('Save error:', error);
+    console.error('[save-activities] Error:', error);
     return {
       statusCode: 500,
       headers,
